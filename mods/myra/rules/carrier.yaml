@@ -1,0 +1,76 @@
+CARRIER:
+	Inherits: ^Ship
+	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Buildable:
+		Queue: Ship
+		BuildAtProductionType: Boat
+		BuildPaletteOrder: 60
+		Prerequisites: ~syrd, ~techlevel.medium
+		Description: actor-carrier.description
+	Valued:
+		Cost: 2000
+	Tooltip:
+		Name: actor-carrier.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 90000
+	Armor:
+		Type: Heavy
+	Mobile:
+		TurnSpeed: 10
+		Speed: 40
+	RevealsShroud:
+		MinRange: 5c0
+		Range: 8c0
+		RevealGeneratedShroud: False
+	RevealsShroud@GAPGEN:
+		Range: 5c0
+	# Invisible "weapon" that only sets the launch range. Each shot launches one plane.
+	Armament:
+		Weapon: CarrierLaunch
+	AttackFrontal:
+		FacingTolerance: 512
+		TargetFrozenActors: True
+	CarrierParent:
+		Actors: CARRIER.PLANE, CARRIER.PLANE, CARRIER.PLANE, CARRIER.PLANE
+		LaunchOffset: 3072,0,0
+		RearmDelay: 100
+		RespawnDelay: 500
+	RenderSprites:
+		Image: carrier
+	Selectable:
+		Bounds: 4096, 4096
+		DecorationBounds: 6144, 6144
+
+CARRIER.PLANE:
+	Inherits: YAK
+	-Buildable:
+	-Rearmable:
+	-Repairable:
+	-Huntable:
+	-MustBeDestroyed:
+	-EjectOnDeath:
+	-ProducibleWithLevel:
+	-WithProductionIconOverlay:
+	-ActorLostNotification:
+	-WithMuzzleOverlay:
+	Valued:
+		Cost: 300
+	Tooltip:
+		Name: actor-carrier-plane.name
+	Health:
+		HP: 4000
+	Armament:
+		Weapon: CarrierBomb
+		LocalOffset: 0,0,-85
+	AmmoPool:
+		Ammo: 2
+	WithAmmoPipsDecoration:
+		PipCount: 2
+	Aircraft:
+		Speed: 190
+	CarrierChild:
+		DockDistance: 1536
+	RenderSprites:
+		Image: yak

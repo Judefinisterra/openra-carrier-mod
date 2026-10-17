@@ -1,0 +1,6 @@
+carrier:
+	idle:
+		Filename: carrier.png
+		Facings: 32
+	icon:
+		Filename: carrier-icon.png
