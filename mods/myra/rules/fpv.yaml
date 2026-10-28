@@ -1,0 +1,52 @@
+FPV:
+	Inherits: ^Soldier
+	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Soldier
+		BuildPaletteOrder: 35
+		# Soviet only: ~barr is the Soviet barracks.
+		Prerequisites: ~barr, dome, ~techlevel.medium
+		Description: actor-fpv.description
+	Selectable:
+		Class: FPV
+	Valued:
+		# Half of Tanya (E7, 1800).
+		Cost: 900
+	Tooltip:
+		Name: actor-fpv.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	# Unarmed and fragile: anything that reaches them wins.
+	Health:
+		HP: 2000
+	# Sees through its drones' cameras.
+	RevealsShroud:
+		Range: 10c0
+	Armament@PRIMARY:
+		Weapon: FPVDrone
+		LocalOffset: 0,0,300
+	# Hunt enemy infantry first, then vehicles.
+	AutoTargetPriority@INFANTRY:
+		RequiresCondition: !stance-attackanything && !assault-move
+		ValidTargets: Infantry
+		InvalidTargets: NoAutoTarget
+		Priority: 10
+	AutoTarget:
+		ScanRadius: 12
+	TakeCover:
+		ProneOffset: 384,0,-395
+	WithInfantryBody:
+		RequiresCondition: !parachute
+	WithInfantryBody@PARACHUTE:
+		StandSequences: parachute
+		RequiresCondition: parachute
+		Palette: player-noshadow
+		IsPlayerPalette: true
+	RenderSprites:
+		Image: fpv
+	ProducibleWithLevel:
+		Prerequisites: barracks.upgraded
+	WithProductionIconOverlay:
+		Types: Veterancy
+		Prerequisites: barracks.upgraded

@@ -1,0 +1,84 @@
+# A one-way attack drone. It climbs off the operator, darts toward its target at low altitude,
+# keeps chasing it if it runs, then dives onto it.
+FPVDrone:
+	ReloadDelay: 90
+	Range: 12c0
+	# Too close to launch at: an operator caught up close is helpless.
+	MinRange: 2c512
+	ValidTargets: GroundActor, WaterActor
+	Projectile: FPVDrone
+		Image: fpvdrone
+		Speed: 300
+		LaunchSpeed: 80
+		Acceleration: 30
+		Agility: 35
+		Jitter: 170
+		JitterInterval: 3, 8
+		CruiseAltitude: 640
+		DiveDistance: 1c512
+		CloseEnough: 0c192
+		RangeLimit: 26c0
+	Warhead@1Dam: SpreadDamage
+		Spread: 64
+		Damage: 10000
+		ValidTargets: GroundActor, WaterActor
+		Versus:
+			None: 100
+			Wood: 25
+			Light: 150
+			Heavy: 100
+			Concrete: 15
+		DamageTypes: TriggerProne, ExplosionDeath
+	Warhead@2Eff: CreateEffect
+		Explosions: small_explosion
+		ImpactSounds: kaboom25.aud
+		ValidTargets: Ground, GroundActor, WaterActor, Trees
+	Warhead@3EffWater: CreateEffect
+		Explosions: small_splash
+		ImpactSounds: splash9.aud
+		ValidTargets: Water, Underwater
+		InvalidTargets: Bridge
+
+# The Drone Swarm truck's load: 30 drones that fan out toward the chosen spot and hit the first enemy they find.
+FPVSwarm:
+	ReloadDelay: 1500
+	Range: 16c0
+	Burst: 30
+	BurstDelays: 3
+	ValidTargets: Ground, Water, GroundActor, WaterActor
+	InvalidTargets: NoAutoTarget
+	Projectile: FPVDrone
+		Image: fpvdrone
+		Speed: 280
+		LaunchSpeed: 80
+		Acceleration: 30
+		Agility: 35
+		Jitter: 200
+		JitterInterval: 3, 8
+		CruiseAltitude: 768
+		DiveDistance: 1c512
+		CloseEnough: 0c192
+		RangeLimit: 30c0
+		SeekRadius: 4c0
+		SeekInterval: 4
+		LaunchSpread: 96
+	Warhead@1Dam: SpreadDamage
+		Spread: 64
+		Damage: 6000
+		ValidTargets: GroundActor, WaterActor
+		Versus:
+			None: 100
+			Wood: 25
+			Light: 150
+			Heavy: 80
+			Concrete: 15
+		DamageTypes: TriggerProne, ExplosionDeath
+	Warhead@2Eff: CreateEffect
+		Explosions: small_explosion
+		ImpactSounds: kaboom25.aud
+		ValidTargets: Ground, GroundActor, WaterActor, Trees
+	Warhead@3EffWater: CreateEffect
+		Explosions: small_splash
+		ImpactSounds: splash9.aud
+		ValidTargets: Water, Underwater
+		InvalidTargets: Bridge

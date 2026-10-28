@@ -91,6 +91,9 @@ Rules:
 	ra|rules/fakes.yaml
 	ra|rules/map-generators.yaml
 	myra|rules/carrier.yaml
+	myra|rules/claude-control.yaml
+	myra|rules/fpv.yaml
+	myra|rules/dswarm.yaml
 
 Sequences:
 	ra|sequences/ships.yaml
@@ -101,6 +104,7 @@ Sequences:
 	ra|sequences/misc.yaml
 	ra|sequences/decorations.yaml
 	myra|sequences/carrier.yaml
+	myra|sequences/fpv.yaml
 
 TileSets:
 	ra|tilesets/snow.yaml
@@ -195,6 +199,7 @@ Weapons:
 	ra|weapons/smallcaliber.yaml
 	ra|weapons/superweapons.yaml
 	myra|weapons/carrier.yaml
+	myra|weapons/fpv.yaml
 
 Voices:
 	ra|audio/voices.yaml

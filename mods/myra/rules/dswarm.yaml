@@ -1,0 +1,35 @@
+# A truck that releases 30 attack drones at once. Force-fire (Ctrl+click) the ground to send the swarm
+# that way; each drone attacks the first enemy it comes across. It never fires on its own.
+DSWARM:
+	Inherits: ^Vehicle
+	Buildable:
+		Queue: Vehicle
+		BuildPaletteOrder: 240
+		# Soviet only.
+		Prerequisites: dome, ~vehicles.soviet, ~techlevel.medium
+		Description: actor-dswarm.description
+	Valued:
+		Cost: 2000
+	Tooltip:
+		Name: actor-dswarm.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 11000
+	Armor:
+		Type: Light
+	Mobile:
+		Speed: 113
+	RevealsShroud:
+		Range: 5c0
+	Armament:
+		Weapon: FPVSwarm
+		LocalOffset: -256,0,400
+	AttackFrontal:
+		FacingTolerance: 512
+		TargetFrozenActors: True
+	ReloadArmamentsBar:
+	RenderSprites:
+		Image: dswarm
+	Selectable:
+		DecorationBounds: 1194, 1194

@@ -1,0 +1,15 @@
+fpv:
+	Inherits: e6
+	icon:
+		Filename: fpv-icon.png
+
+fpvdrone:
+	idle:
+		Filename: fpvdrone.png
+		Length: 4
+		Tick: 40
+
+dswarm:
+	Inherits: truk
+	icon:
+		Filename: swarm-icon.png
