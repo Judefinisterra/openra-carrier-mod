@@ -134,6 +134,8 @@ Rules:
 	myra|rules/hermit-ai.yaml
 	myra|rules/stable.yaml
 	myra|rules/stable-ai.yaml
+	myra|rules/nyc-units.yaml
+	myra|rules/nyc-city.yaml
 	myra|rules/ai-shipyards.yaml
 
 Sequences:
@@ -163,11 +165,13 @@ Sequences:
 	myra|sequences/land.yaml
 	myra|sequences/containership.yaml
 	myra|sequences/seaport.yaml
+	myra|sequences/nyc-units.yaml
+	myra|sequences/nyc-city.yaml
 
 TileSets:
 	ra|tilesets/snow.yaml
 	ra|tilesets/interior.yaml
-	ra|tilesets/temperat.yaml
+	myra|tilesets/temperat.yaml
 	ra|tilesets/desert.yaml
 
 Cursors:
@@ -247,6 +251,7 @@ FluentMessages:
 	ra|fluent/hotkeys.ftl
 	ra|fluent/rules.ftl
 	myra|fluent/myra.ftl
+	myra|fluent/nyc.ftl
 
 AllowUnusedFluentMessagesInExternalPackages: false
 
@@ -264,6 +269,7 @@ Weapons:
 	myra|weapons/shahed.yaml
 	myra|weapons/tribe.yaml
 	myra|weapons/land.yaml
+	myra|weapons/nyc.yaml
 
 Voices:
 	ra|audio/voices.yaml

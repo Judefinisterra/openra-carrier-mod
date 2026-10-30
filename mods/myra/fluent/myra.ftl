@@ -4,10 +4,12 @@ myra-mod-windowtitle = OpenRA - Red Alert (Modded)
 actor-carrier =
     .name = Aircraft Carrier
     .description =
-    Carries 4 bombers that launch against its target,
-    then return to rearm. Lost bombers are rebuilt.
-      Strong vs Ground units, Buildings and Ships
-      Weak vs Aircraft and Submarines
+    Built at the Seaport. Carries 3 F-14 Tomcats that
+    launch against its target, then land to rearm.
+    Lost F-14s are replaced from the Airfield.
+    Also carries up to 50 infantry and vehicles.
+      Strong vs Ground units, Buildings, Aircraft
+      Weak vs Submarines
 
 actor-carrier-plane =
     .name = Carrier Bomber
@@ -139,6 +141,8 @@ description-cheat-guns = 100 infantry appear around your Construction Yard (also
 description-cheat-sadam = 20 tanks appear around your Construction Yard (also works as plain "sadam").
 description-cheat-faster = everything builds instantly, like debug instant-build; type again to switch off (also works as plain "faster").
 description-cheat-power = unlimited power; type again to switch off (also works as plain "power").
+description-cheat-far = build anywhere on the map: no construction radius, terrain rules still apply; type again to switch off.
+description-cheat-advice = "advice: <message>" sends a strategic directive to the AI commander at its next briefing.
 description-cheat-anywhere = place buildings anywhere; type again to switch off (also works as plain "anywhere").
 description-cheat-heal = fully heals all your units and buildings (also works as plain "heal").
 description-cheat-all = every cheat at once; type again to switch the on/off ones off (type plain "all").
@@ -149,7 +153,7 @@ description-cheat-lips = show every order the AI Commander gives the computer pl
 actor-oiltruck =
     .name = Oil Rig Truck
     .description =
-    Drives to a spot and deploys (D) into an Oil Derrick.
+    Drives to a spot and deploys (F) into an Oil Derrick.
     Comes with a free Oil Hauler that drives the oil
     to your Refinery: $600 a load.
       Unarmed
@@ -231,7 +235,7 @@ actor-containership =
       player you're in a truce with: $5000
       to them every time it docks there, and $5000 to you every time
       it gets back. Waits at home if you have no truce partner with
-      a port. Deploy (D) to (re)start its trade route.
+      a port. Deploy (F) to (re)start its trade route.
       Protect it at sea.
 
 ## Seaport
@@ -542,3 +546,40 @@ actor-pony =
     .name = Pony
     .description = Fast mounted scout with a carbine.
       Good for scouting and chasing infantry.
+
+actor-f14 =
+    .name = F-14 Tomcat
+    .description =
+    Swing-wing fighter-bomber with air-to-air and
+    air-to-ground missiles. Lands on Airfields and
+    Aircraft Carriers to rearm.
+      Strong vs Aircraft, Vehicles, Buildings
+      Weak vs Anti-air
+
+actor-launchpad =
+    .name = Space Launch Facility
+    .description =
+    Load up to 10 infantry into the rocket, then
+    launch it at any spot on the map: the troops
+    parachute in. Vehicles can't board.
+
+actor-launchpad-power =
+    .name = Orbital Troop Drop
+    .description = Launch the rocket's troops anywhere on the map. They land by parachute.
+
+actor-molotovfire =
+    .name = Fire
+
+actor-nycbuilding =
+    .name = City Building
+    .description = Infantry can climb onto the roof and fire from it.
+
+actor-nyclandmark =
+    .name = Landmark
+
+actor-nycbridge =
+    .name = Bridge
+
+actor-bridgehut =
+    .name = Bridge Repair Hut
+    .description = When the bridge is down, send an engineer in to rebuild it.

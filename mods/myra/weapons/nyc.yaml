@@ -1,0 +1,79 @@
+# F-14: air-to-air (only at aircraft) and air-to-ground missiles.
+F14AAM:
+	Inherits: Nike
+	ReloadDelay: 30
+	Range: 8c0
+	Burst: 2
+	BurstDelays: 6
+	Projectile: Missile
+		RangeLimit: 12c0
+		Speed: 384
+	Warhead@1Dam: SpreadDamage
+		Damage: 5000
+
+F14AGM:
+	Inherits: Maverick
+	ReloadDelay: 60
+	Warhead@1Dam: SpreadDamage
+		Damage: 6000
+
+# Molotov cocktail: a flaming bottle lobbed like a grenade. Bursts into fire and can leave a burning patch.
+Molotov:
+	Inherits: ^Artillery
+	ReloadDelay: 70
+	Range: 4c512
+	-Report:
+	Projectile: Bullet
+		Speed: 150
+		Inaccuracy: 400
+		LaunchAngle: 64
+		Image: molotov
+		Shadow: true
+		Blockable: false
+	Warhead@1Dam: SpreadDamage
+		Spread: 384
+		Damage: 3500
+		Versus:
+			None: 90
+			Wood: 130
+			Light: 60
+			Heavy: 20
+			Concrete: 45
+		DamageTypes: Prone50Percent, TriggerProne, FireDeath
+	Warhead@3Eff: CreateEffect
+		Image: molotovburst
+		Explosions: idle
+		ImpactSounds: firebl3.aud
+	Warhead@4EffWater: CreateEffect
+		Explosions: small_splash
+	Warhead@Smudge: LeaveSmudge
+		SmudgeType: Scorch
+		InvalidTargets: Vehicle, Structure, Wall, Husk, Trees
+	Warhead@Fire: SpawnActor
+		Actor: molotovfire
+		Chance: 60
+
+# Burning patch: hurts what stands in it, and now and then spreads to a neighbouring cell.
+MolotovBurn:
+	ValidTargets: Ground, GroundActor
+	Warhead@1Dam: SpreadDamage
+		Spread: 512
+		Damage: 700
+		ValidTargets: GroundActor
+		Versus:
+			None: 100
+			Wood: 150
+			Light: 50
+			Heavy: 15
+			Concrete: 30
+		DamageTypes: Prone50Percent, TriggerProne, FireDeath
+	Warhead@Spread: SpawnActor
+		Actor: molotovfire2
+		Chance: 6
+		Scatter: 1
+
+MolotovBurnSmall:
+	Inherits: MolotovBurn
+	-Warhead@Spread:
+	Warhead@1Dam: SpreadDamage
+		Damage: 450

@@ -158,6 +158,46 @@ namespace OpenRA.Mods.MyRA.Traits
 			public DateTime Updated;
 		}
 
+		// Player directives typed as "advice: ..." - sent with the next regular exchange (no extra call), then kept
+		// in force for a few minutes so the model keeps following them.
+		sealed class Directive
+		{
+			public string From;
+			public string Text;
+			public DateTime Given;
+			public bool Delivered;
+		}
+
+		static readonly List<Directive> Directives = [];
+
+		public static void AddDirective(string from, string text)
+		{
+			lock (Sync)
+			{
+				Directives.Add(new Directive { From = from, Text = text, Given = DateTime.UtcNow });
+				if (Directives.Count > 8)
+					Directives.RemoveAt(0);
+			}
+
+			WriteLog($"DIRECTIVE from {from}: {text}");
+		}
+
+		static string DirectiveBlock()
+		{
+			lock (Sync)
+			{
+				Directives.RemoveAll(d => DateTime.UtcNow - d.Given > TimeSpan.FromMinutes(5));
+				if (Directives.Count == 0)
+					return "";
+
+				var lines = Directives.Select(d => (d.Delivered ? "  (still in force) " : "  NEW: ") + $"{d.From} says: \"{d.Text}\"");
+				foreach (var d in Directives)
+					d.Delivered = true;
+
+				return "===== HUMAN PLAYER DIRECTIVES =====\n" + string.Join("\n", lines) + "\n";
+			}
+		}
+
 		static readonly Dictionary<object, Entry> Pending = [];
 		static readonly Dictionary<object, DateTime> Armies = [];
 		static bool batchInFlight;
@@ -207,7 +247,7 @@ namespace OpenRA.Mods.MyRA.Traits
 			}
 
 			var system = SystemPrompt(batch.Count);
-			var user = string.Join("\n", batch.Select(e => $"===== ARMY: {e.Label} =====\n{e.Header}\n{e.Report}"));
+			var user = DirectiveBlock() + string.Join("\n", batch.Select(e => $"===== ARMY: {e.Label} =====\n{e.Header}\n{e.Report}"));
 			WriteLog($"BATCH ({batch.Count} armies) -> {Trim(user, 4000)}");
 			Task.Run(async () =>
 			{
@@ -278,7 +318,11 @@ namespace OpenRA.Mods.MyRA.Traits
 				+ "units and buildings, add defences where it is being attacked, expand the economy when it is rich (a Seaport plus Offshore Oil Platforms "
 				+ "pay $1000 per Oil Tanker trip, and a Container Ship pays $5000 per trip between its Seaport and a truce partner's - a good reason to "
 				+ "propose truces), and vary the plan as the game "
-				+ "changes rather than repeating the same orders. " + (settings?.Personality ?? "");
+				+ "changes rather than repeating the same orders. "
+				+ "If a HUMAN PLAYER DIRECTIVES section is present, those are strategic directives from the human player: layer them on top "
+				+ "of your normal judgement and carry them out through each army's orders (attack targets and directions, defence, what to "
+				+ "build, naval/air/ground operations, expansion, retreats). If a directive asks the armies to coordinate or work together, "
+				+ "do so for that directive even though they normally act alone. " + (settings?.Personality ?? "");
 		}
 
 		public static async Task<string> Ask(string system, string user, int maxTokens = 1200)

@@ -416,6 +416,10 @@ namespace OpenRA.Mods.MyRA.Traits
 					new HealthInit(Math.Max(1, ratio)),
 				});
 
+				// Converts go on the offensive (Riot Assault): nearest enemy building first, then troops nearby.
+				foreach (var riot in militia.TraitsImplementing<RiotAssault>())
+					riot.Activate();
+
 				if (w.LocalPlayer == instigator && militia.IsInWorld)
 					TextNotificationsManager.AddSystemLine("Psy-Op", "Protesters have taken up arms for you!");
 			});

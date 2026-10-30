@@ -24,6 +24,9 @@ namespace OpenRA.Mods.Common.Traits
 	[Desc("This actor can transport Passenger actors.")]
 	public class CargoInfo : ConditionalTraitInfo, Requires<IOccupySpaceInfo>
 	{
+		[Desc("Neutral-owned: any side's matching units may enter (used for rooftop garrisons).")]
+		public readonly bool EnterableWhenNeutral = false;
+
 		[Desc("The maximum sum of Passenger.Weight that this actor can support.")]
 		public readonly int MaxWeight = 0;
 

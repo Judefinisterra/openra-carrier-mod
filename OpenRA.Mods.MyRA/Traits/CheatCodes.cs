@@ -85,6 +85,12 @@ namespace OpenRA.Mods.MyRA.Traits
 		[FluentReference]
 		const string LipsDescription = "description-cheat-lips";
 
+		[FluentReference]
+		const string FarDescription = "description-cheat-far";
+
+		[FluentReference]
+		const string AdviceDescription = "description-cheat-advice";
+
 		// Cheat word -> (order sent, help text).
 		static readonly (string Word, string Order, string Help)[] Cheats =
 		[
@@ -101,6 +107,7 @@ namespace OpenRA.Mods.MyRA.Traits
 			("jubilee", "CheatJubilee", JubileeDescription),
 			("god", "CheatGod", GodDescription),
 			("lips", "CheatLips", LipsDescription),
+			("far", "CheatFar", FarDescription),
 		];
 
 		World world;
@@ -122,6 +129,11 @@ namespace OpenRA.Mods.MyRA.Traits
 				ChatCommands.BareCommands.Add(c.Word);
 				help?.RegisterHelp(c.Word, c.Help);
 			}
+
+			// "advice: <message>" - a directive for the AI commander (see AICommander).
+			console.RegisterCommand("advice", this);
+			ChatCommands.BareCommands.Add("advice");
+			help?.RegisterHelp("advice", AdviceDescription);
 		}
 
 		public void InvokeCommand(string name, string arg)
@@ -129,6 +141,16 @@ namespace OpenRA.Mods.MyRA.Traits
 			var me = world.LocalPlayer;
 			if (me == null || me.WinState != WinState.Undefined)
 				return;
+
+			if (name == "advice")
+			{
+				if (string.IsNullOrWhiteSpace(arg))
+					TextNotificationsManager.AddSystemLine("AI Commander", "Usage: advice: <what you want the computer players to do>");
+				else
+					world.IssueOrder(new Order("AIAdvice", me.PlayerActor, false) { TargetString = arg.Trim() });
+
+				return;
+			}
 
 			foreach (var c in Cheats)
 				if (c.Word == name)
@@ -211,6 +233,28 @@ namespace OpenRA.Mods.MyRA.Traits
 				case "CheatPower":
 					if (dev != null)
 						SetPower(self, dev, !dev.CheatUnlimitedPower);
+
+					break;
+
+				case "AIAdvice":
+					if (!string.IsNullOrWhiteSpace(order.TargetString))
+					{
+						var text = order.TargetString.Length > 300 ? order.TargetString[..300] : order.TargetString;
+						AICommanderLink.AddDirective(self.Owner.ResolvedPlayerName, text);
+						if (self.World.LocalPlayer == self.Owner)
+							TextNotificationsManager.AddSystemLine("AI Commander", "Directive queued - the AI commander gets it at its next briefing.");
+					}
+
+					break;
+
+				case "CheatFar":
+					if (dev != null)
+					{
+						dev.CheatBuildAnywhere = !dev.CheatBuildAnywhere;
+						Say(self, dev.CheatBuildAnywhere
+							? "Far construction ON: build anywhere on the map (terrain rules still apply). Type 'far' again to switch it off."
+							: "Far construction OFF.");
+					}
 
 					break;
 
