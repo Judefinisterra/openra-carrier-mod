@@ -1,0 +1,72 @@
+# Tribal Hero: robed spear thrower. Unlocks the Lion while you have one.
+TRIBALHERO:
+	Inherits: E1
+	Buildable:
+		BuildPaletteOrder: 142
+		Prerequisites: ~barracks, tribalunits, ~tribalkingdom
+		Description: actor-tribalhero.description
+	Selectable:
+		Class: TRIBALHERO
+	Valued:
+		Cost: 20
+	Tooltip:
+		Name: actor-tribalhero.name
+	Health:
+		HP: 6000
+	Mobile:
+		Speed: 60
+	-TakeCover:
+	-Armament@GARRISONED:
+	Armament@PRIMARY:
+		Weapon: TribalSpear
+		FireDelay: 4
+	WithInfantryBody:
+		DefaultAttackSequence: throw
+		StandSequences: stand
+	Voiced:
+		VoiceSet: TribalVoice
+	ProvidesPrerequisite@TRIBAL:
+		Prerequisite: tribalhero
+	RenderSprites:
+		Image: tribalhero
+
+# Lion: same abilities, stats and sounds as the Attack Dog (pounces on and kills
+# infantry). Trained at the Kennel once you have a Tribal Hero.
+LION:
+	Inherits: DOG
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Dog
+		BuildPaletteOrder: 143
+		Prerequisites: ~kenn, tribalhero, tribalunits, ~tribalkingdom
+		Description: actor-lion.description
+	Valued:
+		Cost: 20
+	Tooltip:
+		Name: actor-lion.name
+		GenericName: actor-lion.name
+	RenderSprites:
+		Image: lion
+
+# RPG Fella: a tribesman with a rocket launcher. Fires rockets at tanks and buildings and,
+# like the Rocket Soldier, shoots down aircraft. Tribal Kingdom only.
+RPGFELLA:
+	Inherits: E3
+	Buildable:
+		BuildPaletteOrder: 144
+		Prerequisites: ~barracks, tribalunits, ~tribalkingdom
+		Description: actor-rpgfella.description
+	Selectable:
+		Class: RPGFELLA
+	Valued:
+		Cost: 60
+	Tooltip:
+		Name: actor-rpgfella.name
+	-TakeCover:
+	WithInfantryBody:
+		DefaultAttackSequence: shoot
+		StandSequences: stand
+	Voiced:
+		VoiceSet: TribalVoice
+	RenderSprites:
+		Image: rpgfella

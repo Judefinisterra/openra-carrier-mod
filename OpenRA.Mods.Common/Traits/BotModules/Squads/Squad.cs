@@ -40,6 +40,38 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
 		/// </summary>
 		internal Actor TargetActor;
 
+		// (MyRA) Strongest this squad has been while attacking (sum of unit cost x health fraction).
+		internal int PeakValue;
+
+		internal int CurrentValue()
+		{
+			var total = 0;
+			foreach (var a in Units)
+			{
+				if (a.IsDead)
+					continue;
+				var cost = a.Info.TraitInfoOrDefault<ValuedInfo>()?.Cost ?? 100;
+				var health = a.TraitOrDefault<IHealth>();
+				total += health == null || health.MaxHP == 0 ? cost : (int)((long)cost * health.HP / health.MaxHP);
+			}
+
+			return total;
+		}
+
+		/// <summary>(MyRA) True once the squad has lost RetreatLossPercent of its peak strength.</summary>
+		internal bool HasLostTooMuch()
+		{
+			var pct = SquadManager.Info.RetreatLossPercent;
+			if (pct <= 0)
+				return false;
+
+			var v = CurrentValue();
+			if (v > PeakValue)
+				PeakValue = v;
+
+			return PeakValue > 0 && v * 100L < (long)PeakValue * (100 - pct);
+		}
+
 		public Squad(IBot bot, SquadManagerBotModule squadManager, SquadType type)
 			: this(bot, squadManager, type, default) { }
 

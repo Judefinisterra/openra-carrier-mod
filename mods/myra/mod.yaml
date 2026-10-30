@@ -94,6 +94,47 @@ Rules:
 	myra|rules/claude-control.yaml
 	myra|rules/fpv.yaml
 	myra|rules/dswarm.yaml
+	myra|rules/subcarrier.yaml
+	myra|rules/seal.yaml
+	myra|rules/shahed.yaml
+	myra|rules/tweaks.yaml
+	myra|rules/spire.yaml
+	myra|rules/tribe.yaml
+	myra|rules/fantasy.yaml
+	myra|rules/protester.yaml
+	myra|rules/truce.yaml
+	myra|rules/cheats.yaml
+	myra|rules/ai-commander.yaml
+	myra|rules/ai-capture.yaml
+	myra|rules/containership.yaml
+	myra|rules/seaport.yaml
+	myra|rules/oilrig.yaml
+	myra|rules/npp.yaml
+	myra|rules/countries.yaml
+	myra|rules/tribal-kingdom.yaml
+	myra|rules/tribalhouse.yaml
+	myra|rules/iran.yaml
+	myra|rules/iran-ai.yaml
+	myra|rules/tribal-ai.yaml
+	myra|rules/ai-rebuild.yaml
+	myra|rules/tribal-restrictions.yaml
+	myra|rules/iran-defenses.yaml
+	myra|rules/tribal-dock.yaml
+	myra|rules/oilplatform.yaml
+	myra|rules/oiltanker.yaml
+	myra|rules/psyop.yaml
+	myra|rules/ai-common.yaml
+	myra|rules/ai-difficulty.yaml
+	myra|rules/land-tribal.yaml
+	myra|rules/land-iran.yaml
+	myra|rules/land-shared.yaml
+	myra|rules/badgers.yaml
+	myra|rules/cyber.yaml
+	myra|rules/hermit.yaml
+	myra|rules/hermit-ai.yaml
+	myra|rules/stable.yaml
+	myra|rules/stable-ai.yaml
+	myra|rules/ai-shipyards.yaml
 
 Sequences:
 	ra|sequences/ships.yaml
@@ -105,6 +146,23 @@ Sequences:
 	ra|sequences/decorations.yaml
 	myra|sequences/carrier.yaml
 	myra|sequences/fpv.yaml
+	myra|sequences/subcarrier.yaml
+	myra|sequences/seal.yaml
+	myra|sequences/shahed.yaml
+	myra|sequences/giants.yaml
+	myra|sequences/tribe.yaml
+	myra|sequences/fantasy.yaml
+	myra|sequences/protester.yaml
+	myra|sequences/oilrig.yaml
+	myra|sequences/npp.yaml
+	myra|sequences/tribalhouse.yaml
+	myra|sequences/tribal-dock.yaml
+	myra|sequences/oilplatform.yaml
+	myra|sequences/oiltanker.yaml
+	myra|sequences/psyop.yaml
+	myra|sequences/land.yaml
+	myra|sequences/containership.yaml
+	myra|sequences/seaport.yaml
 
 TileSets:
 	ra|tilesets/snow.yaml
@@ -117,6 +175,7 @@ Cursors:
 
 Chrome:
 	ra|chrome.yaml
+	myra|chrome.yaml
 
 Assemblies: OpenRA.Mods.Common.dll, OpenRA.Mods.Cnc.dll, OpenRA.Mods.MyRA.dll
 
@@ -200,9 +259,15 @@ Weapons:
 	ra|weapons/superweapons.yaml
 	myra|weapons/carrier.yaml
 	myra|weapons/fpv.yaml
+	myra|weapons/subcarrier.yaml
+	myra|weapons/seal.yaml
+	myra|weapons/shahed.yaml
+	myra|weapons/tribe.yaml
+	myra|weapons/land.yaml
 
 Voices:
 	ra|audio/voices.yaml
+	myra|audio/voices.yaml
 
 Notifications:
 	ra|audio/notifications.yaml
@@ -235,6 +300,7 @@ ServerTraits:
 ChromeMetrics:
 	common|metrics.yaml
 	ra|metrics.yaml
+	myra|metrics.yaml
 
 Fonts:
 	Tiny:

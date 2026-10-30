@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using OpenRA.Mods.Common.Traits.BotModules.Squads;
 using OpenRA.Primitives;
@@ -92,6 +93,21 @@ namespace OpenRA.Mods.Common.Traits
 
 		[Desc("Enemy target types to never target.")]
 		public readonly BitSet<TargetableType> IgnoredEnemyTargetTypes = default;
+
+		[Desc("(MyRA) An attacking ground squad retreats home once it has lost this percentage of its peak strength",
+			"(cost x health). 0 disables this and only the fuzzy attack-or-flee check is used.")]
+		public readonly int RetreatLossPercent = 0;
+
+		[Desc("(MyRA) When choosing what to attack, prefer these enemy actor types if one is within PreferredTargetRadius",
+			"cells of the nearest enemy, in the order listed (earlier = more wanted).")]
+		public readonly ImmutableArray<string> PreferredTargetTypes = [];
+
+		[Desc("(MyRA) Search radius (cells) around the nearest enemy for a preferred target. 0 disables.")]
+		public readonly int PreferredTargetRadius = 0;
+
+		[Desc("(MyRA) Extra 'distance' (cells) added to a candidate target for every enemy defensive structure within 7 cells,",
+			"so squads go for weakly defended targets instead of walking into a wall of guns.")]
+		public readonly int DefendedTargetPenalty = 0;
 
 		public override void RulesetLoaded(Ruleset rules, ActorInfo ai)
 		{
@@ -305,6 +321,38 @@ namespace OpenRA.Mods.Common.Traits
 			return WorldUtils.ClosestToIgnoringPath(FindEnemies(actors, sourceActor), x => x.Actor, sourceActor);
 		}
 
+		/// <summary>
+		/// (MyRA) Pick what a squad should attack: start from the nearest enemy, then look around it for
+		/// preferred targets (harvesters, refineries, power...) and avoid heavily defended ones.
+		/// </summary>
+		internal (Actor Actor, WVec Offset) FindBestTarget(Actor sourceActor)
+		{
+			var closest = FindClosestEnemy(sourceActor);
+			if (closest.Actor == null || Info.PreferredTargetRadius <= 0 || Info.PreferredTargetTypes.Length == 0)
+				return closest;
+
+			var around = World.FindActorsInCircle(closest.Actor.CenterPosition, WDist.FromCells(Info.PreferredTargetRadius))
+				.Where(a => Info.PreferredTargetTypes.Contains(a.Info.Name) && IsPreferredEnemyUnit(a))
+				.ToList();
+			if (around.Count == 0)
+				return closest;
+
+			var reachable = FindEnemies(around, sourceActor).ToList();
+			if (reachable.Count == 0)
+				return closest;
+
+			int Score((Actor Actor, WVec Offset) t)
+			{
+				var dist = (t.Actor.CenterPosition - sourceActor.CenterPosition).Length / 1024;
+				var rank = Info.PreferredTargetTypes.IndexOf(t.Actor.Info.Name);
+				var defenses = Info.DefendedTargetPenalty <= 0 ? 0 : World.FindActorsInCircle(t.Actor.CenterPosition, WDist.FromCells(7))
+					.Count(d => d.Owner == t.Actor.Owner && !d.IsDead && d.Info.HasTraitInfo<BuildingInfo>() && d.Info.HasTraitInfo<AttackBaseInfo>());
+				return dist + rank * 3 + defenses * Info.DefendedTargetPenalty;
+			}
+
+			return reachable.MinBy(Score);
+		}
+
 		void CleanSquads()
 		{
 			foreach (var s in Squads)
@@ -382,12 +430,42 @@ namespace OpenRA.Mods.Common.Traits
 				ProtectOwn(bot, protectFrom);
 		}
 
+		// (MyRA) Units borrowed by other bot modules (sea invasions, strike groups). Squads leave them alone.
+		readonly HashSet<Actor> claimedUnits = [];
+
+		/// <summary>Take units away from squads and idle units so another module can command them.</summary>
+		public void ClaimUnits(IEnumerable<Actor> units)
+		{
+			var set = units.ToHashSet();
+			claimedUnits.UnionWith(set);
+			foreach (var s in Squads)
+				s.Units.ExceptWith(set);
+			unitsHangingAroundTheBase.RemoveAll(set.Contains);
+			activeUnits.UnionWith(set);
+		}
+
+		/// <summary>Give borrowed units back; they are picked up again as new units.</summary>
+		public void ReleaseUnits(IEnumerable<Actor> units)
+		{
+			foreach (var a in units.ToList())
+			{
+				claimedUnits.Remove(a);
+				activeUnits.Remove(a);
+			}
+		}
+
+		public bool IsClaimed(Actor a) => claimedUnits.Contains(a);
+
+		/// <summary>Units currently idle around the base and not in any squad.</summary>
+		public IReadOnlyList<Actor> IdleBaseUnits => unitsHangingAroundTheBase;
+
 		void FindNewUnits(IBot bot)
 		{
+			claimedUnits.RemoveWhere(a => a.IsDead || a.Disposed);
 			var newUnits = World.ActorsHavingTrait<IPositionable>()
 				.Where(a => a.Owner == Player &&
 					!Info.ExcludeFromSquadsTypes.Contains(a.Info.Name) &&
-					!activeUnits.Contains(a));
+					!activeUnits.Contains(a) && !claimedUnits.Contains(a));
 
 			foreach (var a in newUnits)
 			{

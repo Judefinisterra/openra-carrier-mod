@@ -1,0 +1,6 @@
+oiltruck:
+	idle:
+		Filename: oiltruck.png
+		Facings: 32
+	icon:
+		Filename: oiltruck-icon.png

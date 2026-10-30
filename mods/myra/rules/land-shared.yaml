@@ -1,0 +1,344 @@
+# ---------------------------------------------------------------------------
+# Land features for every side:
+#   Mercenary Camp (neutral, capture it with an Engineer)   Supply Convoy truck
+#   Militia Uprising (Psy-Op protesters arm themselves)      Field Hospital
+#   Checkpoint gate
+# Plus the status effects used by the new units and powers (curse, stuck in a pit, hospital care).
+# ---------------------------------------------------------------------------
+
+^Infantry:
+	ExternalCondition@cursed:
+		Condition: cursed
+	SpeedMultiplier@cursed:
+		Modifier: 50
+		RequiresCondition: cursed
+	ReloadDelayMultiplier@cursed:
+		Modifier: 200
+		RequiresCondition: cursed
+	WithColoredOverlay@cursed:
+		Color: 6A0DAD70
+		RequiresCondition: cursed
+	ExternalCondition@stuck:
+		Condition: stuck
+	SpeedMultiplier@stuck:
+		Modifier: 10
+		RequiresCondition: stuck
+	ExternalCondition@fieldhealing:
+		Condition: fieldhealing
+	ChangesHealth@FIELDHOSP:
+		PercentageStep: 3
+		Delay: 25
+		StartIfBelow: 100
+		DamageCooldown: 75
+		RequiresCondition: fieldhealing
+
+^Vehicle:
+	ExternalCondition@cursed:
+		Condition: cursed
+	SpeedMultiplier@cursed:
+		Modifier: 50
+		RequiresCondition: cursed
+	ReloadDelayMultiplier@cursed:
+		Modifier: 200
+		RequiresCondition: cursed
+	WithColoredOverlay@cursed:
+		Color: 6A0DAD70
+		RequiresCondition: cursed
+	ExternalCondition@stuck:
+		Condition: stuck
+	SpeedMultiplier@stuck:
+		Modifier: 10
+		RequiresCondition: stuck
+
+^Ship:
+	ExternalCondition@cursed:
+		Condition: cursed
+	SpeedMultiplier@cursed:
+		Modifier: 50
+		RequiresCondition: cursed
+	ReloadDelayMultiplier@cursed:
+		Modifier: 200
+		RequiresCondition: cursed
+	WithColoredOverlay@cursed:
+		Color: 6A0DAD70
+		RequiresCondition: cursed
+
+# ---------------------------------------------------------------------------
+# Mercenary Camp: a neutral camp near the middle of the map (lobby option "Mercenary Camp", on by default).
+# Capture it with an Engineer to hire Mercenary Commandos and Mercenary Flamers - any side can.
+World:
+	NeutralCampSpawner:
+		Actor: merccamp
+
+MERCCAMP:
+	Inherits: ^TechBuilding
+	Inherits@shape: ^3x2Shape
+	Selectable:
+		Bounds: 3072, 2048
+	Building:
+		Footprint: xxx xxx
+		Dimensions: 3,2
+	Health:
+		HP: 100000
+	Armor:
+		Type: Wood
+	RevealsShroud:
+		Range: 5c0
+	OwnerLostAction:
+		Action: ChangeOwner
+	CaptureManager:
+	Capturable:
+		Types: building
+	CapturableProgressBar:
+	CapturableProgressBlink:
+	Tooltip:
+		Name: actor-merccamp.name
+	TooltipDescription@ally:
+		Description: actor-merccamp.captured-desc
+		ValidRelationships: Ally
+	TooltipDescription@other:
+		Description: actor-merccamp.capturable-desc
+		ValidRelationships: Neutral, Enemy
+	Production:
+		Produces: Infantry, Mercenary
+	Exit@1:
+		SpawnOffset: 0,768,0
+		ExitCell: 1,2
+		ProductionTypes: Mercenary
+	Exit@2:
+		SpawnOffset: 0,768,0
+		ExitCell: 2,2
+		ProductionTypes: Mercenary
+	Exit@3:
+		SpawnOffset: 0,768,0
+		ExitCell: 0,2
+		ProductionTypes: Mercenary
+	RallyPoint:
+	ProvidesPrerequisite@merc:
+		Prerequisite: merccamp
+	GpsDot:
+		String: Structure
+	AppearsOnMapPreview:
+	RenderSprites:
+		Image: merccamp
+
+MERC.COMMANDO:
+	Inherits: E7
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Mercenary
+		BuildPaletteOrder: 200
+		Prerequisites: ~merccamp
+		BuildLimit: 2
+		Description: actor-merc-commando.description
+	Valued:
+		Cost: 1000
+	Tooltip:
+		Name: actor-merc-commando.name
+	RenderSprites:
+		Image: e7
+
+MERC.FLAMER:
+	Inherits: E4
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Mercenary
+		BuildPaletteOrder: 201
+		Prerequisites: ~merccamp
+		Description: actor-merc-flamer.description
+	Valued:
+		Cost: 350
+	Tooltip:
+		Name: actor-merc-flamer.name
+	RenderSprites:
+		Image: e4
+	Health:
+		HP: 7000
+
+# ---------------------------------------------------------------------------
+# Supply Convoy: a truck that drives back and forth between your Oil Derricks (captured or built) and your
+# nearest Ore Refinery or Construction Yard, bringing back $500 a trip. Kill it on the road to stop the money.
+SUPPLYTRUCK:
+	Inherits: ^Vehicle
+	Inherits@selection: ^SelectableSupportUnit
+	Buildable:
+		Queue: Vehicle
+		BuildPaletteOrder: 92
+		Prerequisites: proc, ~techlevel.low
+		Description: actor-supplytruck.description
+	Valued:
+		Cost: 700
+	Tooltip:
+		Name: actor-supplytruck.name
+	Health:
+		HP: 15000
+	Armor:
+		Type: Light
+	Mobile:
+		Speed: 100
+	RevealsShroud:
+		Range: 4c0
+	OilTanker:
+		PlatformTypes: oilb, oilb.player
+		DockTypes: proc, fact
+		AltPlatformTypes: farm
+		AltDockTypes: barr, tent
+		Capacity: 500
+		LoadTicks: 200
+		UnloadTicks: 50
+		WorkRange: 3
+	-MustBeDestroyed:
+	RenderSprites:
+		Image: truk
+
+# ---------------------------------------------------------------------------
+# Militia Uprising: Psy-Op protesters that are left alone for a minute may take up arms (1 in 4) and join
+# the side that launched the Psy-Op. Anyone who hurts them resets the clock.
+PROTESTER:
+	MilitiaUprising:
+		Actor: militia
+		Delay: 1500
+		Chance: 25
+
+MILITIA:
+	Inherits: PROTESTER
+	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	-Buildable:
+	-MilitiaUprising:
+	Valued:
+		Cost: 50
+	Tooltip:
+		Name: actor-militia.name
+	Selectable:
+		Class: MILITIA
+	Health:
+		HP: 4000
+	Armament@PRIMARY:
+		Weapon: M1Carbine
+	AttackFrontal:
+		FacingTolerance: 0
+	WithInfantryBody:
+		DefaultAttackSequence: stand
+	Voiced:
+		VoiceSet: GenericVoice
+	RenderSprites:
+		Image: militia
+
+# ---------------------------------------------------------------------------
+# Field Hospital: heals your (and your allies') infantry within 5 cells, about 3% of their health a second.
+FIELDHOSP:
+	Inherits: ^Building
+	Inherits@shape: ^2x2Shape
+	Buildable:
+		Queue: Defense
+		BuildPaletteOrder: 12
+		Prerequisites: barracks, ~techlevel.low
+		Description: actor-fieldhosp.description
+	Valued:
+		Cost: 600
+	Tooltip:
+		Name: actor-fieldhosp.name
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+	-GivesBuildableArea:
+	-SpawnActorsOnSell:
+	Health:
+		HP: 50000
+	Armor:
+		Type: Wood
+	RevealsShroud:
+		Range: 5c0
+	Power:
+		Amount: -20
+	ProximityExternalCondition@heal:
+		Condition: fieldhealing
+		Range: 5c0
+		ValidRelationships: Ally
+	WithRangeCircle:
+		Type: fieldhosp
+		Range: 5c0
+		Color: FF404060
+	Selectable:
+		Bounds: 2048, 2048
+	RenderSprites:
+		Image: fieldhosp
+
+# ---------------------------------------------------------------------------
+# Checkpoint: a road barrier (2 cells wide). It lifts for your own and allied units, but stays down - blocking
+# the road - while enemies are close. Retired: nobody can build it any more (kept only so old saves/maps load).
+CHECKPOINT:
+	Inherits: ^Building
+	Inherits@shape: ^2x1Shape
+	Valued:
+		Cost: 200
+	Tooltip:
+		Name: actor-checkpoint.name
+	Building:
+		Footprint: xx
+		Dimensions: 2,1
+	-GivesBuildableArea:
+	-SpawnActorsOnSell:
+	Health:
+		HP: 50000
+	Armor:
+		Type: Concrete
+	RevealsShroud:
+		Range: 4c0
+	Gate:
+		CloseDelay: 75
+		TransitionDelay: 15
+		BlocksProjectilesHeight: 0
+	-WithSpriteBody:
+	WithGateSpriteBody:
+	Selectable:
+		Bounds: 2048, 1024
+	RenderSprites:
+		Image: checkpoint
+	WallWings:
+		WallType: sbag
+		Length: 4
+
+# ---------------------------------------------------------------------------
+# Farm: a big 6x6 spread of fields (four times the size of an Advanced Power Plant). Like the Offshore Oil
+# Platform it earns money through its trucks: building one gives you a free Supply Convoy, which hauls food
+# from the farm to your nearest Barracks for $500 a trip. Build more Supply Convoys to earn faster.
+FARM:
+	Inherits: ^Building
+	HitShape:
+		UseTargetableCellsOffsets: true
+		Type: Rectangle
+			TopLeft: -3072, -3072
+			BottomRight: 3072, 3072
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 95
+		Prerequisites: barracks, ~techlevel.low
+		Description: actor-farm.description
+	Valued:
+		Cost: 1500
+	Tooltip:
+		Name: actor-farm.name
+	Building:
+		Footprint: xxxxxx xxxxxx xxxxxx xxxxxx xxxxxx xxxxxx
+		Dimensions: 6,6
+		TerrainTypes: Clear, Road, Rough
+	RequiresBuildableArea:
+		Adjacent: 8
+	-GivesBuildableArea:
+	-SpawnActorsOnSell:
+	Health:
+		HP: 80000
+	Armor:
+		Type: Wood
+	RevealsShroud:
+		Range: 6c0
+	OilTankerSpawner:
+		Actor: supplytruck
+		SearchCenter: 3,3
+		MinRange: 3
+		MaxRange: 7
+	Selectable:
+		Bounds: 6144, 6144
+	RenderSprites:
+		Image: farm

@@ -1,0 +1,57 @@
+# Offshore Oil Platform: can be built on any open water on the map, however far from your base.
+# Launches a free Oil Tanker that ferries the oil to your docks for cash ($1000 a load).
+# Every side can build one once it has a Refinery.
+OILPLATFORM:
+	Inherits: ^TechBuilding
+	Inherits@shape: ^2x2Shape
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 75
+		Prerequisites: proc, ~techlevel.low
+		Description: actor-oilplatform.description
+	Valued:
+		Cost: 2000
+	Tooltip:
+		Name: actor-oilplatform.name
+	TooltipDescription@ally:
+		Description: actor-oilplatform.desc
+		ValidRelationships: Ally
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+		TerrainTypes: Water
+		RequiresBaseProvider: false
+	-RequiresBuildableArea:
+	Targetable:
+		TargetTypes: WaterActor, Structure, C4, DetonateAttack
+	HitShape:
+		UseTargetableCellsOffsets: false
+		TargetableOffsets: 0,0,0, 630,-300,0, 420,512,0, -420,-512,0, -630,300,0
+	Selectable:
+		Bounds: 2048, 2048
+	Health:
+		HP: 60000
+	Armor:
+		Type: Wood
+	RevealsShroud:
+		Range: 5c0
+	OwnerLostAction:
+		Action: ChangeOwner
+	CaptureManager:
+	Capturable:
+		Types: building
+	CapturableProgressBar:
+	CapturableProgressBlink:
+	InstantlyRepairable:
+	# Earns money through its Oil Tanker (see oiltanker.yaml), which it launches when built.
+	OilTankerSpawner:
+	ProvidesPrerequisite@buildingname:
+	FireWarheadsOnDeath:
+		Weapon: BarrelExplode
+	GpsDot:
+		String: Oil
+	UpdatesDerrickCount:
+	RenderSprites:
+		Image: oilplatform
+	MapEditorData:
+		Categories: Tech building

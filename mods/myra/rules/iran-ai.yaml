@@ -1,0 +1,215 @@
+# Iranian Command AI: a fortress that spreads outward with its oil. Rings of pillboxes and SAMs (pushed out to
+# guard each new derrick), lots of oil derricks and offshore platforms, Shahed drone swarms aimed at power,
+# refineries and factories, Fast Attack Boat packs raiding the coast, and V2 rocket raids with jeep escorts.
+# The main army mostly stays home. Meant to play Iran. Shared AI modules are switched on in ai-common.yaml.
+Player:
+	ModularBot@IranAI:
+		Name: bot-iran-ai.name
+		Type: iran
+	GrantConditionOnBotOwner@iran:
+		Condition: enable-iran-ai
+		Bots: iran
+	# Fractions are percentages of all buildings: about a third of the base is pillboxes and SAMs.
+	BaseBuilderBotModule@iran:
+		RequiresCondition: enable-iran-ai
+		MinimumExcessPower: 0
+		MaximumExcessPower: 200
+		ExcessPowerIncrement: 40
+		ExcessPowerIncreaseThreshold: 4
+		ConstructionYardTypes: fact
+		RefineryTypes: proc
+		InititalMinimumRefineryCount: 1
+		AdditionalMinimumRefineryCount: 2
+		ExpansionTolerate: 1,2
+		PowerTypes: powr,apwr
+		TechTypes: dome, stek, fix, afld, hpad
+		ProductionTypes: barr,weap
+		NewProductionCashThreshold: 5000
+		NavalProductionTypes: spen
+		SiloTypes: silo
+		DefenseTypes: pbox.iran,sam
+		PlaceDefenseTowardsEnemyChance: 70
+		BuildingLimits:
+			barr: 3
+			dome: 1
+			weap: 3
+			spen: 1
+			oilplatform: 12
+			afld: 2
+			stek: 1
+			fix: 1
+			mslo: 1
+			missilecity: 1
+			fieldhosp: 1
+			farm: 2
+		BuildingFractions:
+			powr: 10
+			proc: 9
+			barr: 4
+			weap: 5
+			spen: 4
+			dome: 2
+			afld: 2
+			fix: 2
+			stek: 1
+			mslo: 1
+			missilecity: 1
+			fieldhosp: 1
+			farm: 2
+			pbox.iran: 24
+			sam: 8
+			oilplatform: 8
+		BuildingDelays:
+			pbox.iran: 1200
+			sam: 3000
+			dome: 4500
+			fix: 2500
+			spen: 2500
+			oilplatform: 3000
+			afld: 6000
+			stek: 9000
+			mslo: 11000
+			missilecity: 10000
+			fieldhosp: 5000
+			farm: 7000
+	McvExpansionManagerBotModule@iran:
+		RequiresCondition: enable-iran-ai
+		McvTypes: mcv
+		ConstructionYardTypes: fact
+		McvFactoryTypes: weap
+		MinimumConstructionYardCount: 2
+		NeverMoveConyards: true
+	# The main army rarely leaves home: big squads, slow to commit, quick to fall back.
+	SquadManagerBotModule@iran:
+		RequiresCondition: enable-iran-ai
+		SquadSize: 35
+		SquadSizeRandomBonus: 15
+		MinimumAttackForceDelay: 6000
+		RetreatLossPercent: 45
+		PreferredTargetTypes: harv, oiltruck, proc, oilb.player, oilplatform, powr, apwr, npp, weap, fact
+		PreferredTargetRadius: 18
+		DefendedTargetPenalty: 5
+		NavalUnitsTypes: ss, msub, dd, ca, pt
+		ExcludeFromSquadsTypes: protester, protester.hermit, harv, mcv, e6, dog, badr.bomber, u2, shahed, fab, lst, oiltruck, oiltanker, containership, supplytruck, dronetruck, badr.troop, oilhauler
+		ConstructionYardTypes: fact
+		NavalProductionTypes: spen
+		AirUnitsTypes: mig, yak, heli, hind, mh60
+		AircraftTargetType: AirborneActor
+		ProtectionTypes: harv, mcv, mslo, gap, spen, iron, pbox.iran, dome, sam, stek, weap, fact, proc, silo, afld, powr, apwr, npp, barr, kenn, fix, oilb.player, oiltruck, oilplatform, oiltanker, missilecity, tunnel, fieldhosp, farm, supplytruck, dronetruck
+		IgnoredEnemyTargetTypes: AirborneActor
+		ProtectUnitScanRadius: 18
+		ProtectionScanRadius: 14
+	# V2 Rocket Launchers and jeeps are Iran's main vehicles; heavy tanks only now and then.
+	UnitBuilderBotModule@iran:
+		RequiresCondition: enable-iran-ai
+		UnitsToBuild:
+			v2rl: 45
+			jeep.iran: 45
+			shahed: 30
+			fab: 30
+			e1: 25
+			e3: 25
+			harv: 10
+			3tnk: 4
+			technical: 25
+			technical.rpg: 20
+			decoy.v2: 6
+			decoy.tank: 6
+			dronetruck: 5
+		UnitLimits:
+			dronetruck: 4
+			decoy.v2: 6
+			decoy.tank: 6
+			fab: 16
+			shahed: 24
+			harv: 10
+			3tnk: 3
+			jeep.iran: 14
+	# Oil: keep buying Oil Rig Trucks and deploying them around the map.
+	McvExpansionManagerBotModule@iranoil:
+		RequiresCondition: enable-iran-ai
+		McvTypes: oiltruck
+		ConstructionYardTypes: oilb.player
+		McvFactoryTypes: weap
+		MinimumConstructionYardCount: 4
+		AdditionalConstructionYardCount: 8
+		BuildAdditionalMCVCashAmount: 1500
+		NeverMoveConyards: true
+		CRmodeFriendlyConyardDislikeRange: 3
+		CRmodeFriendlyRefineryDislikeRange: 0
+		CRmodeMaxDeployRadius: 18
+	# Pillboxes go up next to each outlying derrick.
+	OutpostDefenseBotModule@iran:
+		RequiresCondition: enable-iran-ai
+		OutpostTypes: oilb.player
+		DefenseTypes: pbox.iran
+		DefensesPerOutpost: 2
+	# Shahed drones (see Drones.cs): never escorts or squad members. Boat packs spot, drones strike what the
+	# boats are fighting; otherwise strike groups of 5-10 at power, refineries and factories.
+	DroneStrikeBotModule@iran:
+		RequiresCondition: (enable-iran-ai) && !ai-easy
+		DroneTypes: shahed
+		SpotterTypes: fab
+		MinGroupSize: 5
+		MaxGroupSize: 10
+	# Fast Attack Boat packs raid enemy ships and the coast.
+	StrikeGroupBotModule@boats:
+		RequiresCondition: (enable-iran-ai) && !ai-easy
+		UnitTypes: fab
+		MinGroupSize: 4
+		MaxGroupSize: 8
+		Interval: 700
+		TargetTypes: ~ship, lst, canoe, spen, syrd, tribaldock, oilplatform, harv, ~building
+		AvoidDefenses: true
+		RetreatLossPercent: 50
+	# V2 rocket raids with jeep escorts against harvesters, derricks and refineries.
+	StrikeGroupBotModule@raid:
+		RequiresCondition: (enable-iran-ai) && !ai-easy
+		UnitTypes: v2rl, jeep.iran, technical, technical.rpg
+		MinGroupSize: 4
+		MaxGroupSize: 7
+		Interval: 1500
+		TargetTypes: harv, oiltruck, oilb.player, proc, powr, apwr
+		AvoidDefenses: true
+		RetreatLossPercent: 50
+	AdaptiveProductionBotModule@iran:
+		RequiresCondition: (enable-iran-ai) && !ai-easy
+		AntiAirUnits: e3
+		AntiArmorUnits: e3, v2rl, 3tnk, technical.rpg
+		AntiInfantryUnits: e1, jeep.iran, technical
+		AntiNavalUnits: fab
+		AntiAirDefenses: sam
+		MaxAntiAirDefenses: 10
+		KeepBuildings:
+			fix: 1
+		SurplusCash: 4000
+		SurplusBuildings:
+			pbox.iran: 45
+			sam: 16
+			oilplatform: 12
+			weap: 4
+			apwr: 8
+			spen: 1
+			barr: 3
+	ScoutBotModule@iran:
+		RequiresCondition: enable-iran-ai
+		UnitTypes: jeep.iran, technical
+	AmphibiousAssaultBotModule@iran:
+		RequiresCondition: (enable-iran-ai) && !ai-easy
+		TransportTypes: lst
+		PassengerTypes: e1, e3, jeep.iran, v2rl, technical, technical.rpg
+		MaxTransports: 3
+		BoatsPerWave: 2
+		WarshipTypes: fab, ss, msub
+	# Shahed Launch Trucks creep up and fire their drone racks at power, refineries and factories.
+	StrikeGroupBotModule@dronetrucks:
+		RequiresCondition: (enable-iran-ai) && !ai-easy
+		UnitTypes: dronetruck
+		MinGroupSize: 1
+		MaxGroupSize: 2
+		Interval: 800
+		TargetTypes: powr, apwr, npp, proc, weap, fact, ~building
+		DirectAttack: true
+		AvoidDefenses: true
+		RetreatLossPercent: 60
+		MaxStrikeTicks: 2500

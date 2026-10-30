@@ -1,0 +1,46 @@
+# Nuclear Power Plant: twice the price of an Advanced Power Plant, ten times the power.
+# When destroyed it goes off like an atom bomb, wiping out everything around it.
+NPP:
+	Inherits: ^Building
+	Inherits@POWER_OUTAGE: ^DisabledByPowerOutage
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 111
+		Prerequisites: dome, ~techlevel.medium
+		Description: actor-npp.description
+	Valued:
+		Cost: 1000
+	Tooltip:
+		Name: actor-npp.name
+	ProvidesPrerequisite:
+		Prerequisite: anypower
+	Building:
+		Footprint: xxx xxx xxx
+		Dimensions: 3,3
+	HitShape:
+		UseTargetableCellsOffsets: true
+		Type: Rectangle
+			TopLeft: -1536, -1536
+			BottomRight: 1536, 1536
+	Selectable:
+		Bounds: 3072, 3584, 0, -512
+		DecorationBounds: 3072, 4096, 0, -768
+	Health:
+		HP: 90000
+	Armor:
+		Type: Wood
+	RevealsShroud:
+		Range: 5c0
+	Power:
+		Amount: 2000
+	ScalePowerWithHealth:
+	Targetable:
+		TargetTypes: GroundActor, Structure, C4, DetonateAttack, SpyInfiltrate
+	# Meltdown: the normal building explosion is replaced by an atom bomb.
+	-FireWarheadsOnDeath:
+	FireWarheadsOnDeath@MELTDOWN:
+		Weapon: Atomic
+		EmptyWeapon: Atomic
+		Type: CenterPosition
+	RenderSprites:
+		Image: npp

@@ -1,0 +1,6 @@
+containership:
+	idle:
+		Filename: containership.png
+		Facings: 32
+	icon:
+		Filename: containership-icon.png

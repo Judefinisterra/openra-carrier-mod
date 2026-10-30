@@ -1,0 +1,106 @@
+# Oil Rig Truck: a semi that deploys (D key) into an Oil Derrick, which pumps
+# $100 every 15 seconds for its owner. Built at either side's War Factory.
+OILTRUCK:
+	Inherits: ^Vehicle
+	Inherits@selection: ^SelectableSupportUnit
+	Buildable:
+		Queue: Vehicle
+		BuildPaletteOrder: 25
+		Prerequisites: proc, ~techlevel.low
+		Description: actor-oiltruck.description
+	Valued:
+		Cost: 1500
+	Tooltip:
+		Name: actor-oiltruck.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: false
+	Health:
+		HP: 30000
+	Armor:
+		Type: Light
+	Mobile:
+		Speed: 85
+		Locomotor: wheeled
+	RevealsShroud:
+		Range: 4c0
+	Transforms:
+		IntoActor: oilb.player
+		Offset: 0,0
+		Facing: 384
+		TransformSounds: placbldg.aud, build5.aud
+		NoTransformNotification: BuildingCannotPlaceAudio
+		NoTransformTextNotification: notification-cannot-deploy-here
+	-AttackMove:
+	RenderSprites:
+		Image: oiltruck
+	Selectable:
+		DecorationBounds: 1536, 1536
+
+# The derrick the truck turns into: the map's Oil Derrick, owned and running from the start.
+OILB.PLAYER:
+	Inherits: OILB
+	# No cash on its own: its Oil Hauler carries the oil to a Refinery.
+	-CashTrickler:
+	-GrantConditionOnCombatantOwner:
+	OilTankerSpawner:
+		Actor: oilhauler
+		SearchCenter: 1,1
+		MinRange: 2
+		MaxRange: 6
+	Tooltip:
+		Name: actor-oiltruck-derrick.name
+	TooltipDescription@ally:
+		Description: actor-oiltruck-derrick.desc
+	-GivesCashOnCapture:
+	RenderSprites:
+		Image: oilb
+	MapEditorData:
+		Categories: System
+
+# Oil Hauler: a tanker truck that drives oil from your Oil Derricks to your nearest Ore Refinery ($600 a load),
+# like the Oil Tanker ship does for offshore platforms. Every derrick you deploy comes with one free.
+OILHAULER:
+	Inherits: ^Vehicle
+	Inherits@selection: ^SelectableSupportUnit
+	Buildable:
+		Queue: Vehicle
+		BuildPaletteOrder: 26
+		Prerequisites: proc, ~techlevel.low
+		Description: actor-oilhauler.description
+	Valued:
+		Cost: 600
+	Tooltip:
+		Name: actor-oilhauler.name
+	Health:
+		HP: 20000
+	Armor:
+		Type: Light
+	Mobile:
+		Speed: 90
+	RevealsShroud:
+		Range: 4c0
+	OilTanker:
+		PlatformTypes: oilb.player, oilb
+		DockTypes: proc
+		Capacity: 600
+		LoadTicks: 250
+		UnloadTicks: 60
+		WorkRange: 3
+	-MustBeDestroyed:
+	FireWarheadsOnDeath:
+		Weapon: BarrelExplode
+		EmptyWeapon: BarrelExplode
+	SpawnActorOnDeath@oilfire:
+		Actor: oilfire.small
+		OwnerType: InternalName
+		InternalOwner: Neutral
+	Selectable:
+		DecorationBounds: 1280, 1280
+	RenderSprites:
+		Image: oilhauler
+
+# Captured Oil Derricks pay their owner $200 every 15 seconds (stock Red Alert: $100), so farms and oil are a
+# real economy worth fighting over.
+OILB:
+	CashTrickler:
+		Amount: 200

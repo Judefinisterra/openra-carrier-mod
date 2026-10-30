@@ -1,0 +1,87 @@
+seal:
+	Defaults:
+		Filename: seal.png
+	stand:
+		Facings: 8
+	run:
+		Start: 8
+		Length: 6
+		Facings: 8
+		Tick: 80
+	shoot:
+		Start: 56
+		Length: 2
+		Facings: 8
+	idle1:
+		Start: 72
+		Length: 4
+		Tick: 300
+	idle2:
+		Start: 72
+		Length: 4
+		Tick: 200
+	die1:
+		Start: 76
+		Length: 8
+		Tick: 80
+	die2:
+		Start: 76
+		Length: 8
+		Tick: 80
+	die3:
+		Start: 76
+		Length: 8
+		Tick: 80
+	die4:
+		Start: 76
+		Length: 8
+		Tick: 80
+	die5:
+		Start: 76
+		Length: 8
+		Tick: 80
+	die6:
+		Filename: electro.tem
+		TilesetFilenames:
+			SNOW: electro.sno
+		Frames: 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+		Length: *
+		Tick: 80
+	die-crushed:
+		Filename: corpse1.tem
+		TilesetFilenames:
+			SNOW: corpse1.sno
+		Length: 6
+		Tick: 1600
+		ZOffset: -511
+	prone-stand:
+		Start: 84
+		Facings: 8
+	prone-run:
+		Start: 92
+		Length: 4
+		Facings: 8
+		Tick: 100
+	prone-shoot:
+		Start: 124
+		Length: 2
+		Facings: 8
+	swim:
+		Start: 140
+		Facings: 8
+	swim-run:
+		Start: 148
+		Length: 4
+		Facings: 8
+		Tick: 120
+	swim-shoot:
+		Start: 180
+		Length: 2
+		Facings: 8
+	garrison-muzzle:
+		Filename: minigun.shp
+		Length: 3
+		Stride: 6
+		Facings: 8
+	icon:
+		Filename: seal-icon.png

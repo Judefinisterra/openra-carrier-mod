@@ -1,0 +1,13 @@
+# Truces: /truce (then click an opponent's unit), /accept, /decline.
+World:
+	TruceManager:
+		AutoTruceFactions: stable
+		PeacefulFactions: stable
+	TruceCommands:
+
+Player:
+	TruceOrders:
+
+# Any damage between players in a truce breaks it.
+^ExistsInWorld:
+	TruceWatcher:

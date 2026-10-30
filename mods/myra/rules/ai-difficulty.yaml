@@ -1,0 +1,51 @@
+# AI difficulty: a lobby dropdown that applies to every computer player.
+#   Easy   - builds 50% slower, earns 20% less from ore, doesn't counter-build, raid or invade by sea.
+#   Normal - the standard AI.
+#   Hard   - builds 25% faster and earns 25% more.
+#   Brutal - builds twice as fast and earns 50% more.
+World:
+	ScriptLobbyDropdown@aidifficulty:
+		ID: aidifficulty
+		Label: dropdown-ai-difficulty.label
+		Description: dropdown-ai-difficulty.description
+		Default: normal
+		Values:
+			easy: options-ai-difficulty.easy
+			normal: options-ai-difficulty.normal
+			hard: options-ai-difficulty.hard
+			brutal: options-ai-difficulty.brutal
+		DisplayOrder: 7
+
+Player:
+	AIDifficulty:
+
+^ExistsInWorld:
+	ProductionTimeMultiplier@aieasy:
+		Multiplier: 150
+		Prerequisites: ai-easy
+	ProductionTimeMultiplier@aihard:
+		Multiplier: 80
+		Prerequisites: ai-hard
+	ProductionTimeMultiplier@aibrutal:
+		Multiplier: 50
+		Prerequisites: ai-brutal
+
+PROC:
+	GrantConditionOnPrerequisite@aieasy:
+		Condition: ai-easy-income
+		Prerequisites: ai-easy
+	GrantConditionOnPrerequisite@aihard:
+		Condition: ai-hard-income
+		Prerequisites: ai-hard
+	GrantConditionOnPrerequisite@aibrutal:
+		Condition: ai-brutal-income
+		Prerequisites: ai-brutal
+	ResourceValueMultiplier@aieasy:
+		Modifier: 80
+		RequiresCondition: ai-easy-income
+	ResourceValueMultiplier@aihard:
+		Modifier: 125
+		RequiresCondition: ai-hard-income
+	ResourceValueMultiplier@aibrutal:
+		Modifier: 150
+		RequiresCondition: ai-brutal-income

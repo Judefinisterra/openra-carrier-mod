@@ -1,0 +1,25 @@
+# Faction flags: the stock Red Alert flags plus our own for the Tribal Kingdom, Iran, the Hermit Nation and the
+# Stable Society, all on one sheet (bits/myraflags*.png, drawn by rabuild/flags/flags.py).
+flags:
+	Image: myraflags.png
+	Image2x: myraflags-2x.png
+	Image3x: myraflags-3x.png
+	Regions:
+		england: 1, 1, 30, 15
+		germany: 1, 17, 30, 15
+		france: 1, 33, 30, 15
+		spain: 1, 49, 30, 15
+		turkey: 1, 65, 30, 15
+		greece: 1, 81, 30, 15
+		ukraine: 1, 97, 30, 15
+		russia: 1, 113, 30, 15
+		allies: 1, 129, 30, 15
+		soviet: 1, 145, 30, 15
+		RandomSoviet: 1, 161, 30, 15
+		RandomAllies: 1, 177, 30, 15
+		Random: 1, 193, 30, 15
+		spectator: 1, 193, 30, 15
+		tribal: 1, 209, 30, 15
+		iran: 1, 225, 30, 15
+		hermit: 1, 241, 30, 15
+		stable: 1, 257, 30, 15

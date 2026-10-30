@@ -1,0 +1,84 @@
+# New countries (Tribal Kingdom, Iran) are Soviet-side. This file adds them everywhere
+# the game lists the Soviet countries, so both get Soviet buildings, tech, crates and mines.
+
+World:
+	StartingUnits@mcvonly:
+		Factions: allies, england, france, germany, soviet, russia, ukraine, tribal, iran, hermit, stable
+
+Player:
+	ProvidesPrerequisite@tribalkingdom:
+		Factions: tribal
+		Prerequisite: tribalkingdom
+	ProvidesPrerequisite@iranfaction:
+		Factions: iran
+		Prerequisite: iranfaction
+	ProvidesPrerequisite@hermitnation:
+		Factions: hermit
+		Prerequisite: hermitnation
+	# Kamikaze Badgers: the Hermit Nation, plus the Hermit AI whatever faction it plays.
+	ProvidesPrerequisite@hermitkamikaze:
+		Factions: hermit
+		Prerequisite: hermitkamikaze
+	ProvidesPrerequisite@hermitkamikazeai:
+		RequiresCondition: enable-hermit-ai
+		Prerequisite: hermitkamikaze
+	ProvidesPrerequisite@stablesociety:
+		Factions: stable
+		Prerequisite: stablesociety
+
+SPEN:
+	ProvidesPrerequisite@soviet:
+		Factions: soviet, russia, ukraine, tribal, iran, hermit
+
+WEAP:
+	ProvidesPrerequisite@soviet:
+		Factions: soviet, russia, ukraine, tribal, iran, hermit
+
+FACT:
+	ProvidesPrerequisite@soviet:
+		Factions: soviet, russia, ukraine, tribal, iran, hermit
+
+AFLD:
+	ProvidesPrerequisite@soviet:
+		Factions: soviet, russia, ukraine, tribal, iran, hermit
+
+BARR:
+	ProvidesPrerequisite@soviet:
+		Factions: soviet, russia, ukraine, tribal, iran, hermit
+	# Tribal Kingdom perk: its Barracks unlock the Tribal Hero and Lion without the Fortress.
+	ProvidesPrerequisite@tribalunits:
+		Factions: tribal
+		Prerequisite: tribalunits
+	# Iran perk: its Barracks unlock Shahed drones without the Fortress.
+	ProvidesPrerequisite@shahedunits:
+		Factions: iran
+		Prerequisite: shahedunits
+
+MINV:
+	RenderSprites:
+		FactionImages:
+			tribal: minp
+			iran: minp
+			hermit: minp
+
+CRATE:
+	GiveUnitCrateAction@apc:
+		ValidFactions: soviet, russia, ukraine, tribal, iran, hermit
+	GiveUnitCrateAction@ftrk:
+		ValidFactions: soviet, russia, ukraine, tribal, iran, hermit
+	GiveUnitCrateAction@v2rl:
+		ValidFactions: soviet, russia, ukraine, tribal, iran, hermit
+	GiveUnitCrateAction@3tnk:
+		ValidFactions: soviet, russia, ukraine, tribal, iran, hermit
+	GiveUnitCrateAction@squadlight:
+		ValidFactions: allies, england, france, germany, soviet, russia, ukraine, tribal, iran, hermit, stable
+	GiveUnitCrateAction@squadheavysoviet:
+		ValidFactions: soviet, russia, ukraine, tribal, iran, hermit
+	GiveUnitCrateAction@lst:
+		ValidFactions: allies, england, france, germany, soviet, russia, ukraine, tribal, iran, hermit, stable
+	GiveUnitCrateAction@ss:
+		ValidFactions: soviet, russia, ukraine, tribal, iran, hermit
+	GiveUnitCrateAction@ss2:
+		ValidFactions: soviet, russia, ukraine, tribal, iran, hermit
+	GiveUnitCrateAction@msub:
+		ValidFactions: soviet, russia, ukraine, tribal, iran, hermit

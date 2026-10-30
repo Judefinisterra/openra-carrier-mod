@@ -1,0 +1,39 @@
+# Navy SEAL: the Spy's voice, plus the extra lines a commando needs
+# (kill, build, demolish) so the game never asks for a missing line.
+SealVoice:
+	Voices:
+		Select: syessir1,scomnd1
+		Move: sonway1,sindeed1
+		Action: sking1
+		Attack: sking1
+		Die: dedman1,dedman2,dedman3,dedman4,dedman5,dedman7,dedman8
+		Burned: dedman10
+		Zapped: dedman6
+		Build: syessir1
+		Kill: sindeed1
+		Demolish: sking1
+
+# Tribal Hero: grunts and battle shouts (synthesized).
+TribalVoice:
+	DefaultVariant: .wav
+	Voices:
+		Select: tgrunt1,tgrunt2
+		Action: tgrunt3,tshout1,tshout2
+		Die: tdie
+		Burned: tdie
+		Zapped: tdie
+
+# Tribal Kingdom and Iran use the Soviet voice recordings.
+GenericVoice:
+	Variants:
+		tribal: .r01,.r03
+		iran: .r01,.r03
+		hermit: .r01,.r03
+		stable: .v01,.v03
+
+VehicleVoice:
+	Variants:
+		tribal: .r00,.r02
+		iran: .r00,.r02
+		hermit: .r00,.r02
+		stable: .v00,.v02

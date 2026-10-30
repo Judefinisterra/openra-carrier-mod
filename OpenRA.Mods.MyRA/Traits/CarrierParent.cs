@@ -40,6 +40,10 @@ namespace OpenRA.Mods.MyRA.Traits
 		[Desc("Ticks to build a replacement for a destroyed aircraft.")]
 		public readonly int RespawnDelay = 500;
 
+		[Desc("Rebuild destroyed aircraft for free. When false, empty slots stay empty until",
+			"a new aircraft of the right type (built elsewhere) joins the carrier.")]
+		public readonly bool Respawns = true;
+
 		[Desc("Where aircraft appear, relative to the carrier's centre and facing.")]
 		public readonly WVec LaunchOffset = WVec.Zero;
 
@@ -104,7 +108,7 @@ namespace OpenRA.Mods.MyRA.Traits
 			{
 				if (slot.Actor == null)
 				{
-					if (--slot.Timer <= 0)
+					if (Info.Respawns && --slot.Timer <= 0)
 						BuildChild(slot);
 				}
 				else if (slot.Docked && slot.Timer > 0)
@@ -149,6 +153,25 @@ namespace OpenRA.Mods.MyRA.Traits
 				child.Trait<CarrierChild>().Launched();
 				child.QueueActivity(false, new FlyAttack(child, AttackSource.Default, target, false, Color.Red));
 			});
+		}
+
+		public bool HasFreeSlotFor(string actorType)
+		{
+			return !IsTraitDisabled && !self.IsDead && slots.Any(s => s.Actor == null && s.ActorType == actorType);
+		}
+
+		/// <summary>Take in an aircraft that was built elsewhere. It still has to fly here and dock.</summary>
+		public bool TryAdopt(Actor child)
+		{
+			if (!HasFreeSlotFor(child.Info.Name))
+				return false;
+
+			var slot = slots.First(s => s.Actor == null && s.ActorType == child.Info.Name);
+			slot.Actor = child;
+			slot.Docked = false;
+			slot.Timer = 0;
+			child.Trait<CarrierChild>().SetCarrier(self, this);
+			return true;
 		}
 
 		public void Dock(Actor child)

@@ -1,0 +1,235 @@
+# ---------------------------------------------------------------------------
+# The Hermit Nation: a secretive Soviet-side country that wins through sabotage.
+#   Cyber Command: Cyber Attack every 10 minutes without needing a Tech Center (its only Cyber Attack).
+#   Cheap spies that sneak into refineries and silos to steal money. Killing one leaves its cash behind.
+#   Suicide Bombers, Kamikaze Badgers, and a Psy-Op whose protesters turn into suicide bombers.
+# ---------------------------------------------------------------------------
+^BaseWorld:
+	Faction@hermit:
+		Name: faction-hermit.name
+		InternalName: hermit
+		Side: Soviet
+		Description: faction-hermit.description
+
+World:
+	StartingUnits@lighthermit:
+		Class: light
+		ClassName: options-starting-units.light-support
+		Factions: hermit
+		BaseActor: mcv
+		SupportActors: e1,e1,e1,e3,suicidebomber,suicidebomber,spy.hermit
+		InnerSupportRadius: 3
+		OuterSupportRadius: 5
+	StartingUnits@heavyhermit:
+		Class: heavy
+		ClassName: options-starting-units.heavy-support
+		Factions: hermit
+		BaseActor: mcv
+		SupportActors: e1,e1,e1,e1,e3,e3,suicidebomber,suicidebomber,suicidebomber,suicidebomber,spy.hermit,spy.hermit,3tnk,3tnk
+		InnerSupportRadius: 3
+		OuterSupportRadius: 5
+
+# Hermit spy: cheap, from the Barracks. Sneak into an enemy Refinery or Silo to steal money.
+# When one is killed it drops a box of the cash it was carrying.
+SPY.HERMIT:
+	Inherits: SPY
+	Buildable:
+		BuildPaletteOrder: 91
+		Prerequisites: ~barracks, ~hermitnation
+		Description: actor-spyhermit.description
+	Valued:
+		Cost: 250
+	SpawnActorOnDeath@cash:
+		Actor: moneybox
+		OwnerType: InternalName
+		InternalOwner: Neutral
+	RenderSprites:
+		Image: spy
+
+MONEYBOX:
+	Inherits: MONEYCRATE
+	Tooltip:
+		Name: actor-moneybox.name
+	GiveCashCrateAction:
+		Amount: 500
+
+# Suicide Bomber: runs at the target and blows himself up. Also explodes when killed. Deploy (D) to detonate.
+SUICIDEBOMBER:
+	Inherits: PROTESTER
+	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Soldier
+		BuildPaletteOrder: 92
+		Prerequisites: ~barracks, ~hermitnation
+		Description: actor-suicidebomber.description
+	-MilitiaUprising:
+	Valued:
+		Cost: 150
+	Tooltip:
+		Name: actor-suicidebomber.name
+	Selectable:
+		Class: SUICIDEBOMBER
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 5000
+	Mobile:
+		Speed: 80
+	Armament@bomb:
+		Weapon: SuicideBomberTargeting
+	AttackFrontal:
+		FacingTolerance: 512
+	GrantConditionOnAttack:
+		Condition: triggered
+	GrantConditionOnDeploy:
+		DeployedCondition: triggered
+	KillsSelf:
+		RequiresCondition: triggered
+	FireWarheadsOnDeath:
+		Weapon: SuicideVest
+		EmptyWeapon: SuicideVest
+		DamageSource: Killer
+	WithInfantryBody:
+		DefaultAttackSequence: stand
+	Voiced:
+		VoiceSet: GenericVoice
+	RenderSprites:
+		Image: suicidebomber
+
+# The Hermit Psy-Op crowd: left alone for 40 seconds, 1 in 10 of them turns into a Hermit Nation suicide bomber.
+PROTESTER.HERMIT:
+	Inherits: PROTESTER
+	-Buildable:
+	MilitiaUprising:
+		Actor: suicidebomber
+		Delay: 1000
+		Chance: 10
+	RenderSprites:
+		Image: protester
+
+ATEK:
+	PsyOpPower@psyop:
+		Prerequisites: !hermitnation
+	PsyOpPower@hermit:
+		OrderName: HermitPsyOp
+		Prerequisites: hermitnation
+		Actor: protester.hermit
+		Icon: psyop
+		ChargeInterval: 7500
+		Name: actor-psyop-hermit.name
+		Description: actor-psyop-hermit.description
+		SelectTargetSpeechNotification: SelectTarget
+		SelectTargetTextNotification: notification-select-target
+		Cursor: ability
+		DisplayRadarPing: true
+		SupportPowerPaletteOrder: 60
+		Count: 100
+
+STEK:
+	PsyOpPower@psyop:
+		Prerequisites: !hermitnation
+	PsyOpPower@hermit:
+		OrderName: HermitPsyOp
+		Prerequisites: hermitnation
+		Actor: protester.hermit
+		Icon: psyop
+		ChargeInterval: 7500
+		Name: actor-psyop-hermit.name
+		Description: actor-psyop-hermit.description
+		SelectTargetSpeechNotification: SelectTarget
+		SelectTargetTextNotification: notification-select-target
+		Cursor: ability
+		DisplayRadarPing: true
+		SupportPowerPaletteOrder: 60
+		Count: 100
+
+# Cyber Command: the Hermit Nation's hacker bunker. Needs a Radar Dome. Cyber Attack every 10 minutes.
+CYBERCOMMAND:
+	Inherits: ^Building
+	Inherits@shape: ^2x2Shape
+	Inherits@IDISABLE: ^DisableOnLowPowerOrPowerDown
+	Buildable:
+		Queue: Defense
+		BuildPaletteOrder: 139
+		Prerequisites: dome, ~hermitnation
+		BuildLimit: 1
+		Description: actor-cybercommand.description
+	Valued:
+		Cost: 1500
+	Tooltip:
+		Name: actor-cybercommand.name
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+	-GivesBuildableArea:
+	Health:
+		HP: 80000
+	Armor:
+		Type: Concrete
+	RevealsShroud:
+		Range: 6c0
+	Power:
+		Amount: -100
+	CyberAttackPower@hermitcyber:
+		PauseOnCondition: disabled
+		OrderName: HermitCyberAttack
+		Icon: cyberattack
+		ChargeInterval: 15000
+		StealPercent: 50
+		Name: actor-cyber.name
+		Description: actor-cyber.description
+		SelectTargetSpeechNotification: SelectTarget
+		SelectTargetTextNotification: notification-select-target
+		InsufficientPowerSpeechNotification: InsufficientPower
+		InsufficientPowerTextNotification: notification-insufficient-power
+		Cursor: ability
+		DisplayRadarPing: true
+		SupportPowerPaletteOrder: 58
+	SupportPowerChargeBar:
+	Selectable:
+		Bounds: 2048, 2048
+	RenderSprites:
+		Image: cybercommand
+
+# Truck Bomb: a yellow rental box truck full of explosives. Drive it into a target (or deploy it) and it blows up
+# with a huge blast. Also explodes if it's destroyed.
+TRUCKBOMB:
+	Inherits: ^Vehicle
+	Buildable:
+		Queue: Vehicle
+		BuildPaletteOrder: 240
+		Prerequisites: ~vehicles.soviet, ~hermitnation
+		Description: actor-truckbomb.description
+	Valued:
+		Cost: 800
+	Tooltip:
+		Name: actor-truckbomb.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 20000
+	Armor:
+		Type: Light
+	Mobile:
+		Speed: 110
+	RevealsShroud:
+		Range: 4c0
+	Armament:
+		Weapon: TruckBombTargeting
+	AttackFrontal:
+		FacingTolerance: 512
+	GrantConditionOnAttack:
+		Condition: triggered
+	GrantConditionOnDeploy:
+		DeployedCondition: triggered
+	KillsSelf:
+		RequiresCondition: triggered
+	FireWarheadsOnDeath:
+		Weapon: TruckBombBlast
+		EmptyWeapon: TruckBombBlast
+		DamageSource: Killer
+	Selectable:
+		DecorationBounds: 1280, 1280
+	RenderSprites:
+		Image: truckbomb

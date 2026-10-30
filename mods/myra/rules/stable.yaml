@@ -1,0 +1,464 @@
+# ---------------------------------------------------------------------------
+# The Stable Society: a peaceful, well-run Allied-side country.
+#   Starts the game in a truce with every other side - until someone attacks it.
+#   Government Building (needs power) unlocks the Hospital and Houses.
+#   Hospital: heals infantry nearby; trains Doctors and Ambulances.
+#   Houses: shelter troops (they pop out when the house is threatened) and build White Vans.
+# ---------------------------------------------------------------------------
+^BaseWorld:
+	Faction@stable:
+		Name: faction-stable.name
+		InternalName: stable
+		Side: Allies
+		Description: faction-stable.description
+
+World:
+	StartingUnits@lightstable:
+		Class: light
+		ClassName: options-starting-units.light-support
+		Factions: stable
+		BaseActor: mcv
+		SupportActors: e1,e1,e1,e3,e3,doctor,jeep
+		InnerSupportRadius: 3
+		OuterSupportRadius: 5
+	StartingUnits@heavystable:
+		Class: heavy
+		ClassName: options-starting-units.heavy-support
+		Factions: stable
+		BaseActor: mcv
+		SupportActors: e1,e1,e1,e1,e3,e3,e3,doctor,doctor,jeep,1tnk,2tnk,2tnk
+		InnerSupportRadius: 3
+		OuterSupportRadius: 5
+
+# Allied buildings and crates count the Stable Society as an Allied country.
+SYRD:
+	ProvidesPrerequisite@allies:
+		Factions: allies, england, france, germany, stable
+WEAP:
+	ProvidesPrerequisite@allies:
+		Factions: allies, england, france, germany, stable
+FACT:
+	ProvidesPrerequisite@allies:
+		Factions: allies, england, france, germany, stable
+HPAD:
+	ProvidesPrerequisite@allies:
+		Factions: allies, england, france, germany, stable
+TENT:
+	ProvidesPrerequisite@allies:
+		Factions: allies, england, france, germany, stable
+CRATE:
+	GiveUnitCrateAction@jeep:
+		ValidFactions: allies, england, france, germany, stable
+	GiveUnitCrateAction@1tnk:
+		ValidFactions: allies, england, france, germany, stable
+	GiveUnitCrateAction@arty:
+		ValidFactions: allies, england, france, germany, stable
+	GiveUnitCrateAction@2tnk:
+		ValidFactions: allies, england, france, germany, stable
+	GiveUnitCrateAction@squadheavyallies:
+		ValidFactions: allies, england, france, germany, stable
+	GiveUnitCrateAction@pt:
+		ValidFactions: allies, england, france, germany, stable
+	GiveUnitCrateAction@dd:
+		ValidFactions: allies, england, france, germany, stable
+	GiveUnitCrateAction@ca:
+		ValidFactions: allies, england, france, germany, stable
+
+# Government Building: the courthouse at the heart of the town. Collects taxes ($100 every 20 seconds)
+# and unlocks the Hospital and Houses.
+GOVBUILDING:
+	Inherits: ^Building
+	HitShape:
+		UseTargetableCellsOffsets: true
+		Type: Rectangle
+			TopLeft: -1536, -1536
+			BottomRight: 1536, 1536
+	Selectable:
+		Bounds: 3072, 3072
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 55
+		Prerequisites: anypower, ~stablesociety
+		BuildLimit: 1
+		Description: actor-govbuilding.description
+	Valued:
+		Cost: 1500
+	Tooltip:
+		Name: actor-govbuilding.name
+	Building:
+		Footprint: xxx xxx xxx
+		Dimensions: 3,3
+	Health:
+		HP: 120000
+	Armor:
+		Type: Concrete
+	RevealsShroud:
+		Range: 6c0
+	Power:
+		Amount: -50
+	CashTrickler:
+		Interval: 500
+		Amount: 300
+	ProvidesPrerequisite@buildingname:
+	RenderSprites:
+		Image: govbuilding
+
+# Hospital: heals your infantry within 8 cells; trains Doctors and Ambulances (in the Infantry tab).
+HOSPITAL:
+	Inherits: ^Building
+	Inherits@shape: ^3x2Shape
+	Inherits@PRIMARY: ^PrimaryBuilding
+	Selectable:
+		Bounds: 3072, 2048
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 56
+		Prerequisites: govbuilding, ~stablesociety
+		Description: actor-hospital.description
+	Valued:
+		Cost: 1200
+	Tooltip:
+		Name: actor-hospital.name
+	Building:
+		Footprint: xxx xxx
+		Dimensions: 3,2
+	Health:
+		HP: 80000
+	Armor:
+		Type: Wood
+	RevealsShroud:
+		Range: 6c0
+	Power:
+		Amount: -40
+	ProximityExternalCondition@heal:
+		Condition: fieldhealing
+		Range: 8c0
+		ValidRelationships: Ally
+	WithRangeCircle:
+		Type: hospital
+		Range: 8c0
+		Color: FF404060
+	RallyPoint:
+	Exit@1:
+		SpawnOffset: 0,768,0
+		ExitCell: 1,2
+		ProductionTypes: Medical
+	Exit@2:
+		SpawnOffset: 0,768,0
+		ExitCell: 0,2
+		ProductionTypes: Medical
+	Production:
+		Produces: Infantry, Medical
+	ProductionBar:
+		ProductionType: Infantry
+	-SpawnActorsOnSell:
+	ProvidesPrerequisite@buildingname:
+	RenderSprites:
+		Image: hospital
+
+# House: a family home. Up to 6 soldiers can shelter inside (they come out if the house is threatened).
+# Builds White Vans.
+STABLEHOUSE:
+	Inherits: ^Building
+	Inherits@shape: ^2x2Shape
+	Inherits@CARGOPIPS: ^CargoPips
+	Inherits@PRIMARY: ^PrimaryBuilding
+	Selectable:
+		Bounds: 2048, 2048
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 57
+		Prerequisites: govbuilding, ~stablesociety
+		Description: actor-stablehouse.description
+	Valued:
+		Cost: 400
+	Tooltip:
+		Name: actor-stablehouse.name
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+	Health:
+		HP: 40000
+	Armor:
+		Type: Wood
+	RevealsShroud:
+		Range: 5c0
+	Power:
+		Amount: -10
+	Cargo:
+		Types: Infantry
+		MaxWeight: 6
+		EjectOnDeath: true
+		EjectOnSell: true
+	UnloadWhenThreatened:
+		Range: 8c0
+	RallyPoint:
+	Exit@1:
+		SpawnOffset: 0,512,0
+		ExitCell: 0,2
+		ProductionTypes: House
+	Exit@2:
+		SpawnOffset: 0,512,0
+		ExitCell: 1,2
+		ProductionTypes: House
+	Production:
+		Produces: Infantry, House
+	ProductionBar:
+		ProductionType: Infantry
+	-SpawnActorsOnSell:
+	ProvidesPrerequisite@buildingname:
+	RenderSprites:
+		Image: house
+
+# Doctor: heals everyone around him all the time, and walks over to heal the wounded on his own.
+DOCTOR:
+	Inherits: MEDI
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Medical
+		BuildPaletteOrder: 160
+		Prerequisites: ~hospital, ~stablesociety
+		Description: actor-doctor.description
+	Valued:
+		Cost: 300
+	Tooltip:
+		Name: actor-doctor.name
+	Selectable:
+		Class: DOCTOR
+	Health:
+		HP: 8000
+	ProximityExternalCondition@aura:
+		Condition: fieldhealing
+		Range: 2c512
+		ValidRelationships: Ally
+	RenderSprites:
+		Image: doctor
+
+# Ambulance: fast transport for 5 infantry; heals infantry standing next to it.
+AMBULANCE:
+	Inherits: ^Vehicle
+	Inherits@CARGOPIPS: ^CargoPips
+	Inherits@selection: ^SelectableSupportUnit
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Medical
+		BuildPaletteOrder: 161
+		Prerequisites: ~hospital, ~stablesociety
+		Description: actor-ambulance.description
+	Valued:
+		Cost: 500
+	Tooltip:
+		Name: actor-ambulance.name
+	Health:
+		HP: 15000
+	Armor:
+		Type: Light
+	Mobile:
+		Speed: 150
+	RevealsShroud:
+		Range: 5c0
+	Cargo:
+		Types: Infantry
+		MaxWeight: 5
+	ProximityExternalCondition@heal:
+		Condition: fieldhealing
+		Range: 2c0
+		ValidRelationships: Ally
+	-MustBeDestroyed:
+	RenderSprites:
+		Image: ambulance
+
+# White Van: plain people carrier for 8 infantry, built at a House.
+WHITEVAN:
+	Inherits: ^Vehicle
+	Inherits@CARGOPIPS: ^CargoPips
+	Inherits@selection: ^SelectableSupportUnit
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: House
+		BuildPaletteOrder: 162
+		Prerequisites: ~stablehouse, ~stablesociety
+		Description: actor-whitevan.description
+	Valued:
+		Cost: 300
+	Tooltip:
+		Name: actor-whitevan.name
+	Health:
+		HP: 12000
+	Armor:
+		Type: Light
+	Mobile:
+		Speed: 140
+	RevealsShroud:
+		Range: 5c0
+	Cargo:
+		Types: Infantry
+		MaxWeight: 8
+	-MustBeDestroyed:
+	RenderSprites:
+		Image: whitevan
+
+# East-west Checkpoint: the same road barrier, turned to block a road running east-west (1 wide, 2 deep).
+CHECKPOINT.V:
+	Inherits: CHECKPOINT
+	HitShape:
+		UseTargetableCellsOffsets: true
+		Type: Rectangle
+			TopLeft: -512, -1024
+			BottomRight: 512, 1024
+	Tooltip:
+		Name: actor-checkpointv.name
+	Building:
+		Footprint: x x
+		Dimensions: 1,2
+	Selectable:
+		Bounds: 1024, 2048
+	RenderSprites:
+		Image: checkpointv
+
+# Mercenary Motorcycle Trooper: a fast bike with a bazooka-armed rider. Hired at the Mercenary Camp.
+MERC.BIKE:
+	Inherits: ^Vehicle
+	Inherits@GAINSEXPERIENCE: ^GainsExperience
+	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Mercenary
+		BuildPaletteOrder: 202
+		Prerequisites: ~merccamp
+		Description: actor-mercbike.description
+	Valued:
+		Cost: 500
+	Tooltip:
+		Name: actor-mercbike.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 9000
+	Armor:
+		Type: Light
+	Mobile:
+		Speed: 190
+		TurnSpeed: 48
+	RevealsShroud:
+		Range: 6c0
+	Turreted:
+		TurnSpeed: 48
+	Armament:
+		Weapon: Dragon
+		LocalOffset: 0,0,500
+	AttackTurreted:
+	FireWarheadsOnDeath:
+		Weapon: UnitExplodeSmall
+	Selectable:
+		Bounds: 768, 768
+		DecorationBounds: 1024, 1024
+	RenderSprites:
+		Image: motorcycle
+
+# Dream Mansion: a big pink mansion with a pool. Builds Pink Jeeps and Ponies (Infantry tab).
+MANSION:
+	Inherits: ^Building
+	Inherits@PRIMARY: ^PrimaryBuilding
+	HitShape:
+		UseTargetableCellsOffsets: true
+		Type: Rectangle
+			TopLeft: -1536, -1536
+			BottomRight: 1536, 1536
+	Selectable:
+		Bounds: 3072, 3072
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 58
+		Prerequisites: govbuilding, ~stablesociety
+		Description: actor-mansion.description
+	Valued:
+		Cost: 2000
+	Tooltip:
+		Name: actor-mansion.name
+	Building:
+		Footprint: xxx xxx xxx
+		Dimensions: 3,3
+	Health:
+		HP: 90000
+	Armor:
+		Type: Wood
+	RevealsShroud:
+		Range: 6c0
+	Power:
+		Amount: -30
+	RallyPoint:
+	Exit@1:
+		SpawnOffset: 0,1024,0
+		ExitCell: 1,3
+		ProductionTypes: Mansion
+	Exit@2:
+		SpawnOffset: 0,1024,0
+		ExitCell: 2,3
+		ProductionTypes: Mansion
+	Production:
+		Produces: Infantry, Mansion
+	ProductionBar:
+		ProductionType: Infantry
+	-SpawnActorsOnSell:
+	ProvidesPrerequisite@buildingname:
+	RenderSprites:
+		Image: mansion
+
+# Pink Jeep: a fast jeep with a machine gun, in pink. Built at the Dream Mansion.
+PINKJEEP:
+	Inherits: JEEP
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Mansion
+		BuildPaletteOrder: 163
+		Prerequisites: ~mansion, ~stablesociety
+		Description: actor-pinkjeep.description
+	Valued:
+		Cost: 450
+	Tooltip:
+		Name: actor-pinkjeep.name
+	RenderSprites:
+		Image: pinkjeep
+
+# Pony: a fast mounted scout with a carbine. Built at the Dream Mansion.
+PONY:
+	Inherits: ^Vehicle
+	Inherits@GAINSEXPERIENCE: ^GainsExperience
+	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Mansion
+		BuildPaletteOrder: 164
+		Prerequisites: ~mansion, ~stablesociety
+		Description: actor-pony.description
+	Valued:
+		Cost: 250
+	Tooltip:
+		Name: actor-pony.name
+		GenericName: actor-pony.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 9000
+	Armor:
+		Type: Light
+	Mobile:
+		Speed: 200
+		TurnSpeed: 40
+	RevealsShroud:
+		Range: 7c0
+	Turreted:
+		TurnSpeed: 40
+	Armament:
+		Weapon: M1Carbine
+		LocalOffset: 0,0,400
+	AttackTurreted:
+	-FireWarheadsOnDeath:
+	-Repairable:
+	WithMoveAnimation:
+		MoveSequence: walk
+	Selectable:
+		Bounds: 1024, 1024
+	RenderSprites:
+		Image: pony

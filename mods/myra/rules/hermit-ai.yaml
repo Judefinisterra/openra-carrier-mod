@@ -1,0 +1,137 @@
+# Hermit Leader AI: highly aggressive, fights dirty. It hacks the richest enemy, sends spies into refineries,
+# throws suicide bombers and kamikaze Badgers at bases - and lies. It keeps offering truces, uses the peace to
+# march its army into position, then breaks the truce and attacks. When a battle goes badly it begs for a
+# truce and runs home. Meant to play the Hermit Nation. Shared AI modules are switched on in ai-common.yaml.
+Player:
+	ModularBot@HermitAI:
+		Name: bot-hermit-ai.name
+		Type: hermit
+	GrantConditionOnBotOwner@hermit:
+		Condition: enable-hermit-ai
+		Bots: hermit
+	BaseBuilderBotModule@hermit:
+		RequiresCondition: enable-hermit-ai
+		MinimumExcessPower: 60
+		MaximumExcessPower: 200
+		ExcessPowerIncrement: 40
+		ExcessPowerIncreaseThreshold: 4
+		ConstructionYardTypes: fact
+		RefineryTypes: proc
+		InititalMinimumRefineryCount: 1
+		AdditionalMinimumRefineryCount: 1
+		PowerTypes: powr,apwr
+		TechTypes: dome, cybercommand, stek, afld, fix
+		ProductionTypes: barr,weap,afld
+		NavalProductionTypes: spen
+		NewProductionCashThreshold: 2500
+		DefenseTypes: ftur, tsla
+		PlaceDefenseTowardsEnemyChance: 70
+		BuildingLimits:
+			barr: 3
+			weap: 2
+			dome: 1
+			afld: 2
+			stek: 1
+			fix: 1
+			cybercommand: 1
+		BuildingFractions:
+			powr: 12
+			proc: 10
+			barr: 8
+			weap: 6
+			dome: 2
+			cybercommand: 3
+			afld: 3
+			fix: 2
+			stek: 3
+			ftur: 6
+			tsla: 4
+		BuildingDelays:
+			dome: 2000
+			cybercommand: 1800
+			afld: 3500
+			stek: 3000
+			ftur: 2500
+			tsla: 5000
+	McvExpansionManagerBotModule@hermit:
+		RequiresCondition: enable-hermit-ai
+		McvTypes: mcv
+		ConstructionYardTypes: fact
+		McvFactoryTypes: weap
+		MinimumConstructionYardCount: 1
+		NeverMoveConyards: true
+	# Many small, frequent attacks; quick to run when it goes wrong.
+	SquadManagerBotModule@hermit:
+		RequiresCondition: enable-hermit-ai
+		SquadSize: 10
+		SquadSizeRandomBonus: 6
+		AttackForceInterval: 40
+		RushInterval: 500
+		RetreatLossPercent: 40
+		PreferredTargetTypes: harv, proc, powr, apwr, npp, weap, barr, tent, fact
+		PreferredTargetRadius: 18
+		DefendedTargetPenalty: 2
+		ExcludeFromSquadsTypes: protester, protester.hermit, shahed, harv, mcv, e6, spy.hermit, suicidebomber, badr.kamikaze, badr.troop, lst, oiltruck, oiltanker, containership, supplytruck, u2, badr.bomber, oilhauler, truckbomb
+		ConstructionYardTypes: fact
+		AirUnitsTypes: mig, yak, heli, hind, mh60
+		AircraftTargetType: AirborneActor
+		ProtectionTypes: harv, mcv, fact, proc, powr, apwr, barr, weap, dome, afld, stek, fix, cybercommand, silo, ftur, tsla
+		IgnoredEnemyTargetTypes: AirborneActor
+		ProtectUnitScanRadius: 16
+		ProtectionScanRadius: 14
+	UnitBuilderBotModule@hermit:
+		RequiresCondition: enable-hermit-ai
+		UnitsToBuild:
+			e1: 18
+			e3: 12
+			suicidebomber: 40
+			spy.hermit: 10
+			3tnk: 12
+			v2rl: 5
+			ftrk: 4
+			harv: 10
+			badr.kamikaze: 10
+			truckbomb: 12
+			ss: 4
+			dd: 3
+		UnitLimits:
+			truckbomb: 6
+			spy.hermit: 4
+			badr.kamikaze: 6
+			suicidebomber: 24
+			harv: 8
+	AdaptiveProductionBotModule@hermit:
+		RequiresCondition: (enable-hermit-ai) && !ai-easy
+		AntiAirUnits: e3, ftrk
+		AntiArmorUnits: e3, 3tnk, suicidebomber
+		AntiInfantryUnits: e1, ftur
+		AntiAirDefenses: sam
+		MaxAntiAirDefenses: 4
+		KeepBuildings:
+			fix: 1
+		SurplusCash: 3000
+		SurplusBuildings:
+			barr: 4
+			weap: 3
+			afld: 3
+			powr: 8
+			proc: 4
+	ScoutBotModule@hermit:
+		RequiresCondition: enable-hermit-ai
+		UnitTypes: e1
+	# The dirty war - the Hermit's main weapon: spies, Cyber Attacks, Psy-Ops, suicide-bomber packs, truck
+	# bombs and kamikaze Badgers (see HermitTacticsBotModule in Hermit.cs).
+	HermitTacticsBotModule@hermit:
+		RequiresCondition: enable-hermit-ai
+		BomberPack: 4
+		KamikazePerRound: 2
+	# Island maps: ferry troops over the water.
+	AmphibiousAssaultBotModule@hermit:
+		RequiresCondition: (enable-hermit-ai) && !ai-easy
+		TransportTypes: lst
+		MaxTransports: 3
+		BoatsPerWave: 2
+		WarshipTypes: ss, msub
+	HermitDiplomacyBotModule@hermit:
+		RequiresCondition: enable-hermit-ai
+		ExcludeTypes: harv, mcv, spy.hermit, badr.kamikaze, badr.troop, suicidebomber, truckbomb, oilhauler

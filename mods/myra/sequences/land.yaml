@@ -1,0 +1,429 @@
+elephant:
+	Defaults:
+		Filename: elephant.png
+		Offset: 0,-6
+	idle:
+		Facings: 16
+	walk:
+		Start: 16
+		Length: 4
+		Facings: 16
+		Tick: 140
+	icon:
+		Filename: elephant-icon.png
+		Offset: 0,0
+
+rhino:
+	Defaults:
+		Filename: rhino.png
+		Offset: 0,-5
+	idle:
+		Facings: 16
+	walk:
+		Start: 16
+		Length: 4
+		Facings: 16
+		Tick: 90
+	icon:
+		Filename: rhino-icon.png
+		Offset: 0,0
+
+witchdoctor:
+	Inherits: tribalhero
+	Defaults:
+		Filename: witchdoctor.png
+	icon:
+		Filename: witchdoctor-icon.png
+
+pitdigger:
+	Inherits: tribalhero
+	Defaults:
+		Filename: pitdigger.png
+	icon:
+		Filename: pitdigger-icon.png
+
+militia:
+	Inherits: protester
+	Defaults:
+		Filename: militia.png
+	icon:
+		Filename: militia-icon.png
+
+ambushpit:
+	idle:
+		Filename: ambushpit.png
+
+technical:
+	idle:
+		Filename: technical.png
+		Facings: 32
+		Offset: 0,-3
+	icon:
+		Filename: technical-icon.png
+
+technicalrpg:
+	idle:
+		Filename: technicalrpg.png
+		Facings: 32
+		Offset: 0,-3
+	icon:
+		Filename: technicalrpg-icon.png
+
+dronetruck:
+	Defaults:
+		Filename: dronetruck.png
+		Offset: 0,-5
+	idle:
+		Facings: 32
+	empty-idle:
+		Start: 32
+		Facings: 32
+	icon:
+		Filename: dronetruck-icon.png
+		Offset: 0,0
+
+decoyv2:
+	Inherits: v2rl
+	icon:
+		Filename: decoyv2-icon.png
+
+decoytank:
+	Inherits: 3tnk
+	icon:
+		Filename: decoytank-icon.png
+
+animalpen:
+	Defaults:
+		Filename: animalpen.png
+		Offset: 0,-8
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: animalpen-icon.png
+		Offset: 0,0
+
+spirittotem:
+	Defaults:
+		Filename: spirittotem.png
+		Offset: 0,-16
+	idle:
+		Length: 4
+		Tick: 200
+	damaged-idle:
+		Start: 4
+		Length: 4
+		Tick: 200
+	make:
+		Start: 8
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: spirittotem-icon.png
+		Offset: 0,0
+
+drumcircle:
+	Defaults:
+		Filename: drumcircle.png
+		Offset: 0,-6
+	idle:
+		Length: 4
+		Tick: 160
+	damaged-idle:
+		Start: 4
+		Length: 4
+		Tick: 160
+	make:
+		Start: 8
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: drumcircle-icon.png
+		Offset: 0,0
+
+tunnel:
+	Defaults:
+		Filename: tunnel.png
+		Offset: 0,-4
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: tunnel-icon.png
+		Offset: 0,0
+
+missilecity:
+	Defaults:
+		Filename: missilecity.png
+		Offset: 0,-8
+	idle:
+	active:
+		Start: 1
+		Tick: 3000
+	damaged-idle:
+		Start: 2
+	damaged-active:
+		Start: 3
+		Tick: 3000
+	make:
+		Start: 4
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: missilecity-icon.png
+		Offset: 0,0
+
+merccamp:
+	Defaults:
+		Filename: merccamp.png
+		Offset: 0,-8
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: merccamp-icon.png
+		Offset: 0,0
+
+fieldhosp:
+	Defaults:
+		Filename: fieldhosp.png
+		Offset: 0,-6
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: fieldhosp-icon.png
+		Offset: 0,0
+
+checkpoint:
+	Defaults:
+		Filename: checkpoint.png
+		Offset: 0,-4
+	idle:
+		Length: 6
+	damaged-idle:
+		Start: 6
+		Length: 6
+	make:
+		Start: 12
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: checkpoint-icon.png
+		Offset: 0,0
+
+farm:
+	Defaults:
+		Filename: farm.png
+		Offset: 0,-8
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: farm-icon.png
+		Offset: 0,0
+
+suicidebomber:
+	Inherits: protester
+	Defaults:
+		Filename: suicidebomber.png
+	icon:
+		Filename: suicidebomber-icon.png
+
+cybercommand:
+	Defaults:
+		Filename: cybercommand.png
+		Offset: 0,-6
+	idle:
+		Length: 4
+		Tick: 300
+	damaged-idle:
+		Start: 4
+		Length: 4
+		Tick: 300
+	make:
+		Start: 8
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: cybercommand-icon.png
+		Offset: 0,0
+
+badrtroop:
+	Inherits: badr
+	icon:
+		Filename: badrtroop-icon.png
+
+badrkamikaze:
+	idle:
+		Filename: badrkamikaze.png
+		Facings: 16
+		InterpolatedFacings: 64
+	icon:
+		Filename: badrkamikaze-icon.png
+
+truckbomb:
+	idle:
+		Filename: truckbomb.png
+		Facings: 32
+		Offset: 0,-3
+	icon:
+		Filename: truckbomb-icon.png
+
+oilhauler:
+	idle:
+		Filename: oilhauler.png
+		Facings: 32
+		Offset: 0,-3
+	icon:
+		Filename: oilhauler-icon.png
+
+govbuilding:
+	Defaults:
+		Filename: govbuilding.png
+		Offset: 0,-12
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: govbuilding-icon.png
+		Offset: 0,0
+
+hospital:
+	Defaults:
+		Filename: hospital.png
+		Offset: 0,-8
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: hospital-icon.png
+		Offset: 0,0
+
+house:
+	Defaults:
+		Filename: house.png
+		Offset: 0,-6
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: house-icon.png
+		Offset: 0,0
+
+checkpointv:
+	Defaults:
+		Filename: checkpointv.png
+		Offset: 0,-2
+	idle:
+		Length: 6
+	damaged-idle:
+		Start: 6
+		Length: 6
+	make:
+		Start: 12
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: checkpointv-icon.png
+		Offset: 0,0
+
+doctor:
+	Inherits: medi
+	Defaults:
+		Filename: doctor.png
+	icon:
+		Filename: doctor-icon.png
+
+ambulance:
+	idle:
+		Filename: ambulance.png
+		Facings: 32
+		Offset: 0,-3
+	icon:
+		Filename: ambulance-icon.png
+
+whitevan:
+	idle:
+		Filename: whitevan.png
+		Facings: 32
+		Offset: 0,-3
+	icon:
+		Filename: whitevan-icon.png
+
+motorcycle:
+	idle:
+		Filename: motorcycle.png
+		Facings: 32
+		Offset: 0,-3
+	icon:
+		Filename: motorcycle-icon.png
+
+mansion:
+	Defaults:
+		Filename: mansion.png
+		Offset: 0,-12
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: mansion-icon.png
+		Offset: 0,0
+
+pinkjeep:
+	Inherits: jeep
+	Defaults:
+		Filename: pinkjeep.png
+	icon:
+		Filename: pinkjeep-icon.png
+
+pony:
+	Defaults:
+		Filename: pony.png
+		Offset: 0,-4
+	idle:
+		Facings: 16
+	walk:
+		Start: 16
+		Length: 4
+		Facings: 16
+		Tick: 70
+	icon:
+		Filename: pony-icon.png
+		Offset: 0,0

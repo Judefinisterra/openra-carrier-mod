@@ -1,0 +1,367 @@
+# AI overhaul: shared strategy for the four standard AIs (Rush, Normal, Turtle, Naval), plus settings
+# every AI uses. The Tribal Warlord and Iranian Command have their own files (tribal-ai.yaml, iran-ai.yaml).
+#
+# What changed for every AI:
+#  - Economy first: two refineries and enough harvesters before a big army; a Service Depot is always kept so a lost
+#    Construction Yard can be replaced; yards are never packed up and moved (a second MCV is built instead).
+#  - Reacts to the enemy (AdaptiveProductionBotModule): counters what it has seen, anti-air only once aircraft appear.
+#  - Squads retreat after losing ~60% of their strength and pick soft targets (harvesters, refineries, power)
+#    instead of walking into a wall of defences.
+#  - Scouts so it knows where the enemy is; raids with small strike groups; sea invasions on island maps.
+Player:
+	# ---------------- Rush: early pressure, raids on harvesters, then grows into a normal army ----------------
+	GrantConditionAfterTicks@rushlate:
+		Condition: rush-late
+		Delay: 15000
+	BaseBuilderBotModule@rush:
+		NewProductionCashThreshold: 3000
+		PlaceDefenseTowardsEnemyChance: 90
+		BuildingFractions:
+			-agun:
+			-sam:
+		BuildingDelays:
+			fix: 1500
+	McvExpansionManagerBotModule@rush:
+		NeverMoveConyards: true
+	SquadManagerBotModule@rush:
+		RequiresCondition: enable-rush-ai && !rush-late
+		SquadSize: 10
+		SquadSizeRandomBonus: 8
+		RushInterval: 450
+		RetreatLossPercent: 65
+		PreferredTargetTypes: harv, oiltruck, proc, oilb.player, oilplatform, powr, apwr, npp, weap, barr, tent, kenn, fact
+		PreferredTargetRadius: 18
+		DefendedTargetPenalty: 3
+		NavalUnitsTypes: ss, msub, dd, ca, pt, fab
+		ExcludeFromSquadsTypes: protester, protester.hermit, shahed, harv, mcv, e6, dog, badr.bomber, u2, lst, canoe, oiltruck, oiltanker, containership, supplytruck, decoy.v2, decoy.tank, badr.troop, badr.kamikaze, spy.hermit, oilhauler, doctor, ambulance, whitevan
+		ProtectionTypes: harv, mcv, mslo, gap, spen, syrd, iron, pdox, tsla, agun, dome, pbox, hbox, gun, ftur, sam, atek, weap, fact, proc, silo, hpad, afld, afld.ukraine, powr, apwr, npp, stek, barr, kenn, tent, fix, spire, fantasy, oilb.player, oilplatform, oiltruck, oiltanker
+	SquadManagerBotModule@rushlate:
+		RequiresCondition: enable-rush-ai && rush-late
+		SquadSize: 20
+		SquadSizeRandomBonus: 10
+		RushInterval: 1200
+		RetreatLossPercent: 60
+		PreferredTargetTypes: harv, oiltruck, proc, oilb.player, oilplatform, powr, apwr, npp, weap, barr, tent, kenn, fact
+		PreferredTargetRadius: 18
+		DefendedTargetPenalty: 3
+		NavalUnitsTypes: ss, msub, dd, ca, pt, fab
+		ExcludeFromSquadsTypes: protester, protester.hermit, shahed, harv, mcv, e6, dog, badr.bomber, u2, lst, canoe, oiltruck, oiltanker, containership, supplytruck, decoy.v2, decoy.tank, badr.troop, badr.kamikaze, spy.hermit, oilhauler, doctor, ambulance, whitevan
+		ConstructionYardTypes: fact
+		NavalProductionTypes: spen, syrd
+		AirUnitsTypes: mig, yak, heli, hind, mh60, subcarrier.heli
+		AircraftTargetType: AirborneActor
+		ProtectionTypes: harv, mcv, mslo, gap, spen, syrd, iron, pdox, tsla, agun, dome, pbox, hbox, gun, ftur, sam, atek, weap, fact, proc, silo, hpad, afld, afld.ukraine, powr, apwr, npp, stek, barr, kenn, tent, fix, spire, fantasy, oilb.player, oilplatform, oiltruck, oiltanker
+		IgnoredEnemyTargetTypes: AirborneActor
+	UnitBuilderBotModule@rush:
+		RequiresCondition: enable-rush-ai && !rush-late
+	UnitBuilderBotModule@rushlate:
+		RequiresCondition: enable-rush-ai && rush-late
+		UnitsToBuild:
+			e1: 40
+			e3: 30
+			e4: 10
+			shok: 10
+			harv: 10
+			apc: 15
+			jeep: 15
+			arty: 15
+			v2rl: 25
+			ftrk: 20
+			1tnk: 30
+			2tnk: 50
+			3tnk: 50
+			4tnk: 20
+			ttnk: 20
+			heli: 20
+			mh60: 20
+			mig: 15
+			yak: 20
+		UnitLimits:
+			dog: 4
+			harv: 8
+			jeep: 4
+			ftrk: 6
+	StrikeGroupBotModule@rushraid:
+		RequiresCondition: (enable-rush-ai) && !ai-easy
+		UnitTypes: jeep, 1tnk, ftrk, apc
+		MinGroupSize: 3
+		MaxGroupSize: 6
+		Interval: 1100
+		TargetTypes: harv, oiltruck, proc, oilb.player, powr, apwr
+		AvoidDefenses: true
+		RetreatLossPercent: 50
+	AdaptiveProductionBotModule@rush:
+		RequiresCondition: (enable-rush-ai) && !ai-easy
+		EarlyGameTicks: 0
+		AntiAirUnits: e3, ftrk
+		AntiArmorUnits: e3, 1tnk, 2tnk, 3tnk
+		AntiInfantryUnits: e1, e4, jeep, ftrk
+		AntiNavalUnits: ss, pt, dd
+		AntiAirDefenses: agun, sam
+		MaxAntiAirDefenses: 4
+		KeepBuildings:
+			fix: 1
+		KeepBuildingsDelay: 4000
+		SurplusCash: 3000
+		SurplusBuildings:
+			farm: 2
+			fieldhosp: 1
+			weap: 3
+			tent: 3
+			barr: 3
+			powr: 6
+			proc: 4
+
+	# ---------------- Normal: balanced, steady tech, mixed armies ----------------
+	BaseBuilderBotModule@normal:
+		NewProductionCashThreshold: 5000
+		PlaceDefenseTowardsEnemyChance: 80
+		BuildingFractions:
+			-agun:
+			-sam:
+		BuildingDelays:
+			fix: 2500
+	McvExpansionManagerBotModule@normal:
+		NeverMoveConyards: true
+	SquadManagerBotModule@normal:
+		SquadSize: 22
+		SquadSizeRandomBonus: 12
+		RetreatLossPercent: 60
+		PreferredTargetTypes: harv, oiltruck, proc, oilb.player, oilplatform, powr, apwr, npp, weap, barr, tent, kenn, fact
+		PreferredTargetRadius: 18
+		DefendedTargetPenalty: 4
+		NavalUnitsTypes: ss, msub, dd, ca, pt, fab
+		ExcludeFromSquadsTypes: protester, protester.hermit, shahed, harv, mcv, e6, dog, badr.bomber, u2, lst, canoe, oiltruck, oiltanker, containership, supplytruck, decoy.v2, decoy.tank, badr.troop, badr.kamikaze, spy.hermit, oilhauler, doctor, ambulance, whitevan
+		AirUnitsTypes: mig, yak, heli, hind, mh60, subcarrier.heli
+		ProtectionTypes: harv, mcv, mslo, gap, spen, syrd, iron, pdox, tsla, agun, dome, pbox, hbox, gun, ftur, sam, atek, weap, fact, proc, silo, hpad, afld, afld.ukraine, powr, apwr, npp, stek, barr, kenn, tent, fix, spire, fantasy, oilb.player, oilplatform, oiltruck, oiltanker
+	AdaptiveProductionBotModule@normal:
+		RequiresCondition: (enable-normal-ai) && !ai-easy
+		AntiAirUnits: e3, ftrk
+		AntiArmorUnits: e3, 2tnk, 3tnk, 4tnk, ttnk
+		AntiInfantryUnits: e1, e4, shok, jeep, ftrk
+		AntiNavalUnits: ss, msub, pt, dd, ca
+		AntiAirDefenses: agun, sam
+		MaxAntiAirDefenses: 6
+		KeepBuildings:
+			fix: 1
+		SurplusCash: 4000
+		SurplusBuildings:
+			farm: 2
+			fieldhosp: 1
+			weap: 3
+			tent: 3
+			barr: 3
+			proc: 4
+			apwr: 6
+			dome: 1
+			hpad: 2
+			afld: 2
+	StrikeGroupBotModule@normalraid:
+		RequiresCondition: (enable-normal-ai) && !ai-easy
+		UnitTypes: jeep, apc, 1tnk
+		MinGroupSize: 3
+		MaxGroupSize: 5
+		Interval: 1800
+		TargetTypes: harv, oiltruck, oilb.player, proc, powr
+		AvoidDefenses: true
+		RetreatLossPercent: 50
+
+	# ---------------- Turtle: fortress, artillery, early superweapons, one huge late push ----------------
+	BaseBuilderBotModule@turtle:
+		PlaceDefenseTowardsEnemyChance: 95
+		BuildingFractions:
+			-agun:
+			-sam:
+			mslo: 3
+			iron: 1
+			pdox: 1
+		BuildingLimits:
+			mslo: 2
+			iron: 1
+			pdox: 1
+		BuildingDelays:
+			fix: 2500
+			atek: 5000
+			stek: 5000
+			mslo: 6000
+	McvExpansionManagerBotModule@turtle:
+		NeverMoveConyards: true
+	SquadManagerBotModule@turtle:
+		SquadSize: 55
+		SquadSizeRandomBonus: 20
+		MinimumAttackForceDelay: 18000
+		RetreatLossPercent: 50
+		PreferredTargetTypes: proc, powr, apwr, npp, weap, fact, harv, oilb.player, oilplatform
+		PreferredTargetRadius: 20
+		DefendedTargetPenalty: 2
+		NavalUnitsTypes: ss, msub, dd, ca, pt, fab
+		ExcludeFromSquadsTypes: protester, protester.hermit, shahed, harv, mcv, e6, dog, badr.bomber, u2, mnly, lst, canoe, oiltruck, oiltanker, containership, supplytruck, decoy.v2, decoy.tank, badr.troop, badr.kamikaze, spy.hermit, oilhauler, doctor, ambulance, whitevan
+		AirUnitsTypes: mig, yak, heli, hind, mh60, subcarrier.heli
+		ProtectionTypes: harv, mcv, mslo, gap, spen, syrd, iron, pdox, tsla, agun, dome, pbox, hbox, gun, ftur, sam, atek, weap, fact, proc, silo, hpad, afld, afld.ukraine, powr, apwr, npp, stek, barr, kenn, tent, fix, spire, fantasy, oilb.player, oilplatform, oiltruck, oiltanker
+	UnitBuilderBotModule@turtle:
+		UnitsToBuild:
+			arty: 60
+			v2rl: 60
+			4tnk: 40
+			ttnk: 30
+			2tnk: 40
+			3tnk: 40
+	AdaptiveProductionBotModule@turtle:
+		RequiresCondition: (enable-turtle-ai) && !ai-easy
+		AntiAirUnits: e3, ftrk
+		AntiArmorUnits: e3, 2tnk, 3tnk, 4tnk
+		AntiInfantryUnits: e1, e4, ftrk
+		AntiNavalUnits: ss, msub, dd, ca
+		AntiAirDefenses: agun, sam
+		MaxAntiAirDefenses: 10
+		CounterPercent: 90
+		KeepBuildings:
+			fix: 1
+		SurplusCash: 3000
+		SurplusBuildings:
+			farm: 2
+			fieldhosp: 1
+			pbox: 20
+			gun: 15
+			ftur: 15
+			tsla: 10
+			apwr: 8
+			weap: 2
+
+	# ---------------- Naval: rules the water, shells the shore, lands troops ----------------
+	BaseBuilderBotModule@naval:
+		BuildingLimits:
+			spen: 2
+			syrd: 2
+		BuildingFractions:
+			-agun:
+			-sam:
+			spen: 6
+			syrd: 6
+		BuildingDelays:
+			fix: 3000
+	SquadManagerBotModule@naval:
+		SquadSize: 8
+		RetreatLossPercent: 55
+		PreferredTargetTypes: spen, syrd, harv, proc, powr, apwr, oilplatform, oilb.player, weap, fact
+		PreferredTargetRadius: 18
+		DefendedTargetPenalty: 3
+		NavalUnitsTypes: ss, msub, dd, ca, pt, fab
+		ExcludeFromSquadsTypes: protester, protester.hermit, shahed, harv, mcv, e6, dog, badr.bomber, u2, lst, canoe, oiltruck, oiltanker, containership, supplytruck, decoy.v2, decoy.tank, badr.troop, badr.kamikaze, spy.hermit, oilhauler, doctor, ambulance, whitevan
+		ProtectionTypes: harv, mcv, mslo, gap, spen, syrd, iron, pdox, tsla, agun, dome, pbox, hbox, gun, ftur, sam, atek, weap, fact, proc, silo, hpad, afld, afld.ukraine, powr, apwr, npp, stek, barr, kenn, tent, fix, spire, fantasy, oilb.player, oilplatform, oiltruck, oiltanker
+	UnitBuilderBotModule@naval:
+		UnitsToBuild:
+			ss: 40
+			msub: 30
+			dd: 45
+			ca: 30
+			pt: 40
+			e1: 15
+			e3: 15
+			1tnk: 10
+			2tnk: 10
+			3tnk: 10
+	AdaptiveProductionBotModule@naval:
+		RequiresCondition: (enable-naval-ai) && !ai-easy
+		AntiAirUnits: e3, ftrk, dd
+		AntiArmorUnits: e3, ca, msub
+		AntiInfantryUnits: e1, ftrk
+		AntiNavalUnits: ss, msub, dd, pt
+		AntiAirDefenses: agun, sam
+		KeepBuildings:
+			fix: 1
+		SurplusCash: 4000
+		SurplusBuildings:
+			farm: 2
+			fieldhosp: 1
+			spen: 1
+			syrd: 1
+			proc: 4
+			apwr: 6
+
+	# ---------------- Shared modules, switched on for all six AIs ----------------
+	ResourceMapBotModule:
+		RequiresCondition: enable-rush-ai || enable-normal-ai || enable-turtle-ai || enable-naval-ai || enable-tribal-ai || enable-iran-ai || enable-hermit-ai || enable-stable-ai
+	SupportPowerBotModule:
+		RequiresCondition: enable-rush-ai || enable-normal-ai || enable-turtle-ai || enable-naval-ai || enable-tribal-ai || enable-iran-ai || enable-hermit-ai || enable-stable-ai
+		# Nukes go where they hurt most: dense clusters of buildings and armies, never near our own forces.
+		Decisions:
+			cyberattack:
+				OrderName: CyberAttack
+				MinimumAttractiveness: 1
+				Consideration@1:
+					Against: Enemy
+					Types: Structure
+					Attractiveness: 1
+					TargetMetric: Value
+					CheckRadius: 6c0
+			hermitcyber:
+				OrderName: HermitCyberAttack
+				MinimumAttractiveness: 1
+				Consideration@1:
+					Against: Enemy
+					Types: Structure
+					Attractiveness: 1
+					TargetMetric: Value
+					CheckRadius: 6c0
+			hermitpsyop:
+				OrderName: HermitPsyOp
+				MinimumAttractiveness: 3
+				Consideration@1:
+					Against: Enemy
+					Types: Structure
+					Attractiveness: 1
+					TargetMetric: None
+					CheckRadius: 6c0
+			witchcurse:
+				OrderName: WitchCurse
+				MinimumAttractiveness: 5
+				Consideration@1:
+					Against: Enemy
+					Types: Vehicle, Infantry
+					Attractiveness: 1
+					TargetMetric: None
+					CheckRadius: 3c0
+			missilevolley:
+				OrderName: MissileVolley
+				MinimumAttractiveness: 1500
+				Consideration@1:
+					Against: Enemy
+					Types: Structure, Vehicle
+					Attractiveness: 1
+					TargetMetric: Value
+					CheckRadius: 4c0
+				Consideration@2:
+					Against: Ally
+					Types: Ground, Structure
+					Attractiveness: -10
+					TargetMetric: Value
+					CheckRadius: 5c0
+			nukepower:
+				Consideration@3:
+					Against: Enemy
+					Types: Ground
+					Attractiveness: 1
+					TargetMetric: Value
+					CheckRadius: 5c0
+	HarvesterBotModule@normal-turtle:
+		RequiresCondition: enable-normal-ai || enable-turtle-ai || enable-tribal-ai || enable-iran-ai || enable-hermit-ai || enable-stable-ai
+	PowerDownBotModule:
+		RequiresCondition: enable-rush-ai || enable-normal-ai || enable-turtle-ai || enable-naval-ai || enable-tribal-ai || enable-iran-ai || enable-hermit-ai || enable-stable-ai
+	BuildingRepairBotModule:
+		RequiresCondition: enable-rush-ai || enable-normal-ai || enable-turtle-ai || enable-naval-ai || enable-tribal-ai || enable-iran-ai || enable-hermit-ai || enable-stable-ai
+
+	# ---------------- Every standard AI ----------------
+	ScoutBotModule@standard:
+		RequiresCondition: enable-rush-ai || enable-normal-ai || enable-turtle-ai || enable-naval-ai
+		UnitTypes: jeep, dog, e1
+	AmphibiousAssaultBotModule@standard:
+		RequiresCondition: (enable-rush-ai || enable-normal-ai || enable-turtle-ai || enable-naval-ai) && !ai-easy
+		TransportTypes: lst
+		MaxTransports: 3
+		BoatsPerWave: 2
+
+# Deployed oil derricks let their owner build right next to them (so outposts can be fortified).
+OILB.PLAYER:
+	GivesBuildableArea:
+		AreaTypes: building

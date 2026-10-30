@@ -1,0 +1,91 @@
+# ---------------------------------------------------------------------------
+# Iran: a Soviet-side country, playable by humans and the AI.
+#   Fortified bases: defences take 40% less damage and cost 25% less.
+#   Fast Attack Boats: quick rocket boats built at the Sub Pen (Iran only).
+#   Shahed drones from the Barracks, no Fortress needed.
+#   Oil: Oil Rig Trucks cost 25% less.
+# ---------------------------------------------------------------------------
+^BaseWorld:
+	Faction@iran:
+		Name: faction-iran.name
+		InternalName: iran
+		Side: Soviet
+		Description: faction-iran.description
+
+World:
+	StartingUnits@lightiran:
+		Class: light
+		ClassName: options-starting-units.light-support
+		Factions: iran
+		BaseActor: mcv
+		SupportActors: e1,e1,e1,e3,e3,oiltruck,shahed,shahed
+		InnerSupportRadius: 3
+		OuterSupportRadius: 5
+	StartingUnits@heavyiran:
+		Class: heavy
+		ClassName: options-starting-units.heavy-support
+		Factions: iran
+		BaseActor: mcv
+		SupportActors: e1,e1,e1,e3,e3,oiltruck,oiltruck,shahed,shahed,shahed,shahed,3tnk,3tnk,v2rl
+		InnerSupportRadius: 3
+		OuterSupportRadius: 5
+
+# Fortified bases: every defensive structure is tougher and cheaper for Iran.
+^Defense:
+	GrantConditionOnPrerequisite@IRANFORT:
+		Condition: iran-fortified
+		Prerequisites: iranfaction
+	DamageMultiplier@IRANFORT:
+		Modifier: 60
+		RequiresCondition: iran-fortified
+	ProductionCostMultiplier@IRANFORT:
+		Multiplier: 75
+		Prerequisites: iranfaction
+
+# Walls and sandbags too.
+^Wall:
+	ProductionCostMultiplier@IRANFORT:
+		Multiplier: 75
+		Prerequisites: iranfaction
+
+# Oil focus: cheaper Oil Rig Trucks.
+OILTRUCK:
+	ProductionCostMultiplier@IRAN:
+		Multiplier: 75
+		Prerequisites: iranfaction
+
+# Iran's own Ranger jeep (Soviet-based sides can't normally build jeeps). Built at the War Factory.
+JEEP.IRAN:
+	Inherits: JEEP
+	Buildable:
+		Prerequisites: ~vehicles.soviet, ~iranfaction
+		BuildPaletteOrder: 15
+	RenderSprites:
+		Image: jeep
+
+# Fast Attack Boat: Iran-only. Very fast, light rocket boat built at the Sub Pen.
+FAB:
+	Inherits: PT
+	Buildable:
+		Queue: Ship
+		BuildAtProductionType: Submarine
+		BuildPaletteOrder: 5
+		Prerequisites: ~spen, ~iranfaction, ~techlevel.low
+		Description: actor-fab.description
+	Valued:
+		Cost: 350
+	Tooltip:
+		Name: actor-fab.name
+	Health:
+		HP: 12000
+	Mobile:
+		Speed: 210
+		TurnSpeed: 36
+	Armament@ROCKETS:
+		Name: rockets
+		Weapon: Dragon
+		LocalOffset: 0,-128,64, 0,128,64
+	AttackTurreted:
+		Armaments: primary, secondary, rockets
+	RenderSprites:
+		Image: pt

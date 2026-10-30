@@ -1,0 +1,18 @@
+# Rebuild crews for every AI: once the fighting near a destroyed building has stopped, the AI builds it again
+# (unit training waits while it does), and it repairs every damaged building when it can afford to.
+# See RebuildBotModule.cs.
+^BasicBuilding:
+	RebuildTracker:
+
+Player:
+	RebuildBotModule:
+		RequiresCondition: enable-rush-ai || enable-normal-ai || enable-turtle-ai || enable-naval-ai || enable-tribal-ai || enable-iran-ai || enable-hermit-ai || enable-stable-ai
+
+# The Tribal Kingdom's own MCV (needs only a War Factory) so the Tribal Warlord can replace a lost Construction Yard.
+MCV.TRIBAL:
+	Inherits: MCV
+	Buildable:
+		Prerequisites: ~vehicles.soviet, ~tribalkingdom
+		BuildPaletteOrder: 100
+	RenderSprites:
+		Image: mcv

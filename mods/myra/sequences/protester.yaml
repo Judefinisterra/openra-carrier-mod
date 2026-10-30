@@ -1,0 +1,50 @@
+protester:
+	Defaults:
+		Filename: protester.png
+	stand:
+		Facings: 8
+	run:
+		Start: 8
+		Length: 6
+		Facings: 8
+		Tick: 90
+	idle1:
+		Start: 56
+		Length: 8
+		Tick: 120
+	die1:
+		Start: 64
+		Length: 8
+		Tick: 80
+	die2:
+		Start: 64
+		Length: 8
+		Tick: 80
+	die3:
+		Start: 64
+		Length: 8
+		Tick: 80
+	die4:
+		Start: 64
+		Length: 8
+		Tick: 80
+	die5:
+		Start: 64
+		Length: 8
+		Tick: 80
+	die6:
+		Filename: electro.tem
+		TilesetFilenames:
+			SNOW: electro.sno
+		Frames: 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+		Length: *
+		Tick: 80
+	die-crushed:
+		Filename: corpse1.tem
+		TilesetFilenames:
+			SNOW: corpse1.sno
+		Length: 6
+		Tick: 1600
+		ZOffset: -511
+	icon:
+		Filename: protester-icon.png

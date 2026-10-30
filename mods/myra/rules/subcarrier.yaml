@@ -1,0 +1,182 @@
+SUBCARRIER:
+	Inherits: ^Submarine
+	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Inherits@CARGOPIPS: ^CargoPips
+	Buildable:
+		Queue: Ship
+		BuildAtProductionType: Submarine
+		BuildPaletteOrder: 70
+		Prerequisites: ~spen, fantasyfactory, ~techlevel.low
+		Description: actor-subcarrier.description
+	Valued:
+		Cost: 1000
+	Tooltip:
+		Name: actor-subcarrier.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 80000
+	Armor:
+		Type: Heavy
+	# Landing-craft movement, so it can pull up onto beaches to unload.
+	Mobile:
+		Locomotor: lcraft
+		TurnSpeed: 10
+		Speed: 50
+		PauseOnCondition: notmobile
+	RevealsShroud:
+		MinRange: 5c0
+		Range: 8c0
+		RevealGeneratedShroud: False
+	RevealsShroud@GAPGEN:
+		Range: 5c0
+	# Dives when idle. Surfaces while launching planes or unloading.
+	Cloak:
+		CloakDelay: 100
+	DetectCloaked:
+		DetectionTypes: Underwater
+		Range: 5c0
+	RenderDetectionCircle:
+	# Invisible "weapon" that only sets the launch range. Each shot launches one plane.
+	Armament:
+		Weapon: CarrierLaunch
+		Turret: none
+	# Rapid-fire torpedoes (ships and subs).
+	Armament@TORPEDO:
+		Name: torpedo
+		Turret: none
+		Weapon: SubCarrierTorp
+		LocalOffset: 1536,-128,0, 1536,128,0
+	AutoTargetPriority@AIR:
+		ValidTargets: AirborneActor
+		InvalidTargets: NoAutoTarget
+	# Anti-aircraft missiles (same as the Missile Sub's).
+	Armament@AA:
+		Name: aa
+		Turret: none
+		Weapon: SubMissileAA
+		LocalOffset: 0,-171,0, 0,171,0
+	# Rotating deck turrets: twin tank cannon on the bow, artillery on the stern.
+	Turreted@CANNON:
+		Turret: cannon
+		Offset: 1600,0,128
+		TurnSpeed: 24
+	Turreted@ARTILLERY:
+		Turret: artillery
+		Offset: -1500,0,128
+		TurnSpeed: 16
+		InitialFacing: 512
+	WithSpriteTurret@CANNON:
+		Turret: cannon
+		Sequence: turret-cannon
+	WithSpriteTurret@ARTILLERY:
+		Turret: artillery
+		Sequence: turret-artillery
+	Armament@CANNON:
+		Name: cannon
+		Turret: cannon
+		Weapon: SubCarrierCannon
+		LocalOffset: 530,-75,0, 530,75,0
+		Recoil: 40
+		RecoilRecovery: 10
+	Armament@ARTILLERY:
+		Name: artillery
+		Turret: artillery
+		Weapon: SubCarrierArtillery
+		LocalOffset: 670,0,0
+		Recoil: 60
+		RecoilRecovery: 8
+	AttackTurreted:
+		Turrets: cannon, artillery
+		Armaments: primary, torpedo, cannon, artillery, nuke, aa
+		FacingTolerance: 512
+		# Ctrl+click on a unit or building targets the ground under it (needed for the nuke).
+		ForceFireIgnoresActors: True
+		TargetFrozenActors: True
+	CarrierParent:
+		Actors: SUBCARRIER.HELI, SUBCARRIER.HELI, SUBCARRIER.HELI, SUBCARRIER.HELI
+		LaunchOffset: -600,0,0
+		RearmDelay: 100
+		# Lost helicopters are not replaced for free: build Sub-Carrier Hinds in the
+		# Aircraft tab and they fly to the nearest sub with an empty slot.
+		Respawns: false
+	ProvidesPrerequisite@SUB:
+		Prerequisite: subcarrier
+	# Troop and vehicle transport (like the Landing Craft).
+	Cargo:
+		Types: Infantry, Vehicle
+		MaxWeight: 6
+		PassengerFacing: 0
+		LoadingCondition: notmobile
+	-Chronoshiftable:
+	# Nuke: select the sub, hold Ctrl and click a spot. Fires once the red pip is lit.
+	Armament@NUKE:
+		Name: nuke
+		Turret: none
+		Weapon: SubNuke
+		LocalOffset: 512,0,256
+	AmmoPool@NUKE:
+		Name: nuke
+		Armaments: nuke
+		Ammo: 1
+		InitialAmmo: 0
+	ReloadAmmoPool@NUKE:
+		AmmoPool: nuke
+		# Charge time in ticks (25 ticks = 1 second). 15000 = 10 minutes.
+		Delay: 15000
+	# One nuke per order: the attack order ends as soon as the nuke launches.
+	StopAttackAfterFiring:
+		Armaments: nuke
+	WithAmmoPipsDecoration@NUKE:
+		AmmoPools: nuke
+		PipCount: 1
+		FullSequence: pip-red
+		Position: TopLeft
+		Margin: 4, 3
+		RequiresSelection: false
+	FireWarheadsOnDeath:
+		Weapon: UnitExplodeSubmarine
+		EmptyWeapon: UnitExplodeSubmarine
+	# Targetable points along the whole hull, so units can board from either end
+	# and weapons can hit any part of it.
+	HitShape:
+		TargetableOffsets: 1536,0,0, 0,0,0, -1536,0,0
+	RenderSprites:
+		Image: subcarrier
+	Selectable:
+		Bounds: 1792, 1792
+		DecorationBounds: 2048, 2048
+
+# Hind attack helicopter that lives on the Typhoon Sub-Carrier.
+SUBCARRIER.HELI:
+	Inherits: HIND
+	# Built at an Airfield or Helipad while you own a Sub-Carrier; flies off to join one.
+	# If every sub is full it waits on the Airfield/Helipad until a slot opens.
+	Buildable:
+		Queue: Aircraft
+		-BuildAtProductionType:
+		BuildPaletteOrder: 25
+		Prerequisites: subcarrier
+		Description: actor-subcarrier-heli.description
+	# Spare Hinds (no sub with room) land and rearm at an Airfield or Helipad.
+	Rearmable:
+		RearmActors: hpad, afld, afld.ukraine
+	-Repairable:
+	-Huntable:
+	-MustBeDestroyed:
+	-EjectOnDeath:
+	-ProducibleWithLevel:
+	-WithProductionIconOverlay:
+	-ActorLostNotification:
+	Valued:
+		Cost: 300
+	Tooltip:
+		Name: actor-subcarrier-heli.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	AmmoPool:
+		Ammo: 12
+	CarrierChild:
+		DockDistance: 1024
+	RenderSprites:
+		Image: hind

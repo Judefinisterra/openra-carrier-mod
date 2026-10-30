@@ -1,0 +1,44 @@
+# Loaded last so it wins: every computer player keeps to ONE shipyard (more just wastes money - they put the
+# money into Offshore Oil Platforms and Container Ships instead) and one Seaport.
+Player:
+	BaseBuilderBotModule@rush:
+		BuildingLimits:
+			spen: 1
+			syrd: 1
+			seaport: 1
+	BaseBuilderBotModule@normal:
+		BuildingLimits:
+			spen: 1
+			syrd: 1
+			seaport: 1
+	BaseBuilderBotModule@turtle:
+		BuildingLimits:
+			spen: 1
+			syrd: 1
+			seaport: 1
+	BaseBuilderBotModule@naval:
+		BuildingLimits:
+			spen: 1
+			syrd: 1
+			seaport: 1
+	BaseBuilderBotModule@iran:
+		BuildingLimits:
+			spen: 1
+			syrd: 1
+			seaport: 1
+	BaseBuilderBotModule@hermit:
+		BuildingLimits:
+			spen: 1
+			syrd: 1
+			seaport: 1
+	BaseBuilderBotModule@stable:
+		BuildingLimits:
+			spen: 1
+			syrd: 1
+			seaport: 1
+	BaseBuilderBotModule@tribal:
+		BuildingLimits:
+			tribaldock: 1
+			spen: 1
+			syrd: 1
+			seaport: 1

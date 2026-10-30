@@ -32,7 +32,9 @@ namespace OpenRA.Mods.MyRA.Traits
 		Actor carrier;
 		CarrierParent carrierTrait;
 		AmmoPool[] ammoPools;
+		Aircraft aircraft;
 		bool returning;
+		int searchCooldown;
 
 		public CarrierChild(CarrierChildInfo info)
 		{
@@ -42,6 +44,7 @@ namespace OpenRA.Mods.MyRA.Traits
 		void INotifyCreated.Created(Actor self)
 		{
 			ammoPools = self.TraitsImplementing<AmmoPool>().ToArray();
+			aircraft = self.TraitOrDefault<Aircraft>();
 		}
 
 		public void SetCarrier(Actor carrier, CarrierParent carrierTrait)
@@ -57,8 +60,37 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		void ITick.Tick(Actor self)
 		{
-			if (carrier == null || !self.IsInWorld)
+			if (!self.IsInWorld)
 				return;
+
+			// Built on its own (not by a carrier): once idle, join the nearest friendly carrier with a free slot.
+			if (carrier == null)
+			{
+				if (--searchCooldown > 0)
+					return;
+
+				searchCooldown = 25;
+				var idle = self.CurrentActivity == null || self.CurrentActivity is FlyIdle;
+				if (!idle)
+					return;
+
+				var home = self.World.ActorsWithTrait<CarrierParent>()
+					.Where(p => p.Actor.Owner == self.Owner && p.Actor.IsInWorld && p.Trait.HasFreeSlotFor(self.Info.Name))
+					.MinByOrDefault(p => (p.Actor.CenterPosition - self.CenterPosition).HorizontalLengthSquared);
+
+				if (home.Actor != null && home.Trait.TryAdopt(self))
+				{
+					returning = true;
+					self.QueueActivity(false, new ReturnToCarrier(carrier, carrierTrait, info.DockDistance));
+				}
+				else if (aircraft != null && !aircraft.AtLandAltitude)
+				{
+					// No carrier has room: land at the nearest Airfield or Helipad and wait there.
+					self.QueueActivity(false, new ReturnToBase(self, null, true));
+				}
+
+				return;
+			}
 
 			// No ship to land on: ditch.
 			if (carrier.IsDead || !carrier.IsInWorld)

@@ -1,0 +1,14 @@
+npp:
+	Defaults:
+		Filename: npp.png
+		Offset: 0,-16
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: npp-icon.png
+		Offset: 0,0

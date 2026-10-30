@@ -1,0 +1,23 @@
+tribaldock:
+	Defaults:
+		Filename: tribaldock.png
+		Offset: 0,-6
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: tribaldock-icon.png
+		Offset: 0,0
+
+canoe:
+	idle:
+		Filename: canoe.png
+		Facings: 32
+		Offset: 0,-4
+		Scale: 1.4
+	icon:
+		Filename: canoe-icon.png

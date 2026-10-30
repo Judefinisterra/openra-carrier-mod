@@ -1,0 +1,42 @@
+# Seaport: a commercial harbour any faction can build on the water near its base. Merchant ships
+# (Container Ships and Oil Tankers) dock here to unload; players without one fall back to their
+# shipyards. Needed before you can build a Container Ship.
+SEAPORT:
+	Inherits: ^Building
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 74
+		Prerequisites: ~techlevel.low
+		Description: actor-seaport.description
+	Valued:
+		Cost: 1200
+	Tooltip:
+		Name: actor-seaport.name
+	Building:
+		Footprint: xxx xxx xxx
+		Dimensions: 3,3
+		TerrainTypes: Water
+		RequiresBaseProvider: false
+	RequiresBuildableArea:
+		AreaTypes: building
+		Adjacent: 20
+	-GivesBuildableArea:
+	Targetable:
+		TargetTypes: WaterActor, Structure, C4, DetonateAttack, SpyInfiltrate
+	Selectable:
+		Bounds: 3072, 3072
+	HitShape:
+		Type: Rectangle
+			TopLeft: -1536, -1536
+			BottomRight: 1536, 1536
+	Health:
+		HP: 80000
+	Armor:
+		Type: Wood
+	RevealsShroud:
+		Range: 6c0
+	Power:
+		Amount: -20
+	ProvidesPrerequisite@buildingname:
+	RenderSprites:
+		Image: seaport

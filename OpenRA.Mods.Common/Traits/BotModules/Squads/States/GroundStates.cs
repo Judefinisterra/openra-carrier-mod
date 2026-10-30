@@ -56,13 +56,17 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
 
 		protected virtual bool ShouldFlee(Squad owner)
 		{
+			// (MyRA) Fall back once the squad has been badly mauled, then regroup with the next wave.
+			if (owner.HasLostTooMuch())
+				return true;
+
 			return ShouldFlee(owner, enemies => !AttackOrFleeFuzzy.Default.CanAttack(owner.Units, enemies));
 		}
 
 		protected (Actor Actor, WVec Offset) NewLeaderAndFindClosestEnemy(Squad owner)
 		{
 			leader = null; // Force a new leader to be elected, useful if we are targeting a new enemy.
-			return owner.SquadManager.FindClosestEnemy(Leader(owner));
+			return owner.SquadManager.FindBestTarget(Leader(owner));
 		}
 
 		protected IEnumerable<(Actor Actor, WVec Offset)> FindEnemies(Squad owner, IEnumerable<Actor> actors)

@@ -1,0 +1,127 @@
+# Troop Badger (any side with an Airfield): a Badger bomber you can buy. While it is parked on the Airfield,
+# order infantry into it (up to 10). Then right-click anywhere on the map: it flies there, everyone
+# parachutes out over the spot, and it flies home to the Airfield.
+BADR.TROOP:
+	Inherits: ^Plane
+	Inherits@CARGOPIPS: ^CargoPips
+	Buildable:
+		Queue: Aircraft
+		BuildAtProductionType: Plane
+		BuildPaletteOrder: 25
+		Prerequisites: ~afld, ~techlevel.medium
+		Description: actor-badrtroop.description
+	Valued:
+		Cost: 1000
+	Tooltip:
+		Name: actor-badrtroop.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 30000
+	Armor:
+		Type: Light
+	RevealsShroud:
+		MinRange: 8c0
+		Range: 10c0
+		Type: GroundPosition
+		RevealGeneratedShroud: False
+	Aircraft:
+		CruiseAltitude: 2560
+		TurnSpeed: 20
+		Speed: 190
+		RepulsionSpeed: 40
+		MaximumPitch: 56
+		IdleBehavior: ReturnToBase
+	Cargo:
+		Types: Infantry
+		MaxWeight: 10
+	ParaDrop:
+		DropRange: 3c0
+		ChuteSound: chute1.aud
+	ParaDropOnOrder:
+	Rearmable:
+		RearmActors: afld, afld.ukraine
+	Contrail@1:
+		Offset: -432,560,0
+		StartColorAlpha: 128
+	Contrail@2:
+		Offset: -432,-560,0
+		StartColorAlpha: 128
+	SpawnActorOnDeath:
+		Actor: BADR.Husk
+	Selectable:
+		DecorationBounds: 1792, 1792
+	RenderSprites:
+		Image: badrtroop
+
+# Kamikaze Badger (Hermit Nation only): a Badger packed with explosives. Order it to attack a target and it
+# dives straight into it - the blast can flatten a whole building. If it is shot down it still blows up
+# wherever it crashes.
+BADR.KAMIKAZE:
+	Inherits: ^Plane
+	Buildable:
+		Queue: Aircraft
+		BuildAtProductionType: Plane
+		BuildPaletteOrder: 26
+		Prerequisites: ~afld, ~hermitkamikaze, ~techlevel.medium
+		Description: actor-badrkamikaze.description
+	Valued:
+		Cost: 1200
+	Tooltip:
+		Name: actor-badrkamikaze.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 30000
+	Armor:
+		Type: Light
+	RevealsShroud:
+		MinRange: 8c0
+		Range: 10c0
+		Type: GroundPosition
+		RevealGeneratedShroud: False
+	Aircraft:
+		CruiseAltitude: 2560
+		TurnSpeed: 20
+		Speed: 200
+		RepulsionSpeed: 40
+		MaximumPitch: 56
+		IdleBehavior: ReturnToBase
+	Rearmable:
+		RearmActors: afld, afld.ukraine
+	Armament:
+		Weapon: KamikazeTargeting
+	AmmoPool:
+		Ammo: 1
+	AttackAircraft:
+		FacingTolerance: 512
+		OpportunityFire: False
+	AutoTarget:
+		InitialStance: HoldFire
+		InitialStanceAI: HoldFire
+	GrantConditionOnAttack:
+		Condition: triggered
+	KillsSelf:
+		RequiresCondition: triggered
+	-FireWarheadsOnDeath:
+	FireWarheadsOnDeath@AIR:
+		Weapon: KamikazeBlast
+		EmptyWeapon: KamikazeBlast
+		Offset: 0,0,-2560
+		RequiresCondition: airborne
+	FireWarheadsOnDeath@GROUND:
+		Weapon: UnitExplode
+		EmptyWeapon: UnitExplode
+		RequiresCondition: !airborne
+	-SpawnActorOnDeath:
+	-EjectOnDeath:
+	Contrail@1:
+		Offset: -432,560,0
+		StartColorAlpha: 128
+	Contrail@2:
+		Offset: -432,-560,0
+		StartColorAlpha: 128
+	Selectable:
+		DecorationBounds: 1792, 1792
+	RenderSprites:
+		Image: badrkamikaze

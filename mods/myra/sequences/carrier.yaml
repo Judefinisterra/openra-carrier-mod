@@ -2,5 +2,9 @@ carrier:
 	idle:
 		Filename: carrier.png
 		Facings: 32
+	damaged-idle:
+		Filename: carrier.png
+		Start: 32
+		Facings: 32
 	icon:
 		Filename: carrier-icon.png

@@ -1,0 +1,8 @@
+# Silenced long-range sniper rifle: kills most infantry in one shot.
+SealSniper:
+	Inherits: ^SnipeWeapon
+	Report: silppk.aud
+	ReloadDelay: 50
+	Range: 9c0
+	Warhead@1Dam: SpreadDamage
+		Damage: 15000

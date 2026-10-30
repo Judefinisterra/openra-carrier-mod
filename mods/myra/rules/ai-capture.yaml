@@ -1,0 +1,22 @@
+# Every computer player sends engineers to capture neutral farms and oil derricks (e.g. on the Kansas map),
+# keeping a couple of engineers around while there is something left to take.
+Player:
+	CaptureManagerBotModule@neutral:
+		CapturingActorTypes: e6
+		CapturableActorTypes: farm, oilb
+		CapturableRelationships: Neutral
+		CheckCaptureTargetsForVisibility: false
+		MinimumCaptureDelay: 250
+	EngineerBuilderBotModule@neutral:
+		EngineerTypes: e6
+		TargetTypes: farm, oilb
+		MaxEngineers: 2
+# Every computer player also makes money at sea: Offshore Oil Platforms (their Oil Tankers pay $1000 a trip),
+# a Seaport for the merchant ships to dock at, and Container Ships ($5000 a trip) once it has a truce partner.
+	MerchantBotModule:
+	# Every other computer player that ends up with Shahed drones (e.g. the Hermit AI playing Iran) handles them
+	# the same way as the Iranian AI: never as escorts or squad members (see Drones.cs).
+	DroneStrikeBotModule@all:
+		RequiresCondition: !enable-iran-ai
+	# Rich computer players spend: extra factories and full production queues above $15,000 (see Spending.cs).
+	RichSpenderBotModule:

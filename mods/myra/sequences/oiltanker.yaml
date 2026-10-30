@@ -1,0 +1,7 @@
+oiltanker:
+	idle:
+		Filename: oiltanker.png
+		Facings: 32
+		Offset: 0,-4
+	icon:
+		Filename: oiltanker-icon.png

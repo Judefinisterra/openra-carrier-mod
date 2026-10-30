@@ -1,0 +1,33 @@
+# Oil Tanker: ferries oil from your Offshore Oil Platforms to your nearest Naval Yard, Sub Pen or Boat Dock,
+# $1000 a load - the sea version of an ore harvester. Every new platform launches one for free; more can be
+# built at any shipyard once you own a platform.
+OILTANKER:
+	Inherits: ^Ship
+	Buildable:
+		Queue: Ship
+		BuildPaletteOrder: 8
+		Prerequisites: oilplatform, ~techlevel.low
+		Description: actor-oiltanker.description
+	Valued:
+		Cost: 600
+	Tooltip:
+		Name: actor-oiltanker.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: false
+	Health:
+		HP: 30000
+	Armor:
+		Type: Light
+	Mobile:
+		Speed: 85
+		TurnSpeed: 16
+	RevealsShroud:
+		Range: 5c0
+	Selectable:
+		DecorationBounds: 1536, 1536
+	OilTanker:
+		Capacity: 1000
+		PreferredDockTypes: seaport
+	-AttackMove:
+	RenderSprites:
+		Image: oiltanker

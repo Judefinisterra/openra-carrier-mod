@@ -1,0 +1,33 @@
+# Container Ship: a big cargo vessel (about the size of the Typhoon Sub-Carrier). It sails on its own between your
+# Naval Yards / Sub Pens / Boat Docks and the port of a player you're in a truce with. Every time it docks it pays
+# $5000 to the side whose port it reached - your partner on the way out, you on the way back. No truce partner with
+# a port: it waits at home. If the truce ends while it's at sea, it turns back. Unarmed. See Trade.cs.
+CONTAINERSHIP:
+	Inherits: ^Ship
+	Buildable:
+		Queue: Ship
+		BuildPaletteOrder: 12
+		Prerequisites: seaport, ~techlevel.low
+		Description: actor-containership.description
+	Valued:
+		Cost: 2500
+	Tooltip:
+		Name: actor-containership.name
+	Health:
+		HP: 60000
+	Armor:
+		Type: Heavy
+	Mobile:
+		Speed: 60
+		TurnSpeed: 10
+	RevealsShroud:
+		Range: 6c0
+	TradeShip:
+		Payment: 5000
+	HitShape:
+		TargetableOffsets: 1536,0,0, 0,0,0, -1536,0,0
+	Selectable:
+		Bounds: 1792, 1792
+		DecorationBounds: 2048, 2048
+	RenderSprites:
+		Image: containership

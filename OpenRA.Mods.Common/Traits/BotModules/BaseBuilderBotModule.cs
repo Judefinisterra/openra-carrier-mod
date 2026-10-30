@@ -189,6 +189,7 @@ namespace OpenRA.Mods.Common.Traits
 		// Actor, ActorCount.
 		public Dictionary<string, int> BuildingsBeingProduced = [];
 		public IBotBaseExpansion[] BaseExpansionModules;
+		public IBotSuggestBuildingLocation[] LocationSuggesters = [];
 		public ResourceMapBotModule ResourceMapModule;
 
 		readonly World world;
@@ -236,6 +237,7 @@ namespace OpenRA.Mods.Common.Traits
 			pathFinder = self.World.WorldActor.TraitOrDefault<IPathFinder>();
 			positionsUpdatedModules = self.Owner.PlayerActor.TraitsImplementing<IBotPositionsUpdated>().ToArray();
 			BaseExpansionModules = self.Owner.PlayerActor.TraitsImplementing<IBotBaseExpansion>().ToArray();
+			LocationSuggesters = self.Owner.PlayerActor.TraitsImplementing<IBotSuggestBuildingLocation>().ToArray();
 
 			var i = 0;
 

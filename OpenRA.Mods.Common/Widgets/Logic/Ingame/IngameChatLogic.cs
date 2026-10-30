@@ -144,6 +144,12 @@ namespace OpenRA.Mods.Common.Widgets.Logic
 				var team = teamChat && !disableTeamChat;
 				if (chatText.Text != "")
 				{
+					// A registered bare command word (like a cheat) is run as a command instead of being sent as chat.
+					var bare = chatText.Text.Trim().ToLowerInvariant();
+					if (!bare.StartsWith('/') && ChatCommands.BareCommands.Contains(bare)
+						&& chatTraits != null && chatTraits.OfType<ChatCommands>().Any(c => c.Commands.ContainsKey(bare)))
+						chatText.Text = "/" + bare;
+
 					if (!chatText.Text.StartsWith('/'))
 					{
 						// This should never happen, but avoid a crash if it does somehow (chat will just stay open)

@@ -1,0 +1,197 @@
+# Tribal Warlord AI: the horde. Cheap Tribal Heroes and Lions in endless streams, RPG Fellas guarding the
+# skies at home, Hideouts that grow with the army and burst open when the base is attacked, lions that hunt
+# enemy infantry, jeeps that scout, Oil Rig Trucks for money and War Canoes for raids across water.
+# Meant to play the Tribal Kingdom. Shared AI modules (harvesters, repairs...) are switched on in ai-common.yaml.
+Player:
+	ModularBot@TribalAI:
+		Name: bot-tribal-ai.name
+		Type: tribal
+	GrantConditionOnBotOwner@tribal:
+		Condition: enable-tribal-ai
+		Bots: tribal
+	# Base: power, refineries and lots of Barracks/Kennels to pump out the horde. (Fractions are percentages
+	# of all buildings.) Hideouts are added by the adaptive module below as the army grows.
+	BaseBuilderBotModule@tribal:
+		RequiresCondition: enable-tribal-ai
+		MinimumExcessPower: 0
+		MaximumExcessPower: 150
+		ExcessPowerIncrement: 30
+		ExcessPowerIncreaseThreshold: 4
+		ConstructionYardTypes: fact
+		RefineryTypes: proc
+		InititalMinimumRefineryCount: 1
+		AdditionalMinimumRefineryCount: 2
+		PowerTypes: powr,apwr
+		ProductionTypes: barr,kenn,weap
+		NavalProductionTypes: tribaldock
+		NewProductionCashThreshold: 900
+		NewProductionChance: 80
+		DefenseTypes: spirittotem
+		PlaceDefenseTowardsEnemyChance: 60
+		BuildingLimits:
+			weap: 1
+			barr: 10
+			kenn: 6
+			proc: 5
+			tribaldock: 1
+			tribalhouse: 100
+			animalpen: 2
+			drumcircle: 1
+			spirittotem: 12
+			fieldhosp: 2
+			farm: 2
+		BuildingFractions:
+			powr: 14
+			proc: 12
+			barr: 22
+			kenn: 12
+			weap: 3
+			tribaldock: 3
+			animalpen: 4
+			drumcircle: 2
+			spirittotem: 6
+			fieldhosp: 2
+			farm: 2
+		BuildingDelays:
+			weap: 2500
+			animalpen: 3500
+			drumcircle: 2500
+			spirittotem: 2000
+			fieldhosp: 4000
+			farm: 6000
+			kenn: 1500
+			tribaldock: 5000
+	# Attacks in a steady stream of medium-sized waves instead of waiting for one giant blob.
+	SquadManagerBotModule@tribal:
+		RequiresCondition: enable-tribal-ai
+		SquadSize: 14
+		SquadSizeRandomBonus: 10
+		AttackForceInterval: 40
+		RushInterval: 900
+		RetreatLossPercent: 55
+		PreferredTargetTypes: harv, oiltruck, proc, oilb.player, powr, apwr, npp, barr, tent, weap, fact
+		PreferredTargetRadius: 16
+		DefendedTargetPenalty: 3
+		ExcludeFromSquadsTypes: protester, protester.hermit, shahed, harv, mcv, e6, mcv.tribal, rpgfella, oiltruck, canoe, oiltanker, containership, supplytruck, pitdigger, badr.troop, oilhauler
+		ConstructionYardTypes: fact
+		NavalProductionTypes: tribaldock
+		AirUnitsTypes: mig, yak, heli, hind, mh60
+		AircraftTargetType: AirborneActor
+		ProtectionTypes: harv, mcv, mcv.tribal, fact, proc, powr, apwr, barr, kenn, weap, tribalhouse, tribaldock, oilb.player, oiltruck, oiltanker, animalpen, drumcircle, spirittotem, fieldhosp, farm, supplytruck
+		IgnoredEnemyTargetTypes: AirborneActor
+		ProtectUnitScanRadius: 20
+		ProtectionScanRadius: 16
+		IdleScanRadius: 14
+	# Endless cheap spearmen and lions, some RPG Fellas for anti-air/anti-tank, a few jeeps.
+	UnitBuilderBotModule@tribal:
+		RequiresCondition: enable-tribal-ai
+		IdleBaseUnitsMaximum: 1000
+		ProductionMinCashRequirement: 20
+		UnitsToBuild:
+			tribalhero: 55
+			lion: 30
+			rpgfella: 15
+			rhino: 12
+			elephant: 8
+			witchdoctor: 5
+			jeep.tribal: 4
+		UnitLimits:
+			jeep.tribal: 3
+			witchdoctor: 4
+			elephant: 10
+	# Unpacks the starting MCV and never packs it up again. If the yard is destroyed (or the tribe is rich) it
+	# builds a Tribal MCV at the War Factory and deploys that instead.
+	McvExpansionManagerBotModule@tribal:
+		RequiresCondition: enable-tribal-ai
+		McvTypes: mcv, mcv.tribal
+		ConstructionYardTypes: fact
+		McvFactoryTypes: weap
+		MinimumConstructionYardCount: 1
+		AdditionalConstructionYardCount: 1
+		BuildAdditionalMCVCashAmount: 4000
+		NeverMoveConyards: true
+	# A few Oil Rig Trucks for extra income.
+	McvExpansionManagerBotModule@tribaloil:
+		RequiresCondition: enable-tribal-ai
+		McvTypes: oiltruck
+		ConstructionYardTypes: oilb.player
+		McvFactoryTypes: weap
+		MinimumConstructionYardCount: 2
+		AdditionalConstructionYardCount: 3
+		BuildAdditionalMCVCashAmount: 2000
+		NeverMoveConyards: true
+		CRmodeFriendlyConyardDislikeRange: 3
+		CRmodeFriendlyRefineryDislikeRange: 0
+		CRmodeMaxDeployRadius: 14
+	# Keeps Hideouts stocked with idle Tribal Heroes and Lions from around the base.
+	GarrisonBotModule@tribal:
+		RequiresCondition: enable-tribal-ai
+		HouseTypes: tribalhouse
+		UnitTypes: tribalhero, lion
+	# Hideouts grow with the horde (one per 10 warriors), RPG Fellas answer enemy tanks and aircraft,
+	# heroes and lions answer infantry. A War Factory is kept so a lost Construction Yard can be replaced.
+	AdaptiveProductionBotModule@tribal:
+		RequiresCondition: (enable-tribal-ai) && !ai-easy
+		AntiAirUnits: rpgfella
+		AntiArmorUnits: rpgfella, elephant
+		AntiInfantryUnits: tribalhero, lion, rhino
+		MaxCounterOrders: 3
+		CounterPercent: 80
+		EarlyGameTicks: 5000
+		MinimumRefineries: 2
+		ScaledBuilding: tribalhouse
+		ScaledBuildingUnits: tribalhero, lion, rpgfella, rhino, elephant
+		UnitsPerScaledBuilding: 10
+		MaxScaledBuildings: 100
+		KeepBuildings:
+			weap: 1
+		KeepBuildingsDelay: 5000
+		SurplusCash: 3000
+		SurplusBuildings:
+			barr: 16
+			kenn: 10
+			tribalhouse: 60
+			animalpen: 3
+			spirittotem: 20
+			farm: 3
+			powr: 12
+			proc: 6
+	# Lion packs hunt down enemy infantry.
+	StrikeGroupBotModule@lionhunt:
+		RequiresCondition: (enable-tribal-ai) && !ai-easy
+		UnitTypes: lion
+		MinGroupSize: 3
+		MaxGroupSize: 6
+		Interval: 500
+		TargetTypes: ~infantry
+		DirectAttack: true
+		AvoidDefenses: true
+		RetreatLossPercent: 60
+		MaxStrikeTicks: 2000
+	# A jeep keeps an eye on the enemy.
+	ScoutBotModule@tribal:
+		RequiresCondition: enable-tribal-ai
+		UnitTypes: jeep.tribal
+	# War Canoe raids across water.
+	AmphibiousAssaultBotModule@tribal:
+		RequiresCondition: (enable-tribal-ai) && !ai-easy
+		TransportTypes: canoe
+		PassengerTypes: tribalhero, rpgfella, lion, witchdoctor
+		MaxTransports: 6
+		BoatsPerWave: 4
+		MinPassengers: 6
+		LoadTimeout: 600
+		AssaultTicks: 1500
+		Interval: 60
+	# Rhino Riders raid harvesters, trucks and infantry.
+	StrikeGroupBotModule@rhinoraid:
+		RequiresCondition: (enable-tribal-ai) && !ai-easy
+		UnitTypes: rhino
+		MinGroupSize: 3
+		MaxGroupSize: 6
+		Interval: 900
+		TargetTypes: harv, oiltruck, supplytruck, ~infantry
+		DirectAttack: true
+		AvoidDefenses: true
+		RetreatLossPercent: 50
+		MaxStrikeTicks: 2500

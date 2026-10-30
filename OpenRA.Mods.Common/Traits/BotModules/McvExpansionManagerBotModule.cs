@@ -50,6 +50,9 @@ namespace OpenRA.Mods.Common.Traits
 		[Desc("Delay (in ticks) for moving a conyard to better expansion. Only work with more than 1 conyard.")]
 		public readonly int MoveConyardTick = 5700;
 
+		[Desc("Never pack up a deployed construction yard to move it; build a new MCV instead. (MyRA)")]
+		public readonly bool NeverMoveConyards = false;
+
 		[Desc("Should moving the oldest or newest conyard be preferred? Random ordering if unset.")]
 		public readonly bool? MoveOldConyardFirst = null;
 
@@ -551,7 +554,7 @@ namespace OpenRA.Mods.Common.Traits
 				BuildMCV(bot);
 			}
 
-			if (--moveConyardInterval <= 0)
+			if (!Info.NeverMoveConyards && --moveConyardInterval <= 0)
 			{
 				foreach (var amcv in activeMCVs.Keys.ToList())
 				{
