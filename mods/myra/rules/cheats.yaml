@@ -1,0 +1,13 @@
+# Cheat codes, typed in the chat box: cash, clear, nuke, guns, sadam, faster, power, anywhere, heal, jubilee, god, lips, all (see CheatCodes.cs).
+World:
+	CheatCodes:
+
+Player:
+	CheatCodeOrders:
+		GunsFactionActors:
+			tribal: tribalhero
+		TanksFactionActors:
+			allies: 2tnk
+			england: 2tnk
+			france: 2tnk
+			germany: 2tnk

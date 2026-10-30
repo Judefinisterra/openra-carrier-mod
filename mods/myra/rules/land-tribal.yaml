@@ -1,0 +1,369 @@
+# ---------------------------------------------------------------------------
+# Tribal Kingdom land units and buildings (Tribal Kingdom only):
+#   Animal Pen -> War Elephant, Rhino Rider     Witch Doctor (heals, Witch's Curse power)
+#   Spirit Totem (bravery aura)                 Pit Digger (lays hidden Ambush Pits)
+#   Drum Circle (faster training)
+# ---------------------------------------------------------------------------
+
+# Bravery from a Spirit Totem: hit harder, take less damage, charge faster.
+^TribalBravery:
+	ExternalCondition@brave:
+		Condition: brave
+	FirepowerMultiplier@brave:
+		Modifier: 125
+		RequiresCondition: brave
+	DamageMultiplier@brave:
+		Modifier: 75
+		RequiresCondition: brave
+	SpeedMultiplier@brave:
+		Modifier: 115
+		RequiresCondition: brave
+	WithColoredOverlay@brave:
+		Color: FFC80028
+		RequiresCondition: brave
+
+# The beat of the Drum Circle trains the tribe 40% faster.
+^TribalDrums:
+	ProductionTimeMultiplier@drums:
+		Multiplier: 60
+		Prerequisites: drumcircle
+
+TRIBALHERO:
+	Inherits@brave: ^TribalBravery
+	Inherits@drums: ^TribalDrums
+
+LION:
+	Inherits@brave: ^TribalBravery
+	Inherits@drums: ^TribalDrums
+
+RPGFELLA:
+	Inherits@brave: ^TribalBravery
+	Inherits@drums: ^TribalDrums
+
+# ---------------------------------------------------------------------------
+# Animal Pen: where the tribe raises its war beasts. Trains War Elephants and Rhino Riders
+# (they appear in the Infantry tab).
+ANIMALPEN:
+	Inherits: ^Building
+	Inherits@shape: ^3x2Shape
+	Inherits@PRIMARY: ^PrimaryBuilding
+	Selectable:
+		Bounds: 3072, 2048
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 47
+		Prerequisites: kenn, ~tribalkingdom
+		Description: actor-animalpen.description
+	Valued:
+		Cost: 800
+	Tooltip:
+		Name: actor-animalpen.name
+	Building:
+		Footprint: xxx xxx
+		Dimensions: 3,2
+	-GivesBuildableArea:
+	Health:
+		HP: 60000
+	Armor:
+		Type: Wood
+	RevealsShroud:
+		Range: 5c0
+	Power:
+		Amount: -20
+	RallyPoint:
+	Exit@1:
+		SpawnOffset: 0,768,0
+		ExitCell: 1,2
+		ProductionTypes: Animal
+	Exit@2:
+		SpawnOffset: 0,768,0
+		ExitCell: 2,2
+		ProductionTypes: Animal
+	Exit@3:
+		SpawnOffset: 0,768,0
+		ExitCell: 0,2
+		ProductionTypes: Animal
+	Production:
+		Produces: Infantry, Animal
+	ProductionBar:
+		ProductionType: Infantry
+	-SpawnActorsOnSell:
+	ProvidesPrerequisite@buildingname:
+	RenderSprites:
+		Image: animalpen
+
+# War Elephant: a walking fortress. Tramples infantry, gores vehicles and buildings with its tusks,
+# and two spearmen throw from the howdah on its back. Slowly heals itself.
+ELEPHANT:
+	Inherits: ^TrackedVehicle
+	Inherits@GAINSEXPERIENCE: ^GainsExperience
+	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Inherits@brave: ^TribalBravery
+	Inherits@drums: ^TribalDrums
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Animal
+		BuildPaletteOrder: 150
+		Prerequisites: ~animalpen, ~tribalkingdom
+		Description: actor-elephant.description
+	Valued:
+		Cost: 900
+	Tooltip:
+		Name: actor-elephant.name
+		GenericName: actor-elephant.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 70000
+	Armor:
+		Type: Heavy
+	Mobile:
+		Speed: 56
+		TurnSpeed: 16
+	RevealsShroud:
+		Range: 6c0
+	Armament@tusks:
+		Weapon: ElephantTusks
+	Armament@riders:
+		Weapon: TribalSpear
+		LocalOffset: 0,0,700
+	Armament@riders2:
+		Weapon: TribalSpear
+		LocalOffset: -200,0,700
+		FireDelay: 20
+	AttackFrontal:
+		FacingTolerance: 512
+	ChangesHealth@beast:
+		PercentageStep: 1
+		Delay: 50
+		StartIfBelow: 100
+		DamageCooldown: 150
+	-FireWarheadsOnDeath:
+	-Repairable:
+	Voiced:
+		VoiceSet: TribalVoice
+	WithMoveAnimation:
+		MoveSequence: walk
+	Selectable:
+		Bounds: 1536, 1536
+		DecorationBounds: 1792, 1792
+	RenderSprites:
+		Image: elephant
+
+# Rhino Rider: a fast raider. Charges through infantry (knocking them flat), rams with its horn.
+RHINO:
+	Inherits: ^TrackedVehicle
+	Inherits@GAINSEXPERIENCE: ^GainsExperience
+	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Inherits@brave: ^TribalBravery
+	Inherits@drums: ^TribalDrums
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Animal
+		BuildPaletteOrder: 151
+		Prerequisites: ~animalpen, ~tribalkingdom
+		Description: actor-rhino.description
+	Valued:
+		Cost: 450
+	Tooltip:
+		Name: actor-rhino.name
+		GenericName: actor-rhino.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 40000
+	Armor:
+		Type: Light
+	Mobile:
+		Speed: 140
+		TurnSpeed: 28
+	RevealsShroud:
+		Range: 6c0
+	Armament@horn:
+		Weapon: RhinoHorn
+	Armament@rider:
+		Weapon: TribalSpear
+		LocalOffset: 0,0,500
+		FireDelay: 10
+	AttackFrontal:
+		FacingTolerance: 512
+	ChangesHealth@beast:
+		PercentageStep: 1
+		Delay: 50
+		StartIfBelow: 100
+		DamageCooldown: 150
+	-FireWarheadsOnDeath:
+	-Repairable:
+	Voiced:
+		VoiceSet: TribalVoice
+	WithMoveAnimation:
+		MoveSequence: walk
+	Selectable:
+		Bounds: 1280, 1280
+	RenderSprites:
+		Image: rhino
+
+# Witch Doctor: heals the tribe's warriors and lions. While you have one, you can cast the Witch's Curse:
+# enemies in the area move at half speed and fire half as fast for 20 seconds.
+WITCHDOCTOR:
+	Inherits: MEDI
+	Inherits@brave: ^TribalBravery
+	Inherits@drums: ^TribalDrums
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Soldier
+		BuildPaletteOrder: 145
+		Prerequisites: ~barracks, tribalhero, tribalunits, ~tribalkingdom
+		Description: actor-witchdoctor.description
+	Valued:
+		Cost: 250
+	Tooltip:
+		Name: actor-witchdoctor.name
+	Selectable:
+		Class: WITCHDOCTOR
+	-TakeCover:
+	WithInfantryBody:
+		DefaultAttackSequence: throw
+		StandSequences: stand
+		IdleSequences: idle1, idle2
+	Voiced:
+		VoiceSet: TribalVoice
+	RenderSprites:
+		Image: witchdoctor
+	GrantExternalConditionPower@curse:
+		OrderName: WitchCurse
+		Icon: curse
+		ChargeInterval: 3000
+		Condition: cursed
+		Duration: 500
+		Dimensions: 7,7
+		Footprint: __xxx__ _xxxxx_ xxxxxxx xxxxxxx xxxxxxx _xxxxx_ __xxx__
+		ValidRelationships: Enemy, Neutral
+		OnFireSound: ironcur9.aud
+		Sequence: throw
+		Name: actor-witchdoctor.curse-name
+		Description: actor-witchdoctor.curse-description
+		SelectTargetSpeechNotification: SelectTarget
+		SelectTargetTextNotification: notification-select-target
+		Cursor: ability
+		DisplayRadarPing: true
+		SupportPowerPaletteOrder: 61
+
+# Pit Digger: digs hidden Ambush Pits (3, then digs another every 12 seconds). Enemies that step in are hurt
+# and stuck in the mud for 10 seconds. Order: select him and click (or Ctrl-drag) an area to dig.
+PITDIGGER:
+	Inherits: TRIBALHERO
+	Buildable:
+		BuildPaletteOrder: 147
+		Prerequisites: ~barracks, tribalhero, tribalunits, ~tribalkingdom
+		Description: actor-pitdigger.description
+	Valued:
+		Cost: 150
+	Tooltip:
+		Name: actor-pitdigger.name
+	Selectable:
+		Class: PITDIGGER
+	-ProvidesPrerequisite@TRIBAL:
+	Minelayer:
+		Mine: ambushpit
+		TerrainTypes: Clear, Road, Rough, Beach, Ore, Gems
+		TileUnknownName: build-valid
+		PreLayDelay: 40
+		AfterLayingDelay: 10
+	MineImmune:
+	AmmoPool:
+		Ammo: 3
+		Armaments: digging
+	ReloadAmmoPool:
+		Delay: 300
+		Count: 1
+	WithAmmoPipsDecoration:
+		Position: BottomLeft
+		Margin: 4, 3
+		RequiresSelection: true
+	RenderSprites:
+		Image: pitdigger
+
+# A covered spike pit. Invisible to the enemy (mine detectors can spot it). Your own side walks around it.
+AMBUSHPIT:
+	Inherits: ^Mine
+	Mine:
+		AvoidFriendly: true
+		BlockFriendly: false
+	FireWarheadsOnDeath:
+		Weapon: PitTrap
+	Tooltip:
+		Name: actor-ambushpit.name
+		GenericName: actor-ambushpit.name
+	RenderSprites:
+		Image: ambushpit
+
+# Spirit Totem: tribal warriors, lions and beasts within 6 cells become brave (+25% damage, -25% damage taken,
+# +15% speed; they glow gold).
+SPIRITTOTEM:
+	Inherits: ^Building
+	Inherits@shape: ^1x1Shape
+	Buildable:
+		Queue: Defense
+		BuildPaletteOrder: 10
+		Prerequisites: barr, ~tribalkingdom
+		Description: actor-spirittotem.description
+	Valued:
+		Cost: 250
+	Tooltip:
+		Name: actor-spirittotem.name
+	Building:
+		Footprint: x
+		Dimensions: 1,1
+	-GivesBuildableArea:
+	-SpawnActorsOnSell:
+	Health:
+		HP: 30000
+	Armor:
+		Type: Wood
+	RevealsShroud:
+		Range: 6c0
+	ProximityExternalCondition@brave:
+		Condition: brave
+		Range: 6c0
+		ValidRelationships: Ally
+	WithRangeCircle:
+		Type: spirittotem
+		Range: 6c0
+		Color: FFC80060
+	Selectable:
+		Bounds: 1024, 2048, 0, -512
+	RenderSprites:
+		Image: spirittotem
+
+# Drum Circle: while you have one, Barracks, Kennels and Animal Pens train 40% faster.
+DRUMCIRCLE:
+	Inherits: ^Building
+	Inherits@shape: ^2x2Shape
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 46
+		Prerequisites: barr, ~tribalkingdom
+		Description: actor-drumcircle.description
+	Valued:
+		Cost: 500
+	Tooltip:
+		Name: actor-drumcircle.name
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+	-GivesBuildableArea:
+	-SpawnActorsOnSell:
+	Health:
+		HP: 40000
+	Armor:
+		Type: Wood
+	RevealsShroud:
+		Range: 4c0
+	Power:
+		Amount: -20
+	Selectable:
+		Bounds: 2048, 2048
+	ProvidesPrerequisite@buildingname:
+	RenderSprites:
+		Image: drumcircle

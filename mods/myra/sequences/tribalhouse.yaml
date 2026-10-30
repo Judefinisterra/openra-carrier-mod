@@ -1,0 +1,14 @@
+tribalhouse:
+	Defaults:
+		Filename: tribalhouse.png
+		Offset: 0,-8
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: tribalhouse-icon.png
+		Offset: 0,0

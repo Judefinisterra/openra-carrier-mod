@@ -1,0 +1,110 @@
+# Tribal Boat Dock: a wooden jetty built on the water next to a Tribal base. Builds War Canoes.
+TRIBALDOCK:
+	Inherits: ^Building
+	Inherits@PRIMARY: ^PrimaryBuilding
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 46
+		Prerequisites: barr, ~tribalkingdom
+		Description: actor-tribaldock.description
+	Valued:
+		Cost: 300
+	Tooltip:
+		Name: actor-tribaldock.name
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+		TerrainTypes: Water
+		RequiresBaseProvider: false
+	RequiresBuildableArea:
+		AreaTypes: building
+		Adjacent: 20
+	-GivesBuildableArea:
+	Targetable:
+		TargetTypes: WaterActor, Structure, C4, DetonateAttack, SpyInfiltrate
+	Selectable:
+		Bounds: 2048, 2048
+	HitShape:
+		Type: Rectangle
+			TopLeft: -1024, -1024
+			BottomRight: 1024, 1024
+	Health:
+		HP: 40000
+	Armor:
+		Type: Wood
+	RevealsShroud:
+		Range: 5c0
+	Exit@south1:
+		SpawnOffset: -512,1024,0
+		Facing: 512
+		ExitCell: 0,2
+		ProductionTypes: Ship, Canoe
+	Exit@south2:
+		SpawnOffset: 512,1024,0
+		Facing: 512
+		ExitCell: 1,2
+		ProductionTypes: Ship, Canoe
+	Exit@east:
+		SpawnOffset: 1024,0,0
+		Facing: 768
+		ExitCell: 2,1
+		ProductionTypes: Ship, Canoe
+	Exit@west:
+		SpawnOffset: -1024,0,0
+		Facing: 256
+		ExitCell: -1,1
+		ProductionTypes: Ship, Canoe
+	Production:
+		Produces: Ship, Canoe
+	RallyPoint:
+		ForceSetType: Ship
+	ProductionBar:
+		ProductionType: Ship
+	Power:
+		Amount: -10
+	ProvidesPrerequisite@buildingname:
+	RenderSprites:
+		Image: tribaldock
+
+# War Canoe: a big dugout that ferries up to 5 infantry (Tribal Heroes, Lions...) across water and
+# lands them on any beach or shore, just like the Transport ship. Its paddlers throw spears at enemies in
+# range, and warriors riding along throw more.
+CANOE:
+	Inherits: LST
+	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	-WithLandingCraftAnimation:
+	Buildable:
+		Queue: Ship
+		BuildAtProductionType: Canoe
+		BuildPaletteOrder: 5
+		Prerequisites: ~tribaldock, ~tribalkingdom
+		Description: actor-canoe.description
+	Valued:
+		Cost: 150
+	Tooltip:
+		Name: actor-canoe.name
+	Health:
+		HP: 15000
+	Armor:
+		Type: Light
+	Mobile:
+		Speed: 130
+	Cargo:
+		Types: Infantry
+		MaxWeight: 5
+		LoadedCondition: loaded
+	# The paddlers always throw spears; warriors riding along throw more.
+	Armament@crew:
+		Weapon: TribalSpear
+		LocalOffset: 0,0,256
+	Armament@warriors:
+		Weapon: TribalSpear
+		LocalOffset: 0,0,256
+		FireDelay: 20
+		RequiresCondition: loaded
+	AttackFrontal:
+		FacingTolerance: 512
+	RepairableNear:
+		RepairActors: spen, syrd, tribaldock
+	RenderSprites:
+		Image: canoe

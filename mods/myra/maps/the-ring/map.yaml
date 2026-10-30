@@ -1,0 +1,179 @@
+MapFormat: 12
+
+RequiresMod: myra
+
+Title: The Ring
+
+Author: PJ & Claude
+
+Tileset: TEMPERAT
+
+MapSize: 112,112
+
+Bounds: 1,1,110,110
+
+Visibility: Lobby
+
+Categories: Conquest
+
+Players:
+	PlayerReference@Neutral:
+		Name: Neutral
+		OwnsWorld: True
+		NonCombatant: True
+		Faction: england
+	PlayerReference@Creeps:
+		Name: Creeps
+		NonCombatant: True
+		Faction: england
+		Enemies: Multi0, Multi1, Multi2, Multi3
+	PlayerReference@Multi0:
+		Name: Multi0
+		Playable: True
+		Faction: Random
+		Enemies: Creeps
+	PlayerReference@Multi1:
+		Name: Multi1
+		Playable: True
+		Faction: Random
+		Enemies: Creeps
+	PlayerReference@Multi2:
+		Name: Multi2
+		Playable: True
+		Faction: Random
+		Enemies: Creeps
+	PlayerReference@Multi3:
+		Name: Multi3
+		Playable: True
+		Faction: Random
+		Enemies: Creeps
+
+Actors:
+	Actor0: t16
+		Owner: Neutral
+		Location: 73,7
+	Actor1: t06
+		Owner: Neutral
+		Location: 8,37
+	Actor2: mine
+		Owner: Neutral
+		Location: 72,78
+	Actor3: mine
+		Owner: Neutral
+		Location: 33,72
+	Actor4: mine
+		Owner: Neutral
+		Location: 39,33
+	Actor5: mine
+		Owner: Neutral
+		Location: 78,39
+	Actor6: mine
+		Owner: Neutral
+		Location: 68,90
+	Actor7: mine
+		Owner: Neutral
+		Location: 21,68
+	Actor8: mine
+		Owner: Neutral
+		Location: 43,21
+	Actor9: mine
+		Owner: Neutral
+		Location: 90,43
+	Actor10: mine
+		Owner: Neutral
+		Location: 76,98
+	Actor11: mine
+		Owner: Neutral
+		Location: 13,76
+	Actor12: mine
+		Owner: Neutral
+		Location: 35,13
+	Actor13: mine
+		Owner: Neutral
+		Location: 98,35
+	Actor14: mine
+		Owner: Neutral
+		Location: 98,54
+	Actor15: mine
+		Owner: Neutral
+		Location: 57,98
+	Actor16: mine
+		Owner: Neutral
+		Location: 13,57
+	Actor17: mine
+		Owner: Neutral
+		Location: 54,13
+	Actor18: mine
+		Owner: Neutral
+		Location: 37,96
+	Actor19: mine
+		Owner: Neutral
+		Location: 15,37
+	Actor20: mine
+		Owner: Neutral
+		Location: 74,15
+	Actor21: mine
+		Owner: Neutral
+		Location: 96,74
+	Actor22: mine
+		Owner: Neutral
+		Location: 58,87
+	Actor23: mine
+		Owner: Neutral
+		Location: 24,58
+	Actor24: mine
+		Owner: Neutral
+		Location: 53,24
+	Actor25: mine
+		Owner: Neutral
+		Location: 87,53
+	Actor26: oilb
+		Owner: Neutral
+		Location: 60,58
+	Actor27: oilb
+		Owner: Neutral
+		Location: 52,60
+	Actor28: oilb
+		Owner: Neutral
+		Location: 50,52
+	Actor29: oilb
+		Owner: Neutral
+		Location: 58,50
+	Actor30: oilb
+		Owner: Neutral
+		Location: 69,30
+	Actor31: oilb
+		Owner: Neutral
+		Location: 80,69
+	Actor32: oilb
+		Owner: Neutral
+		Location: 41,80
+	Actor33: oilb
+		Owner: Neutral
+		Location: 30,41
+	Actor34: oilb
+		Owner: Neutral
+		Location: 81,66
+	Actor35: oilb
+		Owner: Neutral
+		Location: 44,81
+	Actor36: oilb
+		Owner: Neutral
+		Location: 29,44
+	Actor37: oilb
+		Owner: Neutral
+		Location: 66,29
+	Actor38: mpspawn
+		Owner: Neutral
+		Location: 24,78
+	Actor39: mpspawn
+		Owner: Neutral
+		Location: 33,24
+	Actor40: mpspawn
+		Owner: Neutral
+		Location: 87,33
+	Actor41: mpspawn
+		Owner: Neutral
+		Location: 78,87
+
+Rules:

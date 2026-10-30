@@ -1,0 +1,37 @@
+# Hideout: a run-down house for the Tribal Kingdom. Hides up to 10 Tribal Heroes / Lions,
+# safe from airstrikes. They pour out when enemies come near or the house is attacked,
+# or when you press D. If the house is destroyed they run out instead of dying.
+TRIBALHOUSE:
+	Inherits: ^Building
+	Inherits@shape: ^2x2Shape
+	Inherits@CARGOPIPS: ^CargoPips
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 45
+		Prerequisites: barr, ~tribalkingdom
+		Description: actor-tribalhouse.description
+	Valued:
+		Cost: 300
+	Tooltip:
+		Name: actor-tribalhouse.name
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+	Health:
+		HP: 50000
+	Armor:
+		Type: Wood
+	RevealsShroud:
+		Range: 5c0
+	Cargo:
+		Types: Infantry
+		MaxWeight: 10
+		EjectOnDeath: true
+		EjectOnSell: true
+	UnloadWhenThreatened:
+		Range: 8c0
+	Selectable:
+		Bounds: 2048, 2048
+		DecorationBounds: 2048, 2560, 0, -256
+	RenderSprites:
+		Image: tribalhouse

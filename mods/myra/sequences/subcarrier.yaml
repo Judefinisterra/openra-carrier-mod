@@ -1,0 +1,18 @@
+subcarrier:
+	idle:
+		Filename: subcarrier.png
+		Facings: 32
+	icon:
+		Filename: subcarrier-icon.png
+	turret-cannon:
+		Filename: subcarrier-turret-cannon.png
+		Facings: 32
+	turret-artillery:
+		Filename: subcarrier-turret-artillery.png
+		Facings: 32
+
+subnuke-missile:
+	idle:
+		Filename: subnuke-missile.png
+		Facings: 32
+		ZOffset: 1023

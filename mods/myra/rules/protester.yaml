@@ -1,0 +1,28 @@
+# War Protester: $1, unarmed. Just walks around holding a protest sign.
+PROTESTER:
+	Inherits: ^Soldier
+	Inherits@selection: ^SelectableSupportUnit
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Soldier
+		BuildPaletteOrder: 144
+		Prerequisites: ~barracks
+		Description: actor-protester.description
+	Valued:
+		Cost: 1
+	Tooltip:
+		Name: actor-protester.name
+	UpdatesPlayerStatistics:
+	Health:
+		HP: 2500
+	-AttackFrontal:
+	-TakeCover:
+	WithInfantryBody:
+		StandSequences: stand
+		IdleSequences: idle1
+		MinIdleDelay: 20
+		MaxIdleDelay: 60
+	Voiced:
+		VoiceSet: CivilianMaleVoice
+	RenderSprites:
+		Image: protester

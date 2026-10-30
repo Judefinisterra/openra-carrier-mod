@@ -1,0 +1,67 @@
+# Goliath's fists: wrecks vehicles, ships and buildings.
+GoliathSmash:
+	ReloadDelay: 35
+	Range: 1c512
+	Report: kaboom12.aud
+	ValidTargets: Ground, Water, GroundActor, WaterActor
+	InvalidTargets: Infantry
+	Projectile: InstantHit
+	Warhead@1Dam: SpreadDamage
+		Spread: 384
+		Damage: 25000
+		ValidTargets: GroundActor, WaterActor
+		InvalidTargets: Infantry
+		Versus:
+			None: 100
+			Wood: 100
+			Light: 100
+			Heavy: 100
+			Concrete: 100
+		DamageTypes: Prone50Percent, TriggerProne, ExplosionDeath
+	Warhead@2Eff: CreateEffect
+		Explosions: artillery_explosion
+		ValidTargets: Ground, GroundActor, WaterActor, Water
+	Warhead@3Shake: ShakeScreen
+		Duration: 4
+		Intensity: 2
+		Multiplier: 1,1
+
+# Goliath grabs infantry and rips them in half.
+GoliathRip:
+	ReloadDelay: 40
+	Range: 1c256
+	Report: squishy2.aud
+	ValidTargets: Infantry
+	Projectile: InstantHit
+	Warhead@1Dam: TargetDamage
+		Damage: 1000000
+		ValidTargets: Infantry
+		DamageTypes: RippedDeath
+	Warhead@2Eff: CreateEffect
+		Image: goliath-rip
+		Explosions: ripped
+		ValidTargets: Infantry
+
+# David's sling: a pebble that barely hurts anything, except Goliath.
+DavidSling:
+	ReloadDelay: 60
+	Range: 5c0
+	Report: gun5.aud
+	ValidTargets: Ground, GroundActor, WaterActor
+	Projectile: Bullet
+		Speed: 140
+		LaunchAngle: 40
+		Blockable: false
+		Image: david-stone
+	Warhead@1Dam: SpreadDamage
+		Spread: 128
+		Damage: 400
+		ValidTargets: GroundActor, WaterActor
+		Versus:
+			None: 100
+			Wood: 10
+			Light: 10
+			Heavy: 5
+			Concrete: 5
+			Giant: 50000
+		DamageTypes: Prone50Percent, TriggerProne, DefaultDeath

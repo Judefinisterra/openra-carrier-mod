@@ -1,0 +1,324 @@
+MapFormat: 12
+
+RequiresMod: myra
+
+Title: Kansas
+
+Author: PJ & Claude
+
+Tileset: TEMPERAT
+
+MapSize: 256,256
+
+Bounds: 1,1,254,254
+
+Visibility: Lobby
+
+Categories: Conquest
+
+Players:
+	PlayerReference@Neutral:
+		Name: Neutral
+		OwnsWorld: True
+		NonCombatant: True
+		Faction: england
+	PlayerReference@Creeps:
+		Name: Creeps
+		NonCombatant: True
+		Faction: england
+		Enemies: Multi0, Multi1, Multi2, Multi3, Multi4, Multi5, Multi6, Multi7
+	PlayerReference@Multi0:
+		Name: Multi0
+		Playable: True
+		Faction: Random
+		Enemies: Creeps
+	PlayerReference@Multi1:
+		Name: Multi1
+		Playable: True
+		Faction: Random
+		Enemies: Creeps
+	PlayerReference@Multi2:
+		Name: Multi2
+		Playable: True
+		Faction: Random
+		Enemies: Creeps
+	PlayerReference@Multi3:
+		Name: Multi3
+		Playable: True
+		Faction: Random
+		Enemies: Creeps
+	PlayerReference@Multi4:
+		Name: Multi4
+		Playable: True
+		Faction: Random
+		Enemies: Creeps
+	PlayerReference@Multi5:
+		Name: Multi5
+		Playable: True
+		Faction: Random
+		Enemies: Creeps
+	PlayerReference@Multi6:
+		Name: Multi6
+		Playable: True
+		Faction: Random
+		Enemies: Creeps
+	PlayerReference@Multi7:
+		Name: Multi7
+		Playable: True
+		Faction: Random
+		Enemies: Creeps
+
+Actors:
+	Actor0: mpspawn
+		Owner: Neutral
+		Location: 40,40
+	Actor1: mpspawn
+		Owner: Neutral
+		Location: 128,28
+	Actor2: mpspawn
+		Owner: Neutral
+		Location: 216,40
+	Actor3: mpspawn
+		Owner: Neutral
+		Location: 228,128
+	Actor4: mpspawn
+		Owner: Neutral
+		Location: 216,216
+	Actor5: mpspawn
+		Owner: Neutral
+		Location: 128,228
+	Actor6: mpspawn
+		Owner: Neutral
+		Location: 40,216
+	Actor7: mpspawn
+		Owner: Neutral
+		Location: 28,128
+	Actor8: farm
+		Owner: Neutral
+		Location: 179,118
+	Actor9: farm
+		Owner: Neutral
+		Location: 83,46
+	Actor10: farm
+		Owner: Neutral
+		Location: 33,102
+	Actor11: farm
+		Owner: Neutral
+		Location: 109,11
+	Actor12: farm
+		Owner: Neutral
+		Location: 236,47
+	Actor13: farm
+		Owner: Neutral
+		Location: 179,203
+	Actor14: farm
+		Owner: Neutral
+		Location: 116,148
+	Actor15: farm
+		Owner: Neutral
+		Location: 9,101
+	Actor16: farm
+		Owner: Neutral
+		Location: 220,177
+	Actor17: farm
+		Owner: Neutral
+		Location: 237,221
+	Actor18: farm
+		Owner: Neutral
+		Location: 174,176
+	Actor19: farm
+		Owner: Neutral
+		Location: 101,195
+	Actor20: farm
+		Owner: Neutral
+		Location: 145,234
+	Actor21: farm
+		Owner: Neutral
+		Location: 192,28
+	Actor22: farm
+		Owner: Neutral
+		Location: 126,52
+	Actor23: farm
+		Owner: Neutral
+		Location: 176,60
+	Actor24: farm
+		Owner: Neutral
+		Location: 72,70
+	Actor25: farm
+		Owner: Neutral
+		Location: 47,65
+	Actor26: farm
+		Owner: Neutral
+		Location: 197,147
+	Actor27: farm
+		Owner: Neutral
+		Location: 50,160
+	Actor28: farm
+		Owner: Neutral
+		Location: 89,108
+	Actor29: farm
+		Owner: Neutral
+		Location: 154,87
+	Actor30: farm
+		Owner: Neutral
+		Location: 222,148
+	Actor31: farm
+		Owner: Neutral
+		Location: 215,72
+	Actor32: farm
+		Owner: Neutral
+		Location: 138,183
+	Actor33: farm
+		Owner: Neutral
+		Location: 25,58
+	Actor34: farm
+		Owner: Neutral
+		Location: 107,36
+	Actor35: farm
+		Owner: Neutral
+		Location: 221,104
+	Actor36: oilb
+		Owner: Neutral
+		Location: 148,227
+	Actor37: oilb
+		Owner: Neutral
+		Location: 207,23
+	Actor38: oilb
+		Owner: Neutral
+		Location: 213,173
+	Actor39: oilb
+		Owner: Neutral
+		Location: 191,66
+	Actor40: oilb
+		Owner: Neutral
+		Location: 161,41
+	Actor41: oilb
+		Owner: Neutral
+		Location: 81,144
+	Actor42: oilb
+		Owner: Neutral
+		Location: 91,197
+	Actor43: oilb
+		Owner: Neutral
+		Location: 22,185
+	Actor44: oilb
+		Owner: Neutral
+		Location: 240,10
+	Actor45: oilb
+		Owner: Neutral
+		Location: 166,144
+	Actor46: oilb
+		Owner: Neutral
+		Location: 60,32
+	Actor47: oilb
+		Owner: Neutral
+		Location: 40,122
+	Actor48: oilb
+		Owner: Neutral
+		Location: 124,212
+	Actor49: oilb
+		Owner: Neutral
+		Location: 205,120
+	Actor50: oilb
+		Owner: Neutral
+		Location: 208,53
+	Actor51: oilb
+		Owner: Neutral
+		Location: 227,161
+	Actor52: oilb
+		Owner: Neutral
+		Location: 121,183
+	Actor53: oilb
+		Owner: Neutral
+		Location: 199,242
+	Actor54: oilb
+		Owner: Neutral
+		Location: 27,6
+	Actor55: oilb
+		Owner: Neutral
+		Location: 177,31
+	Actor56: oilb
+		Owner: Neutral
+		Location: 133,62
+	Actor57: oilb
+		Owner: Neutral
+		Location: 216,96
+	Actor58: oilb
+		Owner: Neutral
+		Location: 119,74
+	Actor59: oilb
+		Owner: Neutral
+		Location: 82,174
+	Actor60: oilb
+		Owner: Neutral
+		Location: 243,235
+	Actor61: oilb
+		Owner: Neutral
+		Location: 60,204
+	Actor62: oilb
+		Owner: Neutral
+		Location: 180,103
+	Actor63: oilb
+		Owner: Neutral
+		Location: 142,92
+	Actor64: oilb
+		Owner: Neutral
+		Location: 80,13
+	Actor65: oilb
+		Owner: Neutral
+		Location: 154,75
+	Actor66: oilb
+		Owner: Neutral
+		Location: 73,129
+	Actor67: oilb
+		Owner: Neutral
+		Location: 118,105
+	Actor68: oilb
+		Owner: Neutral
+		Location: 248,92
+	Actor69: oilb
+		Owner: Neutral
+		Location: 16,20
+	Actor70: oilb
+		Owner: Neutral
+		Location: 72,189
+	Actor71: oilb
+		Owner: Neutral
+		Location: 65,61
+	Actor72: oilb
+		Owner: Neutral
+		Location: 34,139
+	Actor73: oilb
+		Owner: Neutral
+		Location: 75,94
+	Actor74: oilb
+		Owner: Neutral
+		Location: 63,114
+	Actor75: oilb
+		Owner: Neutral
+		Location: 167,60
+	Actor76: oilb
+		Owner: Neutral
+		Location: 241,182
+	Actor77: oilb
+		Owner: Neutral
+		Location: 152,21
+	Actor78: oilb
+		Owner: Neutral
+		Location: 167,166
+	Actor79: oilb
+		Owner: Neutral
+		Location: 99,135
+	Actor80: oilb
+		Owner: Neutral
+		Location: 56,182
+	Actor81: oilb
+		Owner: Neutral
+		Location: 67,159
+	Actor82: oilb
+		Owner: Neutral
+		Location: 12,58
+	Actor83: oilb
+		Owner: Neutral
+		Location: 150,106
+

@@ -1,0 +1,34 @@
+# Thrown spear: flies slowly in an arc. Kills any infantry it hits outright,
+# but only scratches vehicles and buildings.
+TribalSpear:
+	ReloadDelay: 50
+	Report: tthrow.wav
+	Range: 6c0
+	ValidTargets: Ground, Water, GroundActor, WaterActor
+	Projectile: Bullet
+		Speed: 70
+		LaunchAngle: 24
+		Blockable: false
+		Image: tribal-spear
+		Shadow: true
+	Warhead@1Infantry: SpreadDamage
+		Spread: 200
+		Damage: 100000
+		ValidTargets: Infantry
+		DamageTypes: DefaultDeath
+	Warhead@2Other: SpreadDamage
+		Spread: 128
+		Damage: 1200
+		ValidTargets: GroundActor, WaterActor
+		InvalidTargets: Infantry
+		Versus:
+			Wood: 50
+			Light: 40
+			Heavy: 10
+			Concrete: 10
+	Warhead@3Eff: CreateEffect
+		Explosions: piff
+		ValidTargets: Ground, GroundActor, Trees
+	Warhead@4EffWater: CreateEffect
+		Explosions: water_piff
+		ValidTargets: Water, Underwater

@@ -1,0 +1,38 @@
+# ---------------------------------------------------------------------------
+# Tribal Kingdom: a Soviet-side country, playable by humans and the AI.
+# Builds only Power Plants, Refineries, Barracks and Kennels (see tribal-restrictions.yaml),
+# trains only Tribal Heroes and Lions - no Fortress needed - and wins by numbers.
+# ---------------------------------------------------------------------------
+^BaseWorld:
+	Faction@tribal:
+		Name: faction-tribal.name
+		InternalName: tribal
+		Side: Soviet
+		Description: faction-tribal.description
+
+World:
+	StartingUnits@lighttribal:
+		Class: light
+		ClassName: options-starting-units.light-support
+		Factions: tribal
+		BaseActor: mcv
+		SupportActors: tribalhero,tribalhero,tribalhero,tribalhero,tribalhero,lion,lion,lion
+		InnerSupportRadius: 3
+		OuterSupportRadius: 5
+	StartingUnits@heavytribal:
+		Class: heavy
+		ClassName: options-starting-units.heavy-support
+		Factions: tribal
+		BaseActor: mcv
+		SupportActors: tribalhero,tribalhero,tribalhero,tribalhero,tribalhero,tribalhero,tribalhero,tribalhero,tribalhero,tribalhero,lion,lion,lion,lion,lion,lion
+		InnerSupportRadius: 3
+		OuterSupportRadius: 5
+
+# Tribal Kingdom's only vehicle (besides Harvesters): the Allied Jeep, built at its War Factory.
+JEEP.TRIBAL:
+	Inherits: JEEP
+	Buildable:
+		Prerequisites: ~vehicles.soviet, ~tribalkingdom
+		BuildPaletteOrder: 15
+	RenderSprites:
+		Image: jeep

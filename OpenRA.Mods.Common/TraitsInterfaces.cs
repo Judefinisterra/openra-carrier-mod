@@ -644,6 +644,12 @@ namespace OpenRA.Mods.Common.Traits
 	}
 
 	[RequireExplicitImplementation]
+	/// <summary>(MyRA) Lets a bot module choose where the base builder places a finished building.</summary>
+	public interface IBotSuggestBuildingLocation
+	{
+		CPos? SuggestLocation(IBot bot, string actorType, ActorInfo actorInfo, BuildingInfo buildingInfo);
+	}
+
 	public interface IBotSuggestRefineryProduction
 	{
 		void RequestLocation(CPos refineryLocation, CPos conyardLocation, Actor expandActor);

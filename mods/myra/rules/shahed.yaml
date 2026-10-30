@@ -1,0 +1,69 @@
+# Shahed one-way attack drone: built at the Barracks, flies to its target and
+# explodes like a V2 rocket. Sits parked on the ground while waiting for orders.
+SHAHED:
+	Inherits: ^Plane
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Soldier
+		BuildPaletteOrder: 130
+		Prerequisites: ~barracks, shahedunits, ~iranfaction
+		Description: actor-shahed.description
+	Valued:
+		Cost: 20
+	Tooltip:
+		Name: actor-shahed.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 2000
+	Armor:
+		Type: Light
+	RevealsShroud:
+		Range: 5c0
+		Type: GroundPosition
+	# Unlimited range (no fuel), slower than a V2 rocket (V2 rocket speed is 170).
+	Aircraft:
+		CruiseAltitude: 768
+		Speed: 110
+		TurnSpeed: 12
+		RepulsionSpeed: 40
+		MaximumPitch: 56
+		# Stays parked on the ground next to the Barracks until given a target,
+		# and lands wherever it is when it has nothing to do.
+		VTOL: true
+		TakeOffOnCreation: false
+		IdleBehavior: Land
+		LandableTerrainTypes: Clear, Rough, Road, Ore, Gems, Beach
+	# "Weapon" that only decides when it is close enough to dive in.
+	Armament:
+		Weapon: ShahedTargeting
+	AttackAircraft:
+		FacingTolerance: 512
+		OpportunityFire: False
+	AutoTarget:
+		InitialStance: HoldFire
+		InitialStanceAI: HoldFire
+	GrantConditionOnAttack:
+		Condition: triggered
+	KillsSelf:
+		RequiresCondition: triggered
+	# Explodes on the ground below it, whether it reaches the target or is shot down.
+	-FireWarheadsOnDeath:
+	FireWarheadsOnDeath@AIR:
+		Weapon: ShahedBlast
+		EmptyWeapon: ShahedBlast
+		Offset: 0,0,-768
+		RequiresCondition: airborne
+	FireWarheadsOnDeath@GROUND:
+		Weapon: ShahedBlast
+		EmptyWeapon: ShahedBlast
+		RequiresCondition: !airborne
+	-SpawnActorOnDeath:
+	-EjectOnDeath:
+	-Repairable:
+	-MustBeDestroyed:
+	RenderSprites:
+		Image: shahed
+	Selectable:
+		Bounds: 768, 768
+		DecorationBounds: 768, 768

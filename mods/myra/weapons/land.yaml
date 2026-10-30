@@ -1,0 +1,258 @@
+# Weapons for the land units (see rules/land-*.yaml).
+
+# War Elephant tusks: a heavy close-range goring attack against vehicles and buildings.
+ElephantTusks:
+	ReloadDelay: 45
+	Range: 1c768
+	Report: tgrunt2.wav
+	ValidTargets: Vehicle, Structure, Wall
+	Projectile: InstantHit
+	Warhead@1Dam: SpreadDamage
+		Spread: 256
+		Damage: 7000
+		ValidTargets: Vehicle, Structure, Wall
+		Versus:
+			Wood: 100
+			Light: 100
+			Heavy: 70
+			Concrete: 50
+		DamageTypes: Prone50Percent, TriggerProne, DefaultDeath
+	Warhead@2Eff: CreateEffect
+		Explosions: piff
+		ValidTargets: Vehicle, Structure, Wall
+
+# Rhino horn: a fast ram that hurts anything on the ground.
+RhinoHorn:
+	ReloadDelay: 30
+	Range: 1c512
+	Report: tgrunt1.wav
+	ValidTargets: Ground, GroundActor
+	Projectile: InstantHit
+	Warhead@1Dam: SpreadDamage
+		Spread: 256
+		Damage: 5500
+		ValidTargets: GroundActor
+		Versus:
+			None: 120
+			Wood: 60
+			Light: 100
+			Heavy: 50
+			Concrete: 30
+		DamageTypes: Prone50Percent, TriggerProne, DefaultDeath
+	Warhead@2Eff: CreateEffect
+		Explosions: piff
+		ValidTargets: GroundActor
+
+# Ambush pit: hurts whoever falls in and leaves them stuck in the mud (90% slower) for 10 seconds.
+PitTrap:
+	ValidTargets: Ground, GroundActor
+	Warhead@1Dam: SpreadDamage
+		Spread: 384
+		Damage: 6000
+		ValidTargets: GroundActor
+		Versus:
+			None: 60
+			Wood: 100
+			Light: 100
+			Heavy: 70
+			Concrete: 20
+		DamageTypes: Prone50Percent, TriggerProne, DefaultDeath
+	Warhead@2Stuck: GrantExternalCondition
+		Range: 1c0
+		Duration: 250
+		Condition: stuck
+		ValidTargets: GroundActor
+	Warhead@3Eff: CreateEffect
+		Explosions: piffs
+		ImpactSounds: tgrunt3.wav
+		ValidTargets: Ground, GroundActor
+	Warhead@4Smu: LeaveSmudge
+		SmudgeType: Crater
+		ValidTargets: Ground
+
+# Technical's heavy machine gun.
+TechnicalMG:
+	Inherits: M60mg
+	Range: 5c0
+	ReloadDelay: 22
+	Warhead@1Dam: SpreadDamage
+		Damage: 1300
+
+# Rocket Technical's rocket pod: two quick anti-tank rockets.
+TechnicalRockets:
+	Inherits: Dragon
+	ReloadDelay: 70
+	Range: 5c512
+	Burst: 2
+	BurstDelays: 8
+	Warhead@1Dam: SpreadDamage
+		Damage: 3500
+
+# Shahed Launch Truck: an invisible "weapon" that only triggers the drone launch.
+DroneLaunch:
+	ReloadDelay: 750
+	Range: 14c0
+	MinRange: 2c0
+	Report: missile1.aud
+	ValidTargets: Ground, Water, GroundActor, WaterActor, Structure
+	Projectile: InstantHit
+
+# Missile City: one ballistic missile of the volley. Lands with a big blast (like a V2 rocket, but more).
+MissileCityRocket:
+	Inherits: SCUD
+	Range: 999c0
+	MinRange: 0c0
+	Projectile: Bullet
+		Speed: 260
+		LaunchAngle: 100
+		Inaccuracy: 0
+		Image: V2
+		Shadow: True
+		TrailImage: smokey
+		TrailDelay: 3
+	Warhead@1Dam: SpreadDamage
+		Spread: 512
+		Damage: 9000
+		Versus:
+			None: 90
+			Wood: 90
+			Tree: 75
+			Light: 80
+			Heavy: 55
+			Concrete: 45
+
+# Burning oil: damages everything right next to the fire.
+OilFireBurn:
+	ValidTargets: Ground, Water, GroundActor, WaterActor
+	Warhead@1Dam: SpreadDamage
+		Spread: 768
+		Damage: 900
+		Falloff: 100, 60, 0
+		ValidTargets: GroundActor, WaterActor
+		Versus:
+			None: 100
+			Wood: 60
+			Light: 70
+			Heavy: 35
+			Concrete: 15
+		DamageTypes: Prone50Percent, TriggerProne, FireDeath
+
+# Inflatable decoy popping.
+DecoyPop:
+	ValidTargets: Ground, Water
+	Warhead@1Eff: CreateEffect
+		Explosions: piffs
+		ImpactSounds: tgrunt3.wav
+		ValidTargets: Ground, Water
+
+# Decoy tank's "gun" (only there so the turret can be drawn; never fires).
+DecoyNothing:
+	Range: 0c1
+	ValidTargets: Nothing
+	Projectile: InstantHit
+
+# Suicide bomber: only decides when he's close enough to blow up.
+SuicideBomberTargeting:
+	ValidTargets: Ground, Water, GroundActor, WaterActor, Structure
+	Range: 1c0
+	ReloadDelay: 1
+	Projectile: InstantHit
+	Warhead@1Dam: TargetDamage
+		ValidTargets: DetonateAttack
+
+# The vest: wipes out infantry nearby and badly damages vehicles and buildings.
+SuicideVest:
+	ValidTargets: Ground, Water, GroundActor, WaterActor
+	Warhead@1Dam: SpreadDamage
+		Spread: 512
+		Damage: 20000
+		Falloff: 100, 60, 25, 0
+		ValidTargets: GroundActor, WaterActor
+		Versus:
+			None: 100
+			Wood: 120
+			Light: 90
+			Heavy: 60
+			Concrete: 70
+		DamageTypes: Prone50Percent, TriggerProne, FireDeath
+	Warhead@2Eff: CreateEffect
+		Explosions: med_explosion
+		ImpactSounds: kaboom25.aud
+		ValidTargets: Ground, Water, GroundActor, WaterActor
+	Warhead@3Smu: LeaveSmudge
+		SmudgeType: Scorch
+		ValidTargets: Ground
+
+# Kamikaze Badger: dives once the target is right underneath.
+KamikazeTargeting:
+	ValidTargets: Ground, Water, GroundActor, WaterActor, Structure
+	Range: 2c768
+	ReloadDelay: 1
+	Projectile: InstantHit
+	Warhead@1Dam: TargetDamage
+		ValidTargets: DetonateAttack
+
+# A Badger full of explosives hitting the ground: enough to flatten a building.
+KamikazeBlast:
+	ValidTargets: Ground, Water, GroundActor, WaterActor
+	Warhead@1Dam: SpreadDamage
+		Spread: 1c512
+		Damage: 230000
+		Falloff: 100, 80, 45, 15, 0
+		ValidTargets: GroundActor, WaterActor
+		Versus:
+			None: 100
+			Wood: 100
+			Light: 100
+			Heavy: 100
+			Concrete: 100
+		DamageTypes: Prone50Percent, TriggerProne, FireDeath
+	Warhead@2Eff: CreateEffect
+		Explosions: building_napalm
+		ImpactSounds: kaboom22.aud
+		ValidTargets: Ground, Water, GroundActor, WaterActor
+	Warhead@3Eff: CreateEffect
+		Explosions: large_explosion
+		ValidTargets: Ground, Water, GroundActor, WaterActor
+	Warhead@4Smu: LeaveSmudge
+		SmudgeType: Crater
+		ValidTargets: Ground
+	Warhead@5Shake: ShakeScreen
+		Duration: 10
+		Intensity: 3
+		Multiplier: 1,1
+
+# Truck bomb: goes off when it reaches the target.
+TruckBombTargeting:
+	ValidTargets: Ground, Water, GroundActor, WaterActor, Structure
+	Range: 1c256
+	ReloadDelay: 1
+	Projectile: InstantHit
+	Warhead@1Dam: TargetDamage
+		ValidTargets: DetonateAttack
+
+TruckBombBlast:
+	ValidTargets: Ground, Water, GroundActor, WaterActor
+	Warhead@1Dam: SpreadDamage
+		Spread: 1c0
+		Damage: 90000
+		Falloff: 100, 65, 35, 12, 0
+		ValidTargets: GroundActor, WaterActor
+		Versus:
+			None: 100
+			Wood: 100
+			Light: 100
+			Heavy: 90
+			Concrete: 85
+		DamageTypes: Prone50Percent, TriggerProne, FireDeath
+	Warhead@2Eff: CreateEffect
+		Explosions: building_napalm
+		ImpactSounds: kaboom22.aud
+		ValidTargets: Ground, Water, GroundActor, WaterActor
+	Warhead@3Smu: LeaveSmudge
+		SmudgeType: Crater
+		ValidTargets: Ground
+	Warhead@4Shake: ShakeScreen
+		Duration: 6
+		Intensity: 2
+		Multiplier: 1,1

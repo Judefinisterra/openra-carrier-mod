@@ -1,0 +1,151 @@
+# Fortress (internal name FANTASY, formerly "PJ's Fantasy Factory"): a Cold War concrete command bunker (3x3).
+# While you own one, you can build the custom units. Armed with 5 Tesla coils (four on the deck corners, one on
+# the command tower), 6 machine guns behind the firing slits and 10 SAM launchers on the roof.
+FANTASY:
+	Inherits: ^Building
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 16
+		Description: actor-fantasy.description
+	Valued:
+		Cost: 350
+	Tooltip:
+		Name: actor-fantasy.name
+	Building:
+		Footprint: xxx xxx xxx
+		Dimensions: 3,3
+	HitShape:
+		UseTargetableCellsOffsets: true
+		Type: Rectangle
+			TopLeft: -1536, -1536
+			BottomRight: 1536, 1536
+	Health:
+		HP: 200000
+	Armor:
+		Type: Heavy
+	RevealsShroud:
+		Range: 8c0
+	ProvidesPrerequisite@FANTASY:
+		Prerequisite: fantasyfactory
+	Selectable:
+		Bounds: 3072, 4096, 0, -512
+		DecorationBounds: 3072, 4096, 0, -512
+	RenderSprites:
+		Image: fantasyfactory
+	RenderRangeCircle:
+		RangeCircleType: aa
+	AutoTarget:
+	AutoTargetPriority@GROUND:
+		ValidTargets: Infantry, Vehicle, Ship, Underwater
+		InvalidTargets: NoAutoTarget
+	AutoTargetPriority@AIR:
+		ValidTargets: AirborneActor
+		InvalidTargets: NoAutoTarget
+	AttackOmni:
+		Armaments: tesla1, tesla2, tesla3, tesla4, tesla5, pillbox1, pillbox2, pillbox3, pillbox4, pillbox5, pillbox6, sam1, sam2, sam3, sam4, sam5, sam6, sam7, sam8, sam9, sam10
+		RequiresCondition: !build-incomplete
+	Armament@TESLA1:
+		Name: tesla1
+		Turret: none
+		Weapon: TeslaZap
+		LocalOffset: -855,-855,820
+	Armament@TESLA2:
+		Name: tesla2
+		Turret: none
+		Weapon: TeslaZap
+		LocalOffset: 855,-855,820
+	Armament@TESLA3:
+		Name: tesla3
+		Turret: none
+		Weapon: TeslaZap
+		LocalOffset: -855,855,820
+	Armament@TESLA4:
+		Name: tesla4
+		Turret: none
+		Weapon: TeslaZap
+		LocalOffset: 855,855,820
+	Armament@TESLA5:
+		Name: tesla5
+		Turret: none
+		Weapon: TeslaZap
+		LocalOffset: 0,0,1300
+	Armament@PILLBOX1:
+		Name: pillbox1
+		Turret: none
+		Weapon: Vulcan
+		LocalOffset: 1300,-400,150
+	Armament@PILLBOX2:
+		Name: pillbox2
+		Turret: none
+		Weapon: Vulcan
+		LocalOffset: 1300,400,150
+	Armament@PILLBOX3:
+		Name: pillbox3
+		Turret: none
+		Weapon: Vulcan
+		LocalOffset: -400,1300,150
+	Armament@PILLBOX4:
+		Name: pillbox4
+		Turret: none
+		Weapon: Vulcan
+		LocalOffset: 400,1300,150
+	Armament@PILLBOX5:
+		Name: pillbox5
+		Turret: none
+		Weapon: Vulcan
+		LocalOffset: -1300,0,150
+	Armament@PILLBOX6:
+		Name: pillbox6
+		Turret: none
+		Weapon: Vulcan
+		LocalOffset: 0,-1300,150
+	Armament@SAM1:
+		Name: sam1
+		Turret: none
+		Weapon: Nike
+		LocalOffset: 0,-900,500
+	Armament@SAM2:
+		Name: sam2
+		Turret: none
+		Weapon: Nike
+		LocalOffset: -900,0,500
+	Armament@SAM3:
+		Name: sam3
+		Turret: none
+		Weapon: Nike
+		LocalOffset: 900,90,500
+	Armament@SAM4:
+		Name: sam4
+		Turret: none
+		Weapon: Nike
+		LocalOffset: 90,900,500
+	Armament@SAM5:
+		Name: sam5
+		Turret: none
+		Weapon: Nike
+		LocalOffset: -450,-900,500
+	Armament@SAM6:
+		Name: sam6
+		Turret: none
+		Weapon: Nike
+		LocalOffset: -900,-450,500
+	Armament@SAM7:
+		Name: sam7
+		Turret: none
+		Weapon: Nike
+		LocalOffset: 900,500,500
+	Armament@SAM8:
+		Name: sam8
+		Turret: none
+		Weapon: Nike
+		LocalOffset: 500,900,500
+	Armament@SAM9:
+		Name: sam9
+		Turret: none
+		Weapon: Nike
+		LocalOffset: -600,600,500
+	Armament@SAM10:
+		Name: sam10
+		Turret: none
+		Weapon: Nike
+		LocalOffset: 600,-600,500

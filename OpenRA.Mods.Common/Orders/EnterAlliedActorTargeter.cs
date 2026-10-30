@@ -10,6 +10,7 @@
 #endregion
 
 using System;
+using OpenRA.Mods.Common.Traits;
 using OpenRA.Traits;
 
 namespace OpenRA.Mods.Common.Orders
@@ -33,7 +34,9 @@ namespace OpenRA.Mods.Common.Orders
 
 		public override bool CanTargetActor(Actor self, Actor target, TargetModifiers modifiers, ref string cursor)
 		{
-			if (!self.Owner.IsAlliedWith(target.Owner) || !target.Info.HasTraitInfo<T>() || !canTarget(target, modifiers))
+			// Neutral buildings that accept anyone's troops (rooftop garrisons) can be entered too.
+			var neutralGarrison = target.Owner.NonCombatant && target.Info.TraitInfoOrDefault<CargoInfo>()?.EnterableWhenNeutral == true;
+			if ((!self.Owner.IsAlliedWith(target.Owner) && !neutralGarrison) || !target.Info.HasTraitInfo<T>() || !canTarget(target, modifiers))
 				return false;
 
 			cursor = useEnterCursor(target) ? enterCursor : enterBlockedCursor;

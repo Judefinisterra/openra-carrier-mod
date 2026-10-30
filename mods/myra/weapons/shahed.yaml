@@ -1,0 +1,16 @@
+# Triggers the drone's dive when it is right over the target.
+ShahedTargeting:
+	ValidTargets: Ground, Water, GroundActor, WaterActor
+	Range: 0c512
+	ReloadDelay: 1
+	Projectile: InstantHit
+	Warhead@1Dam: TargetDamage
+		ValidTargets: DetonateAttack
+
+# Same damage as the V2 rocket (SCUD weapon).
+ShahedBlast:
+	Inherits: SCUD
+	# Keep the fog lifted around the blast for 6 seconds so you can watch it.
+	Warhead@RevealBlast: RevealArea
+		Range: 4c0
+		Duration: 150

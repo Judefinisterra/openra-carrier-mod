@@ -24,6 +24,9 @@ namespace OpenRA.Mods.Common.Traits
 	[Desc("This actor can transport Passenger actors.")]
 	public class CargoInfo : ConditionalTraitInfo, Requires<IOccupySpaceInfo>
 	{
+		[Desc("Neutral-owned: any side's matching units may enter (used for rooftop garrisons).")]
+		public readonly bool EnterableWhenNeutral = false;
+
 		[Desc("The maximum sum of Passenger.Weight that this actor can support.")]
 		public readonly int MaxWeight = 0;
 
@@ -304,8 +307,15 @@ namespace OpenRA.Mods.Common.Traits
 			var air = self.TraitOrDefault<Aircraft>();
 			if (air != null && !air.AtLandAltitude)
 			{
-				takeOffAfterLoad = true;
-				self.QueueActivity(new Land(self));
+				// (MyRA) Planes can't set down just anywhere: go back to the airfield and load there instead of
+				// circling forever waiting to land (troop-carrying Badgers).
+				if (!air.Info.CanHover && !air.CanLand(self.Location, blockedByMobile: false))
+					self.QueueActivity(new ReturnToBase(self, alwaysLand: true));
+				else
+				{
+					takeOffAfterLoad = true;
+					self.QueueActivity(new Land(self));
+				}
 			}
 
 			self.QueueActivity(new WaitFor(() => state != State.Locked, false));

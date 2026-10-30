@@ -34,14 +34,14 @@ CARRIER:
 		TargetFrozenActors: True
 	CarrierParent:
 		Actors: CARRIER.PLANE, CARRIER.PLANE, CARRIER.PLANE, CARRIER.PLANE
-		LaunchOffset: 3072,0,0
+		LaunchOffset: 1536,0,0
 		RearmDelay: 100
 		RespawnDelay: 500
 	RenderSprites:
 		Image: carrier
 	Selectable:
-		Bounds: 4096, 4096
-		DecorationBounds: 6144, 6144
+		Bounds: 4352, 3328
+		DecorationBounds: 4608, 3840
 
 CARRIER.PLANE:
 	Inherits: YAK

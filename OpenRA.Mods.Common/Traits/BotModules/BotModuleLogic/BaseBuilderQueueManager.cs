@@ -204,7 +204,21 @@ namespace OpenRA.Mods.Common.Traits
 					else if (baseBuilder.Info.RefineryTypes.Contains(actorInfo.Name))
 						type = BuildingType.Refinery;
 
-					(location, baseCenterKeepsFailing, actorVariant) = ChooseBuildLocation(currentBuilding.Item, true, type);
+					// (MyRA) A bot module may want this building somewhere specific (e.g. next to an outlying oil derrick).
+					var bInfo = actorInfo.TraitInfoOrDefault<BuildingInfo>();
+					CPos? suggested = null;
+					if (bInfo != null)
+						foreach (var s in baseBuilder.LocationSuggesters)
+						{
+							suggested = s.SuggestLocation(bot, currentBuilding.Item, actorInfo, bInfo);
+							if (suggested != null)
+								break;
+						}
+
+					if (suggested != null)
+						location = suggested;
+					else
+						(location, baseCenterKeepsFailing, actorVariant) = ChooseBuildLocation(currentBuilding.Item, true, type);
 				}
 
 				if (location == null)

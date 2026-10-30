@@ -1,0 +1,119 @@
+f14:
+	Defaults:
+		Filename: f14.png
+		Facings: 32
+	idle:
+	spread:
+		Start: 32
+	half:
+		Start: 64
+	icon:
+		Filename: f14-icon.png
+		Facings: 1
+
+a10:
+	idle:
+		Filename: a10.png
+		Facings: 32
+	icon:
+		Filename: a10-icon.png
+
+f14parked:
+	idle:
+		Filename: f14-parked.png
+		Facings: 32
+
+carrier:
+	idle:
+		Filename: carrier-cleardeck.png
+		Facings: 32
+	damaged-idle:
+		Filename: carrier-cleardeck.png
+		Start: 32
+		Facings: 32
+
+technicalrpg:
+	idle:
+		Filename: technicalrpg.png
+		Facings: 32
+		Offset: 0,-3
+	shoot:
+		Filename: technicalrpg.png
+		Start: 32
+		Facings: 32
+		Offset: 0,-3
+		Tick: 240
+	icon:
+		Filename: technicalrpg-icon.png
+
+rioter:
+	Inherits: protester
+	Defaults:
+		Filename: rioter.png
+	throw:
+		Start: 72
+		Length: 6
+		Facings: 8
+		Tick: 100
+	icon:
+		Filename: protester-icon.png
+
+molotov:
+	idle:
+		Filename: molotov.png
+		Length: 8
+		Tick: 60
+		ZOffset: 1023
+
+molotovburst:
+	idle:
+		Filename: molotov-burst.png
+		Length: 10
+		Tick: 70
+		ZOffset: 1023
+
+molotovfire:
+	idle:
+		Filename: molotov-fire.png
+		Length: 8
+		Tick: 100
+		Offset: 0,-6
+
+launchpad:
+	Defaults:
+		Filename: launchpad.png
+		Offset: 0,-98
+	idle:
+	damaged-idle:
+		Start: 1
+	launch:
+		Start: 8
+		Length: 20
+		Tick: 100
+	damaged-launch:
+		Start: 8
+		Length: 20
+		Tick: 100
+	empty:
+		Start: 28
+	damaged-empty:
+		Start: 29
+	rollout:
+		Start: 30
+		Length: 8
+		Tick: 140
+	damaged-rollout:
+		Start: 30
+		Length: 8
+		Tick: 140
+	make:
+		Start: 30
+		Length: 8
+		Tick: 120
+	icon:
+		Filename: launchpad-icon.png
+		Offset: 0,0
+
+icon:
+	launch:
+		Filename: launchpad-icon.png

@@ -1,0 +1,21 @@
+# Psy-Op: a support power on the Tech Center (Allied and Soviet). Charges like the nuke or paratroopers;
+# when ready, click anywhere on the map and 100 War Protesters pour into the streets there.
+^PsyOpPower:
+	PsyOpPower@psyop:
+		OrderName: PsyOpOrder
+		Icon: psyop
+		ChargeInterval: 7500
+		Name: actor-psyop.name
+		Description: actor-psyop.description
+		SelectTargetSpeechNotification: SelectTarget
+		SelectTargetTextNotification: notification-select-target
+		Cursor: ability
+		DisplayRadarPing: true
+		SupportPowerPaletteOrder: 60
+		Count: 100
+
+ATEK:
+	Inherits@PSYOP: ^PsyOpPower
+
+STEK:
+	Inherits@PSYOP: ^PsyOpPower

@@ -1,0 +1,79 @@
+# Lets the Navy SEAL walk on land and swim in water.
+^BaseWorld:
+	Locomotor@SWIM:
+		Name: swim
+		Crushes: mine, crate
+		SharesCell: true
+		TerrainSpeeds:
+			Clear: 100
+			Rough: 89
+			Road: 111
+			Bridge: 111
+			Ore: 89
+			Gems: 89
+			Beach: 89
+			Water: 70
+
+# Ships (and surfaced subs) can be blown up with C4, like buildings.
+^Ship:
+	Demolishable:
+
+^Submarine:
+	Demolishable:
+		RequiresCondition: !underwater
+
+# Navy SEAL: Tanya-style commando that swims, snipes and plants C4.
+SEAL:
+	Inherits: E7
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Soldier
+		BuildPaletteOrder: 125
+		Prerequisites: ~barracks, fantasyfactory, ~techlevel.infonly
+		BuildLimit: 0
+		Description: actor-seal.description
+	Valued:
+		Cost: 200
+	Tooltip:
+		Name: actor-seal.name
+	Mobile:
+		Locomotor: swim
+		Voice: Move
+	Guard:
+		Voice: Move
+	Passenger:
+		Voice: Move
+	Demolition:
+		Voice: Demolish
+	VoiceAnnouncement:
+		Voice: Build
+	Voiced:
+		VoiceSet: SealVoice
+	RenderSprites:
+		Image: seal
+	WithInfantryBody:
+		AttackSequences:
+			primary: shoot
+		StandSequences: stand
+		RequiresCondition: !parachute && !swimming
+	# Head-and-shoulders swimming animations while in water.
+	WithInfantryBody@SWIM:
+		StandSequences: swim
+		MoveSequence: swim-run
+		IdleSequences: swim
+		AttackSequences:
+			primary: swim-shoot
+		RequiresCondition: swimming && !parachute
+	Armament@PRIMARY:
+		Weapon: SealSniper
+	Armament@GARRISONED:
+		Weapon: SealSniper
+	RevealsShroud:
+		Range: 9c0
+	# While swimming, ships and subs can shoot at it too.
+	GrantConditionOnTerrain@SWIMMING:
+		TerrainTypes: Water
+		Condition: swimming
+	Targetable@SWIMMING:
+		RequiresCondition: swimming
+		TargetTypes: WaterActor

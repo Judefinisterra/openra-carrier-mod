@@ -1,0 +1,29 @@
+# Starting MCV and Construction Yard see as far as a Spy Plane photo (10 cells).
+MCV:
+	RevealsShroud:
+		Range: 10c0
+
+FACT:
+	RevealsShroud:
+		Range: 10c0
+
+# Paratroopers: five Badgers fly in together, each dropping 5 soldiers (3 riflemen, 2 rocket soldiers) - 25 in all.
+AFLD:
+	ParatroopersPower@paratroopers:
+		SquadSize: 5
+		SquadOffset: -1536, 1536, 0
+		DropItems: E1R1,E1R1,E1R1,E3R1,E3R1, E1R1,E1R1,E1R1,E3R1,E3R1, E1R1,E1R1,E1R1,E3R1,E3R1, E1R1,E1R1,E1R1,E3R1,E3R1, E1R1,E1R1,E1R1,E3R1,E3R1
+		Description: actor-myra-paratroopers.description
+
+# Shipyards can be built further from the rest of the base (stock: 8 cells) and outside the Construction Yard's
+# build radius, so bases in the middle of an island can still reach the sea - for players and the AI alike.
+SYRD:
+	RequiresBuildableArea:
+		Adjacent: 20
+	Building:
+		RequiresBaseProvider: false
+SPEN:
+	RequiresBuildableArea:
+		Adjacent: 20
+	Building:
+		RequiresBaseProvider: false

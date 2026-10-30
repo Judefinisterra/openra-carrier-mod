@@ -1,0 +1,418 @@
+# ---------------------------------------------------------------------------
+# Expansion units: F-14 Tomcat, carrier flight ops and troop transport, Seaport production + free
+# Container Ship, art updates (Carrier Sub, Motorcycle Trooper, Rocket Technical), Molotov rioters,
+# Space Launch Facility.
+# ---------------------------------------------------------------------------
+
+# F-14 Tomcat: swing-wing fighter-bomber. Air-to-air missiles and air-to-ground missiles. Built at the
+# Airfield; three come with every Aircraft Carrier, landing on it to rearm. Wings sweep back at cruise
+# altitude and spread for take-off and landing.
+F14:
+	Inherits: ^Plane
+	Inherits@AUTOTARGET: ^AutoTargetAllAssaultMove
+	Buildable:
+		Queue: Aircraft
+		BuildAtProductionType: Plane
+		BuildPaletteOrder: 55
+		Prerequisites: ~afld, ~techlevel.medium
+		Description: actor-f14.description
+	Valued:
+		Cost: 1600
+	Tooltip:
+		Name: actor-f14.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 9000
+	RevealsShroud:
+		MinRange: 11c0
+		Range: 13c0
+		Type: GroundPosition
+		RevealGeneratedShroud: False
+	RevealsShroud@GAPGEN:
+		Range: 11c0
+		Type: GroundPosition
+	Armament@AA:
+		Name: primary
+		Weapon: F14AAM
+		LocalOffset: 0,-480,0, 0,480,0
+		PauseOnCondition: !ammo
+	# A V2 rocket slung under the belly, for land and sea targets.
+	Armament@V2:
+		Name: secondary
+		Weapon: F14V2
+		LocalOffset: 0,0,-120
+		PauseOnCondition: !v2ammo
+	# Out of missiles: keep fighting with the cannon.
+	Armament@GUN:
+		Name: gun
+		Weapon: F14Gun
+		LocalOffset: 600,0,0
+	AttackAircraft:
+		FacingTolerance: 80
+		PersistentTargeting: false
+		OpportunityFire: False
+		Armaments: primary, secondary, gun
+	Aircraft:
+		CruiseAltitude: 2560
+		TurnSpeed: 20
+		Speed: 240
+		RepulsionSpeed: 40
+		MaximumPitch: 56
+		CruisingCondition: cruising
+	AutoTarget:
+		InitialStance: Defend
+		InitialStanceAI: AttackAnything
+	AmmoPool:
+		Armaments: primary
+		Ammo: 6
+		AmmoCondition: ammo
+	AmmoPool@V2:
+		Name: v2
+		Armaments: secondary
+		Ammo: 2
+		AmmoCondition: v2ammo
+	Rearmable:
+		RearmActors: afld, afld.ukraine
+	CarrierChild:
+		DockDistance: 1536
+		ReturnWhenOutOfAmmo: false
+	AirPatrol:
+	# Shot down: blows up in mid-air and the pilot bails out.
+	-SpawnActorOnDeath:
+	FireWarheadsOnDeath@AIR:
+		Weapon: UnitExplodePlane
+		RequiresCondition: airborne
+	EjectOnDeath:
+		SuccessRate: 100
+	-WithFacingSpriteBody:
+	WithFacingSpriteBody@SWEPT:
+		Sequence: idle
+		RequiresCondition: cruising
+	WithFacingSpriteBody@HALF:
+		Name: half
+		Sequence: half
+		RequiresCondition: airborne && !cruising
+	WithFacingSpriteBody@SPREAD:
+		Name: spread
+		Sequence: spread
+		RequiresCondition: !airborne
+	Selectable:
+		Bounds: 1536, 1194, 0, 85
+		DecorationBounds: 1706, 1237, 0, 42
+	Contrail@1:
+		Offset: -598,-683,0
+		StartColorAlpha: 128
+	Contrail@2:
+		Offset: -598,683,0
+		StartColorAlpha: 128
+	LeavesTrails:
+		Offsets: -853,0,171
+		MovingInterval: 2
+		Image: smokey
+		SpawnAtLastPosition: False
+		Type: CenterPosition
+		RequiresCondition: enable-smoke
+	WithAmmoPipsDecoration:
+		Position: BottomLeft
+		Margin: 4, 3
+		RequiresSelection: true
+	GrantConditionOnDamageState@SmokeTrail:
+		Condition: enable-smoke
+	RenderSprites:
+		Image: f14
+
+# A-10 Thunderbolt: slow, armoured ground-attack plane. A 30mm cannon that fires 5-shot bursts and a V2
+# rocket under the belly. Built at the Airfield. Patrols a spot it is sent to, like the F-14.
+A10:
+	Inherits: ^Plane
+	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Buildable:
+		Queue: Aircraft
+		BuildAtProductionType: Plane
+		BuildPaletteOrder: 56
+		Prerequisites: ~afld, ~techlevel.medium
+		Description: actor-a10.description
+	Valued:
+		Cost: 1500
+	Tooltip:
+		Name: actor-a10.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 15000
+	Armor:
+		Type: Heavy
+	RevealsShroud:
+		MinRange: 9c0
+		Range: 11c0
+		Type: GroundPosition
+		RevealGeneratedShroud: False
+	RevealsShroud@GAPGEN:
+		Range: 9c0
+		Type: GroundPosition
+	Armament@CANNON:
+		Name: primary
+		Weapon: A10Cannon
+		LocalOffset: 700,0,-40
+	Armament@V2:
+		Name: secondary
+		Weapon: F14V2
+		LocalOffset: 0,0,-120
+		PauseOnCondition: !v2ammo
+	AttackAircraft:
+		FacingTolerance: 80
+		PersistentTargeting: false
+		OpportunityFire: False
+		Armaments: primary, secondary
+	Aircraft:
+		CruiseAltitude: 2048
+		TurnSpeed: 16
+		Speed: 170
+		RepulsionSpeed: 40
+		MaximumPitch: 40
+	AutoTarget:
+		InitialStance: Defend
+		InitialStanceAI: AttackAnything
+	AmmoPool@V2:
+		Name: v2
+		Armaments: secondary
+		Ammo: 2
+		AmmoCondition: v2ammo
+	Rearmable:
+		RearmActors: afld, afld.ukraine
+	AirPatrol:
+	-SpawnActorOnDeath:
+	FireWarheadsOnDeath@AIR:
+		Weapon: UnitExplodePlane
+		RequiresCondition: airborne
+	EjectOnDeath:
+		SuccessRate: 100
+	Selectable:
+		Bounds: 1536, 1194, 0, 85
+		DecorationBounds: 1706, 1237, 0, 42
+	LeavesTrails:
+		Offsets: -853,0,171
+		MovingInterval: 2
+		Image: smokey
+		SpawnAtLastPosition: False
+		Type: CenterPosition
+		RequiresCondition: enable-smoke
+	WithAmmoPipsDecoration:
+		Position: BottomLeft
+		Margin: 4, 3
+		RequiresSelection: true
+	GrantConditionOnDamageState@SmokeTrail:
+		Condition: enable-smoke
+	RenderSprites:
+		Image: a10
+
+# Aircraft Carrier: three real F-14s live aboard. They take off to strike, come back to land, rearm and
+# go again. Lost planes are not replaced for free: build F-14s at an Airfield and they fly to the nearest
+# carrier with a free spot. Also a 50-slot troop and vehicle transport. Bought at the Seaport by every faction.
+CARRIER:
+	Inherits@CARGOPIPS: ^CargoPips
+	Buildable:
+		BuildAtProductionType: Merchant
+		Prerequisites: seaport, ~techlevel.medium
+	Valued:
+		Cost: 3000
+	CarrierParent:
+		Actors: F14, F14, F14
+		Respawns: false
+		RearmDelay: 150
+	WithCarrierParkedPlanes:
+		Image: f14parked
+		Offsets: 1363,210,380, 1071,-240,380, -974,-191,380
+	Cargo:
+		Types: Infantry, Vehicle
+		MaxWeight: 50
+		PassengerFacing: 0
+		LoadingCondition: notmobile
+	WithCargoPipsDecoration:
+		PipCount: 10
+	Mobile:
+		PauseOnCondition: notmobile
+	-Chronoshiftable:
+
+-CARRIER.PLANE:
+
+# Seaport: now also a merchant yard - Container Ships and Aircraft Carriers are built here - and a new
+# Seaport comes with one free Container Ship.
+SEAPORT:
+	Exit@1:
+		SpawnOffset: -1024,1024,0
+		Facing: 640
+		ExitCell: -1,3
+		ProductionTypes: Merchant, Ship
+	Exit@2:
+		SpawnOffset: 1024,1024,0
+		Facing: 896
+		ExitCell: 3,3
+		ProductionTypes: Merchant, Ship
+	Exit@3:
+		SpawnOffset: -1024,-1024,0
+		Facing: 384
+		ExitCell: -1,-1
+		ProductionTypes: Merchant, Ship
+	Exit@4:
+		SpawnOffset: 1024,-1024,0
+		Facing: 128
+		ExitCell: 3,-1
+		ProductionTypes: Merchant, Ship
+	Production:
+		Produces: Ship, Merchant
+	RallyPoint:
+	PrimaryBuilding:
+		PrimaryCondition: primary
+	WithDecoration@primary:
+		RequiresSelection: true
+		Image: pips
+		Sequence: tag-primary
+		Position: Top
+		Margin: 0, 4
+		RequiresCondition: primary
+	ProductionBar:
+		ProductionType: Ship
+	FreeShip:
+		Actor: containership
+
+CONTAINERSHIP:
+	Buildable:
+		BuildAtProductionType: Merchant
+
+# Carrier Sub: new hull art (shorter than before), so the turrets and launch points move in.
+# The nuke recharges in 2 minutes.
+SUBCARRIER:
+	ReloadAmmoPool@NUKE:
+		Delay: 3000
+	Turreted@CANNON:
+		Offset: 900,0,128
+	Turreted@ARTILLERY:
+		Offset: -900,0,128
+	CarrierParent:
+		LaunchOffset: -400,0,0
+	HitShape:
+		TargetableOffsets: 1024,0,0, 0,0,0, -1024,0,0
+	Selectable:
+		Bounds: 1536, 1536
+		DecorationBounds: 1792, 1792
+
+# Rocket Technical: plays its firing frames (flame and back-blast) when it shoots.
+TECHNICAL.RPG:
+	WithAttackAnimation:
+		Sequence: shoot
+
+# Violent protesters: Psy-Op protesters who take up arms throw Molotov cocktails, and go on the offensive.
+MILITIA:
+	Armament@PRIMARY:
+		Weapon: Molotov
+		LocalOffset: 0,0,400
+	WithInfantryBody:
+		DefaultAttackSequence: throw
+	RiotAssault:
+	RenderSprites:
+		Image: rioter
+
+SUICIDEBOMBER:
+	RiotAssault:
+
+# Burning patches left by Molotovs. The first patch can spread once or twice; the patches it starts can't.
+MOLOTOVFIRE:
+	Inherits: ^SpriteActor
+	-QuantizeFacingsFromSequence:
+	BodyOrientation:
+		QuantizedFacings: 1
+	Interactable:
+		Bounds: 1024, 1024
+	HiddenUnderFog:
+		Type: CenterPosition
+	Immobile:
+		OccupiesSpace: false
+	KillsSelf:
+		Delay: 300
+		RemoveInstead: true
+	PeriodicWeapon:
+		Weapon: MolotovBurn
+		Interval: 25
+	Tooltip:
+		Name: actor-molotovfire.name
+	WithSpriteBody:
+		Sequence: idle
+	RenderSprites:
+		Image: molotovfire
+	MapEditorData:
+		Categories: System
+
+MOLOTOVFIRE2:
+	Inherits: MOLOTOVFIRE
+	KillsSelf:
+		Delay: 200
+	PeriodicWeapon:
+		Weapon: MolotovBurnSmall
+
+# Space Launch Facility: load up to 10 infantry into the rocket (no vehicles), then launch it at any spot
+# on the map; the troops come down by parachute. A new rocket rolls out 30 seconds later and is ready
+# to fly 30 seconds after that.
+LAUNCHPAD:
+	Inherits: ^Building
+	Inherits@shape: ^2x2Shape
+	Buildable:
+		Queue: Defense
+		BuildPaletteOrder: 150
+		Prerequisites: ~techlevel.high, anytechcenter
+		Description: actor-launchpad.description
+	Valued:
+		Cost: 2500
+	Tooltip:
+		Name: actor-launchpad.name
+	Building:
+		Footprint: xxxx xxxx xxxx xxxx
+		Dimensions: 4,4
+		LocalCenterOffset: 0,0,0
+	HitShape:
+		Type: Rectangle
+			TopLeft: -2048, -2048
+			BottomRight: 2048, 2048
+	Health:
+		HP: 120000
+	Armor:
+		Type: Heavy
+	RevealsShroud:
+		Range: 6c0
+	Power:
+		Amount: -150
+	Selectable:
+		Bounds: 4096, 4096
+		DecorationBounds: 4096, 7168, 0, -1536
+	Cargo:
+		Types: Infantry
+		MaxWeight: 10
+		LoadedCondition: rocket-loaded
+		RequiresCondition: !pad-empty
+		UnloadVoice: Move
+	Inherits@CARGOPIPS: ^CargoPips
+	LaunchTroopsPower:
+		OrderName: LaunchTroops
+		Icon: launch
+		ChargeInterval: 750
+		Name: actor-launchpad-power.name
+		Description: actor-launchpad-power.description
+		SelectTargetTextNotification: notification-select-target
+		Cursor: ability
+		DisplayRadarPing: true
+		SupportPowerPaletteOrder: 70
+		RequiresCondition: !pad-empty
+		LaunchSound: missile1.aud
+	WithSpriteBody:
+	ProvidesPrerequisite@buildingname:
+	RenderSprites:
+		Image: launchpad
+
+ATEK:
+	ProvidesPrerequisite@anytechcenter:
+		Prerequisite: anytechcenter
+
+STEK:
+	ProvidesPrerequisite@anytechcenter:
+		Prerequisite: anytechcenter

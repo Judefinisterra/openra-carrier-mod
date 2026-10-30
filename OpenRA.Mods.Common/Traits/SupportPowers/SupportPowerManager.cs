@@ -167,6 +167,12 @@ namespace OpenRA.Mods.Common.Traits
 		protected bool notifiedCharging;
 		bool notifiedReady;
 
+		/// <summary>Instantly finish charging (used by the 'nuke' cheat).</summary>
+		public void ChargeFully()
+		{
+			remainingSubTicks = 0;
+		}
+
 		public void ResetTimer()
 		{
 			remainingSubTicks = TotalTicks * 100;

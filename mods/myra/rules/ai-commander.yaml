@@ -1,0 +1,11 @@
+# AI Commander: tick "AI Commander" in the lobby and a language model (online or local) steers every computer
+# player's strategy, one combined consultation a minute covering every computer player. Settings: ai-commander.json in the OpenRA support folder.
+# See OpenRA.Mods.MyRA/Traits/AICommander.cs.
+World:
+	AICommanderOptions:
+	# Writes a timeline of every game to Logs/myra-games (see GameRecorder.cs).
+	GameRecorder:
+
+Player:
+	AICommanderBotModule:
+		ReportIntervalSeconds: 30

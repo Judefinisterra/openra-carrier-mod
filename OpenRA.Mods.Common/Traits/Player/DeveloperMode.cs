@@ -129,13 +129,28 @@ namespace OpenRA.Mods.Common.Traits
 		[VerifySync]
 		bool buildAnywhere;
 
+		// MyRA cheat codes ('faster', 'power', 'anywhere') switch these on without needing the lobby's debug menu.
+		// They are only changed by orders, so they stay in sync in online games.
+		[VerifySync]
+		public bool CheatFastBuild;
+
+		[VerifySync]
+		public bool CheatUnlimitedPower;
+
+		[VerifySync]
+		public bool CheatBuildAnywhere;
+
+		// MyRA 'god' cheat: every faction's buildings and units become buildable.
+		[VerifySync]
+		public bool CheatAllTech;
+
 		public bool FastCharge => Enabled && fastCharge;
-		public bool AllTech => Enabled && allTech;
-		public bool FastBuild => Enabled && fastBuild;
+		public bool AllTech => (Enabled && allTech) || CheatAllTech;
+		public bool FastBuild => (Enabled && fastBuild) || CheatFastBuild;
 		public bool DisableShroud => Enabled && disableShroud;
 		public bool PathDebug => Enabled && pathDebug;
-		public bool UnlimitedPower => Enabled && unlimitedPower;
-		public bool BuildAnywhere => Enabled && buildAnywhere;
+		public bool UnlimitedPower => (Enabled && unlimitedPower) || CheatUnlimitedPower;
+		public bool BuildAnywhere => (Enabled && buildAnywhere) || CheatBuildAnywhere;
 
 		bool enableAll;
 

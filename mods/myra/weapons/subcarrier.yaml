@@ -1,0 +1,40 @@
+# Typhoon Sub-Carrier weapons
+
+# Rapid-fire torpedoes: same torpedo as the Soviet Submarine, reloads 5x faster.
+SubCarrierTorp:
+	Inherits: TorpTube
+	ReloadDelay: 20
+	Burst: 2
+	BurstDelays: 6
+
+# Forward deck gun: Mammoth Tank 120mm cannon.
+SubCarrierCannon:
+	Inherits: 120mm
+	Range: 6c0
+
+# Aft deck gun: V2/Artillery-style 155mm shell, long range, can't hit close targets.
+SubCarrierArtillery:
+	Inherits: 155mm
+
+# Sub-launched atom bomb: same blast as the Missile Silo's.
+# Only targets the ground, so it only fires when you Ctrl+click (force-fire).
+SubNuke:
+	Inherits: Atomic
+	ValidTargets: Ground, Water
+	ReloadDelay: 25
+	Range: 40c0
+	MinRange: 6c0
+	Report: missile1.aud
+	Projectile: Bullet
+		Speed: 260
+		LaunchAngle: 160
+		Blockable: false
+		Image: subnuke-missile
+		Shadow: true
+		TrailImage: smokey
+		TrailDelay: 2
+		ContrailLength: 30
+	# Keep the fog lifted around the blast for 10 seconds so you can watch it.
+	Warhead@RevealBlast: RevealArea
+		Range: 8c0
+		Duration: 250

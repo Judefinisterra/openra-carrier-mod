@@ -27,6 +27,9 @@ namespace OpenRA.Mods.Common.Commands
 
 		public Dictionary<string, IChatCommand> Commands { get; }
 
+		/// <summary>Commands that also work when typed without the leading '/' (e.g. cheat words).</summary>
+		public static readonly HashSet<string> BareCommands = [];
+
 		public ChatCommands()
 		{
 			Commands = [];

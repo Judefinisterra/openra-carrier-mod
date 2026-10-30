@@ -1,0 +1,23 @@
+# Cyber Attack: a support power on the Tech Center (every side). When ready, click near an enemy's base:
+# half of that player's money is wired to you, their radar goes dark for a minute and false 'base under attack'
+# alarms go off. Recharges every 10 minutes. (The Hermit Nation gets it from its Cyber Command instead.)
+^CyberAttackPower:
+	CyberAttackPower@cyber:
+		OrderName: CyberAttack
+		Prerequisites: !hermitnation
+		Icon: cyberattack
+		ChargeInterval: 15000
+		StealPercent: 50
+		Name: actor-cyber.name
+		Description: actor-cyber.description
+		SelectTargetSpeechNotification: SelectTarget
+		SelectTargetTextNotification: notification-select-target
+		Cursor: ability
+		DisplayRadarPing: true
+		SupportPowerPaletteOrder: 59
+
+ATEK:
+	Inherits@CYBER: ^CyberAttackPower
+
+STEK:
+	Inherits@CYBER: ^CyberAttackPower

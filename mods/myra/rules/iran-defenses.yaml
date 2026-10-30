@@ -1,0 +1,17 @@
+# Iran builds pillboxes instead of Tesla Coils and Flame Towers.
+# (Loaded after tribal-restrictions.yaml so these prerequisite lists are the final ones.)
+TSLA:
+	Buildable:
+		Prerequisites: weap, ~structures.soviet, ~techlevel.medium, ~!tribalkingdom, ~!iranfaction
+
+FTUR:
+	Buildable:
+		Prerequisites: barr, ~structures.soviet, ~techlevel.low, ~!tribalkingdom, ~!iranfaction
+
+# Iran's own Pillbox (normally Allied-only), unlocked by the Soviet Barracks.
+PBOX.IRAN:
+	Inherits: PBOX
+	Buildable:
+		Prerequisites: barr, ~iranfaction, ~techlevel.low
+	RenderSprites:
+		Image: pbox

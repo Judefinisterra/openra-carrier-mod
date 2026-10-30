@@ -1,0 +1,144 @@
+# Stable Society AI ("Civic Council"): builds a tidy, well-organized town - buildings in blocks with two-cell
+# driving lanes between them, a sandbag perimeter around the town with openings where the main roads
+# leave, guard towers beside the gates and anti-air at the corners. It keeps the peace (never breaks a truce),
+# defends itself hard, and only goes to war against someone who has attacked it.
+Player:
+	ModularBot@StableAI:
+		Name: bot-stable-ai.name
+		Type: stable
+	GrantConditionOnBotOwner@stable:
+		Condition: enable-stable-ai
+		Bots: stable
+	BaseBuilderBotModule@stable:
+		RequiresCondition: enable-stable-ai
+		MinimumExcessPower: 50
+		MaximumExcessPower: 250
+		ExcessPowerIncrement: 50
+		ExcessPowerIncreaseThreshold: 4
+		ConstructionYardTypes: fact
+		RefineryTypes: proc
+		InititalMinimumRefineryCount: 1
+		AdditionalMinimumRefineryCount: 1
+		PowerTypes: powr,apwr
+		TechTypes: govbuilding, hospital, mansion, dome, fix, atek
+		ProductionTypes: tent,weap
+		NavalProductionTypes: syrd
+		NewProductionCashThreshold: 4000
+		BuildingLimits:
+			tent: 2
+			weap: 2
+			dome: 1
+			fix: 1
+			atek: 1
+			govbuilding: 1
+			hospital: 1
+			stablehouse: 6
+			farm: 2
+			proc: 3
+			mansion: 1
+		BuildingFractions:
+			powr: 12
+			proc: 8
+			tent: 3
+			weap: 3
+			dome: 1
+			fix: 1
+			govbuilding: 8
+			hospital: 5
+			stablehouse: 12
+			farm: 3
+			atek: 1
+			mansion: 6
+		BuildingDelays:
+			govbuilding: 900
+			hospital: 2000
+			stablehouse: 2500
+			farm: 4000
+			dome: 5000
+			fix: 6000
+			atek: 9000
+			mansion: 3000
+	# Town planner: street grid, perimeter walls with openings for the roads, towers.
+	StableBasePlannerBotModule@stable:
+		RequiresCondition: enable-stable-ai
+		WallType: sbag
+		GateDefenseTypes: pbox, gun
+		CornerDefenseTypes: agun, gun
+		Blocks: 2
+		SuburbBlocks: 4
+		StartTick: 3000
+		MinimumCash: 800
+		WallsPerRound: 6
+		IgnoreTypes: proc
+	McvExpansionManagerBotModule@stable:
+		RequiresCondition: enable-stable-ai
+		McvTypes: mcv
+		ConstructionYardTypes: fact
+		McvFactoryTypes: weap
+		MinimumConstructionYardCount: 1
+		NeverMoveConyards: true
+	# A defensive army: big squads that only go out once it is truly at war.
+	SquadManagerBotModule@stable:
+		RequiresCondition: enable-stable-ai
+		SquadSize: 25
+		SquadSizeRandomBonus: 10
+		MinimumAttackForceDelay: 4000
+		RetreatLossPercent: 50
+		ExcludeFromSquadsTypes: protester, protester.hermit, shahed, harv, mcv, e6, doctor, ambulance, whitevan, supplytruck, oilhauler, oiltruck, oiltanker, containership, lst, badr.troop
+		ConstructionYardTypes: fact
+		AirUnitsTypes: heli, hind, mh60
+		AircraftTargetType: AirborneActor
+		ProtectionTypes: harv, mcv, mansion, fact, proc, powr, apwr, tent, weap, dome, fix, atek, govbuilding, hospital, stablehouse, farm, pbox, gun, agun, checkpoint, checkpoint.v, sbag, supplytruck, oilhauler
+		IgnoredEnemyTargetTypes: AirborneActor
+		ProtectUnitScanRadius: 20
+		ProtectionScanRadius: 18
+	UnitBuilderBotModule@stable:
+		RequiresCondition: enable-stable-ai
+		UnitsToBuild:
+			e1: 25
+			e3: 15
+			doctor: 6
+			jeep: 8
+			1tnk: 10
+			2tnk: 12
+			arty: 4
+			ambulance: 2
+			pinkjeep: 14
+			pony: 10
+			harv: 10
+		UnitLimits:
+			doctor: 4
+			ambulance: 2
+			harv: 8
+	AdaptiveProductionBotModule@stable:
+		RequiresCondition: (enable-stable-ai) && !ai-easy
+		AntiAirUnits: e3
+		AntiArmorUnits: e3, 2tnk
+		AntiInfantryUnits: e1, jeep
+		AntiAirDefenses: agun
+		MaxAntiAirDefenses: 6
+		KeepBuildings:
+			fix: 1
+		SurplusCash: 4000
+		SurplusBuildings:
+			stablehouse: 8
+			farm: 3
+			powr: 8
+			proc: 4
+			weap: 3
+			tent: 3
+	# Island maps: when an enemy it is at war with can only be reached over the water, it builds landing craft
+	# and warships and ferries its army across.
+	AmphibiousAssaultBotModule@stable:
+		RequiresCondition: (enable-stable-ai) && !ai-easy
+		TransportTypes: lst
+		MaxTransports: 2
+		WarshipTypes: dd, ca, pt
+	# Fill the Houses with soldiers.
+	GarrisonBotModule@stable:
+		RequiresCondition: enable-stable-ai
+		HouseTypes: stablehouse
+		UnitTypes: e1, e3
+	ScoutBotModule@stable:
+		RequiresCondition: enable-stable-ai
+		UnitTypes: pony, jeep

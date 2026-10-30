@@ -1,0 +1,393 @@
+# Tribal Kingdom may only build Power Plants, Refineries, Barracks, Kennels, a War Factory (Harvesters, Jeeps, Oil Rig Trucks),
+# Tribal Heroes and Lions. Everything else gets a 'not Tribal Kingdom' requirement.
+# (Generated: every buildable actor in the game except the allowed ones.)
+
+# (The tribalkingdom prerequisite is defined in countries.yaml.)
+
+1TNK:
+	Buildable:
+		Prerequisites: ~vehicles.allies, ~techlevel.low, ~!tribalkingdom
+
+2TNK:
+	Buildable:
+		Prerequisites: fix, ~vehicles.allies, ~techlevel.medium, ~!tribalkingdom
+
+3TNK:
+	Buildable:
+		Prerequisites: fix, ~vehicles.soviet, ~techlevel.medium, ~!tribalkingdom
+
+4TNK:
+	Buildable:
+		Prerequisites: fix, stek, ~vehicles.soviet, ~techlevel.high, ~!tribalkingdom
+
+AFLD:
+	Buildable:
+		Prerequisites: dome, ~structures.soviet, ~techlevel.medium, ~!structures.ukraine, ~!tribalkingdom
+
+AFLD.Ukraine:
+	Buildable:
+		Prerequisites: dome, ~techlevel.medium, ~structures.ukraine, ~!tribalkingdom
+
+AGUN:
+	Buildable:
+		Prerequisites: dome, ~structures.allies, ~techlevel.medium, ~!tribalkingdom
+
+APC:
+	Buildable:
+		Prerequisites: ~vehicles.soviet, ~techlevel.low, ~!tribalkingdom
+
+ARTY:
+	Buildable:
+		Prerequisites: dome, ~vehicles.allies, ~techlevel.medium, ~!tribalkingdom
+
+ATEF:
+	Buildable:
+		Prerequisites: ~structures.france, ~techlevel.high, ~!tribalkingdom
+
+ATEK:
+	Buildable:
+		Prerequisites: weap, dome, ~structures.allies, ~techlevel.high, ~!tribalkingdom
+
+Ant:
+	Buildable:
+		Prerequisites: ~barracks, ~bio, ~!tribalkingdom
+
+BRIK:
+	Buildable:
+		Prerequisites: fact, ~techlevel.medium, ~!tribalkingdom
+
+CA:
+	Buildable:
+		Prerequisites: ~syrd, atek, ~techlevel.high, ~!tribalkingdom
+
+CARRIER:
+	Buildable:
+		Prerequisites: ~syrd, ~techlevel.medium, ~!tribalkingdom
+
+CTNK:
+	Buildable:
+		Prerequisites: atek, ~vehicles.germany, ~techlevel.high, ~!tribalkingdom
+
+DD:
+	Buildable:
+		Prerequisites: ~syrd, dome, ~techlevel.medium, ~!tribalkingdom
+
+DOG:
+	Buildable:
+		Prerequisites: ~kenn, ~techlevel.infonly, ~!tribalkingdom
+
+DOME:
+	Buildable:
+		Prerequisites: proc, ~techlevel.medium, ~!tribalkingdom
+
+DOMF:
+	Buildable:
+		Prerequisites: ~structures.france, ~techlevel.medium, ~!tribalkingdom
+
+DTRK:
+	Buildable:
+		Prerequisites: stek, ~vehicles.ukraine, ~techlevel.high, ~!tribalkingdom
+
+E1:
+	Buildable:
+		Prerequisites: ~barracks, ~techlevel.infonly, ~!tribalkingdom
+
+E2:
+	Buildable:
+		Prerequisites: ~barr, ~techlevel.infonly, ~!tribalkingdom
+
+E3:
+	Buildable:
+		Prerequisites: ~barracks, ~techlevel.infonly, ~!tribalkingdom
+
+E4:
+	Buildable:
+		Prerequisites: ~barr, ftur, ~techlevel.low, ~!tribalkingdom
+
+E6:
+	Buildable:
+		Prerequisites: ~barracks, ~techlevel.infonly, ~!tribalkingdom
+
+E7:
+	Buildable:
+		Prerequisites: ~tent, atek, ~techlevel.high, ~!tribalkingdom
+
+FAB:
+	Buildable:
+		Prerequisites: ~spen, ~iranfaction, ~techlevel.low, ~!tribalkingdom
+
+FACF:
+	Buildable:
+		Prerequisites: ~structures.france, ~techlevel.medium, ~!tribalkingdom
+
+FACT:
+	Buildable:
+		Prerequisites: ~disabled, ~!tribalkingdom
+
+FANTASY:
+	Buildable:
+		Prerequisites: ~!tribalkingdom
+
+FAPW:
+	Buildable:
+		Prerequisites: ~structures.france, ~techlevel.medium, ~!tribalkingdom
+
+FENC:
+	Buildable:
+		Prerequisites: fact, ~structures.soviet, ~techlevel.low, ~!tribalkingdom
+
+FIX:
+	Buildable:
+		Prerequisites: weap, ~techlevel.medium, ~!tribalkingdom
+
+FIXF:
+	Buildable:
+		Prerequisites: ~structures.france, ~techlevel.medium, ~!tribalkingdom
+
+FPWR:
+	Buildable:
+		Prerequisites: ~structures.france, ~techlevel.infonly, ~!tribalkingdom
+
+FTRK:
+	Buildable:
+		Prerequisites: ~vehicles.soviet, ~techlevel.low, ~!tribalkingdom
+
+FTUR:
+	Buildable:
+		Prerequisites: barr, ~structures.soviet, ~techlevel.low, ~!tribalkingdom
+
+FireAnt:
+	Buildable:
+		Prerequisites: ~disabled, ~!tribalkingdom
+
+GAP:
+	Buildable:
+		Prerequisites: atek, ~structures.allies, ~techlevel.high, ~!tribalkingdom
+
+GUN:
+	Buildable:
+		Prerequisites: tent, ~structures.allies, ~techlevel.medium, ~!tribalkingdom
+
+HBOX:
+	Buildable:
+		Prerequisites: tent, ~structures.allies, ~techlevel.medium, ~!tribalkingdom
+
+HELI:
+	Buildable:
+		Prerequisites: ~hpad, atek, ~techlevel.high, ~!tribalkingdom
+
+HIND:
+	Buildable:
+		Prerequisites: ~disabled, ~hpad, ~techlevel.medium, ~!tribalkingdom
+
+HPAD:
+	Buildable:
+		Prerequisites: dome, ~structures.allies, ~techlevel.medium, ~!tribalkingdom
+
+IRON:
+	Buildable:
+		Prerequisites: stek, ~structures.soviet, ~techlevel.unrestricted, ~!tribalkingdom
+
+JEEP:
+	Buildable:
+		Prerequisites: ~vehicles.allies, ~techlevel.low, ~!tribalkingdom
+
+LST:
+	Buildable:
+		Prerequisites: ~techlevel.low, ~!tribalkingdom
+
+MCV:
+	Buildable:
+		Prerequisites: fix, ~techlevel.medium, ~!tribalkingdom
+
+MECH:
+	Buildable:
+		Prerequisites: ~tent, fix, ~techlevel.medium, ~!tribalkingdom
+
+MEDI:
+	Buildable:
+		Prerequisites: ~tent, ~techlevel.infonly, ~!tribalkingdom
+
+MGG:
+	Buildable:
+		Prerequisites: atek, ~vehicles.england, ~techlevel.high, ~!tribalkingdom
+
+MH60:
+	Buildable:
+		Prerequisites: ~hpad, ~techlevel.medium, ~!tribalkingdom
+
+MIG:
+	Buildable:
+		Prerequisites: ~afld, stek, ~techlevel.high, ~!tribalkingdom
+
+MNLY:
+	Buildable:
+		Prerequisites: fix, ~techlevel.medium, ~!tribalkingdom
+
+MRJ:
+	Buildable:
+		Prerequisites: atek, ~vehicles.allies, ~techlevel.high, ~!tribalkingdom
+
+MSLF:
+	Buildable:
+		Prerequisites: ~structures.france, ~techlevel.unrestricted, ~!tribalkingdom
+
+MSLO:
+	Buildable:
+		Prerequisites: techcenter, ~techlevel.unrestricted, ~!tribalkingdom
+
+MSUB:
+	Buildable:
+		Prerequisites: ~spen, stek, ~techlevel.high, ~!tribalkingdom
+
+NPP:
+	Buildable:
+		Prerequisites: dome, ~techlevel.medium, ~!tribalkingdom
+
+PBOX:
+	Buildable:
+		Prerequisites: tent, ~structures.allies, ~techlevel.low, ~!tribalkingdom
+
+PDOF:
+	Buildable:
+		Prerequisites: ~structures.france, ~techlevel.unrestricted, ~!tribalkingdom
+
+PDOX:
+	Buildable:
+		Prerequisites: atek, ~structures.allies, ~techlevel.unrestricted, ~!tribalkingdom
+
+PROTESTER:
+	Buildable:
+		Prerequisites: ~barracks, ~!tribalkingdom
+
+PT:
+	Buildable:
+		Prerequisites: ~syrd, ~techlevel.low, ~!tribalkingdom
+
+QTNK:
+	Buildable:
+		Prerequisites: fix, stek, ~vehicles.soviet, ~techlevel.high, ~!tribalkingdom
+
+SAM:
+	Buildable:
+		Prerequisites: dome, ~structures.soviet, ~techlevel.medium, ~!tribalkingdom
+
+SBAG:
+	Buildable:
+		Prerequisites: fact, ~structures.allies, ~techlevel.low, ~!tribalkingdom
+
+SEAL:
+	Buildable:
+		Prerequisites: ~barracks, fantasyfactory, ~techlevel.infonly, ~!tribalkingdom
+
+SHAHED:
+	Buildable:
+		Prerequisites: ~barracks, shahedunits, ~!tribalkingdom
+
+SHOK:
+	Buildable:
+		Prerequisites: ~barr, stek, tsla, ~infantry.russia, ~techlevel.high, ~!tribalkingdom
+
+SILO:
+	Buildable:
+		Prerequisites: proc, ~techlevel.infonly, ~!tribalkingdom
+
+SPEF:
+	Buildable:
+		Prerequisites: ~disabled, ~!tribalkingdom
+
+SPEN:
+	Buildable:
+		Prerequisites: anypower, ~structures.soviet, ~techlevel.low, ~!tribalkingdom
+
+SPIRE:
+	Buildable:
+		Prerequisites: ~!tribalkingdom
+
+SPY:
+	Buildable:
+		Prerequisites: ~!infantry.england, dome, ~tent, ~techlevel.medium, ~!tribalkingdom
+
+SPY.England:
+	Buildable:
+		Prerequisites: ~infantry.england, dome, ~tent, ~techlevel.medium, ~!tribalkingdom
+
+SS:
+	Buildable:
+		Prerequisites: ~spen, ~techlevel.low, ~!tribalkingdom
+
+STEK:
+	Buildable:
+		Prerequisites: weap, dome, ~structures.soviet, ~techlevel.high, ~!tribalkingdom
+
+STNK:
+	Buildable:
+		Prerequisites: atek, ~vehicles.france, ~techlevel.high, ~!tribalkingdom
+
+SUBCARRIER:
+	Buildable:
+		Prerequisites: ~spen, fantasyfactory, ~techlevel.low, ~!tribalkingdom
+
+SUBCARRIER.HELI:
+	Buildable:
+		Prerequisites: subcarrier, ~!tribalkingdom
+
+SYRD:
+	Buildable:
+		Prerequisites: anypower, ~structures.allies, ~techlevel.low, ~!tribalkingdom
+
+SYRF:
+	Buildable:
+		Prerequisites: ~structures.france, ~techlevel.medium, ~!tribalkingdom
+
+ScoutAnt:
+	Buildable:
+		Prerequisites: ~disabled, ~!tribalkingdom
+
+TENF:
+	Buildable:
+		Prerequisites: ~structures.france, ~techlevel.infonly, ~!tribalkingdom
+
+TENT:
+	Buildable:
+		Prerequisites: anypower, ~structures.allies, ~techlevel.infonly, ~!tribalkingdom
+
+THF:
+	Buildable:
+		Prerequisites: ~barr, dome, ~techlevel.medium, ~!tribalkingdom
+
+TRAN:
+	Buildable:
+		Prerequisites: ~hpad, ~techlevel.medium, ~!tribalkingdom
+
+TRUK:
+	Buildable:
+		Prerequisites: ~techlevel.low, ~!tribalkingdom
+
+TSLA:
+	Buildable:
+		Prerequisites: weap, ~structures.soviet, ~techlevel.medium, ~!tribalkingdom
+
+TTNK:
+	Buildable:
+		Prerequisites: tsla, stek, ~vehicles.russia, ~techlevel.high, ~!tribalkingdom
+
+V2RL:
+	Buildable:
+		Prerequisites: dome, ~vehicles.soviet, ~techlevel.medium, ~!tribalkingdom
+
+WEAF:
+	Buildable:
+		Prerequisites: ~structures.france, ~techlevel.medium, ~!tribalkingdom
+
+WarriorAnt:
+	Buildable:
+		Prerequisites: ~disabled, ~!tribalkingdom
+
+YAK:
+	Buildable:
+		Prerequisites: ~afld, ~techlevel.medium, ~!tribalkingdom
+
+Zombie:
+	Buildable:
+		Prerequisites: ~barracks, ~bio, ~!tribalkingdom

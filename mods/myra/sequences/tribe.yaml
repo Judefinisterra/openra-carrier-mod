@@ -1,0 +1,194 @@
+tribalhero:
+	Defaults:
+		Filename: tribalhero.png
+	stand:
+		Facings: 8
+	run:
+		Start: 8
+		Length: 6
+		Facings: 8
+		Tick: 80
+	throw:
+		Start: 56
+		Length: 3
+		Facings: 8
+		Tick: 80
+	idle1:
+		Start: 80
+		Length: 4
+		Tick: 300
+	idle2:
+		Start: 80
+		Length: 4
+		Tick: 200
+	die1:
+		Start: 84
+		Length: 8
+		Tick: 80
+	die2:
+		Start: 84
+		Length: 8
+		Tick: 80
+	die3:
+		Start: 84
+		Length: 8
+		Tick: 80
+	die4:
+		Start: 84
+		Length: 8
+		Tick: 80
+	die5:
+		Start: 84
+		Length: 8
+		Tick: 80
+	die6:
+		Filename: electro.tem
+		TilesetFilenames:
+			SNOW: electro.sno
+		Frames: 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+		Length: *
+		Tick: 80
+	die-crushed:
+		Filename: corpse1.tem
+		TilesetFilenames:
+			SNOW: corpse1.sno
+		Length: 6
+		Tick: 1600
+		ZOffset: -511
+	parachute:
+		Start: 0
+	icon:
+		Filename: tribalhero-icon.png
+
+lion:
+	Defaults:
+		Filename: lion.png
+	stand:
+		Facings: 8
+	walk:
+		Start: 8
+		Length: 6
+		Facings: 8
+		Tick: 80
+	run:
+		Start: 56
+		Length: 6
+		Facings: 8
+		Tick: 60
+	eat:
+		Start: 104
+		Length: 4
+		Facings: 8
+		Tick: 120
+	jump:
+		Start: 136
+		Facings: 8
+	idle1:
+		Start: 144
+		Length: 4
+		Tick: 300
+	idle2:
+		Start: 144
+		Length: 4
+		Tick: 200
+	die1:
+		Start: 148
+		Length: 6
+		Tick: 80
+	die2:
+		Start: 148
+		Length: 6
+		Tick: 80
+	die3:
+		Start: 148
+		Length: 6
+		Tick: 80
+	die4:
+		Start: 148
+		Length: 6
+		Tick: 80
+	die5:
+		Start: 148
+		Length: 6
+		Tick: 80
+	die6:
+		Filename: electdog.shp
+		Length: *
+		Tick: 80
+	die-crushed:
+		Filename: corpse1.tem
+		TilesetFilenames:
+			SNOW: corpse1.sno
+		Length: 6
+		Tick: 1600
+		ZOffset: -511
+	icon:
+		Filename: lion-icon.png
+
+tribal-spear:
+	idle:
+		Filename: tribal-spear.png
+		Facings: 32
+		ZOffset: 1023
+
+rpgfella:
+	Defaults:
+		Filename: rpgfella.png
+	stand:
+		Facings: 8
+	run:
+		Start: 8
+		Length: 6
+		Facings: 8
+		Tick: 80
+	shoot:
+		Start: 56
+		Length: 2
+		Facings: 8
+		Tick: 120
+	idle1:
+		Start: 72
+		Length: 4
+		Tick: 300
+	idle2:
+		Start: 72
+		Length: 4
+		Tick: 200
+	die1:
+		Start: 76
+		Length: 8
+		Tick: 80
+	die2:
+		Start: 76
+		Length: 8
+		Tick: 80
+	die3:
+		Start: 76
+		Length: 8
+		Tick: 80
+	die4:
+		Start: 76
+		Length: 8
+		Tick: 80
+	die5:
+		Start: 76
+		Length: 8
+		Tick: 80
+	die6:
+		Filename: electro.tem
+		TilesetFilenames:
+			SNOW: electro.sno
+		Frames: 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+		Length: *
+		Tick: 80
+	die-crushed:
+		Filename: corpse1.tem
+		TilesetFilenames:
+			SNOW: corpse1.sno
+		Length: 6
+		Tick: 1600
+		ZOffset: -511
+	parachute:
+		Start: 0
+	icon:
+		Filename: rpgfella-icon.png

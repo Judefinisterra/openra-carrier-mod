@@ -1,0 +1,6 @@
+shahed:
+	idle:
+		Filename: shahed.png
+		Facings: 32
+	icon:
+		Filename: shahed-icon.png
