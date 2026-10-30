@@ -1,7 +1,7 @@
 CarrierLaunch:
 	ReloadDelay: 10
-	Range: 12c0
-	ValidTargets: Ground, Water, GroundActor, WaterActor
+	Range: 30c0
+	ValidTargets: Ground, Water, GroundActor, WaterActor, AirborneActor
 	Projectile: InstantHit
 
 CarrierBomb:

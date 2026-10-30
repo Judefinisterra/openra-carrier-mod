@@ -11,6 +11,13 @@ f14:
 		Filename: f14-icon.png
 		Facings: 1
 
+a10:
+	idle:
+		Filename: a10.png
+		Facings: 32
+	icon:
+		Filename: a10-icon.png
+
 f14parked:
 	idle:
 		Filename: f14-parked.png

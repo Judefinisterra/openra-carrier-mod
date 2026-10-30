@@ -550,9 +550,10 @@ actor-pony =
 actor-f14 =
     .name = F-14 Tomcat
     .description =
-    Swing-wing fighter-bomber with air-to-air and
-    air-to-ground missiles. Lands on Airfields and
-    Aircraft Carriers to rearm.
+    Swing-wing fighter. Air-to-air missiles, a V2
+    rocket for land and sea targets, and a cannon
+    when the missiles run out. Send it to a spot and
+    it patrols there. Rearms at Airfields and Carriers.
       Strong vs Aircraft, Vehicles, Buildings
       Weak vs Anti-air
 
@@ -565,7 +566,7 @@ actor-launchpad =
 
 actor-launchpad-power =
     .name = Orbital Troop Drop
-    .description = Launch the rocket's troops anywhere on the map. They land by parachute.
+    .description = Board infantry by right-clicking the pad with them selected, then launch the rocket anywhere on the map. The troops land by parachute.
 
 actor-molotovfire =
     .name = Fire
@@ -583,3 +584,12 @@ actor-nycbridge =
 actor-bridgehut =
     .name = Bridge Repair Hut
     .description = When the bridge is down, send an engineer in to rebuild it.
+
+actor-a10 =
+    .name = A-10 Thunderbolt
+    .description =
+    Armoured ground-attack plane. 30mm cannon in
+    5-shot bursts plus a V2 rocket. Send it to a spot
+    and it patrols there.
+      Strong vs Tanks, Ships, Buildings
+      Can't attack Aircraft

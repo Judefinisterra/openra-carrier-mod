@@ -12,6 +12,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using OpenRA.Activities;
 using OpenRA.Graphics;
 using OpenRA.Mods.Common;
 using OpenRA.Mods.Common.Traits;
@@ -537,7 +538,12 @@ namespace OpenRA.Mods.MyRA.Traits
 			if (cargo.IsEmpty() || flightTimer >= 0)
 			{
 				if (self.World.LocalPlayer == self.Owner)
-					TextNotificationsManager.AddSystemLine("Launch", "No troops aboard - load infantry into the rocket first.");
+					TextNotificationsManager.AddSystemLine("Launch",
+						"No troops aboard: select infantry and right-click the launch pad to board them (up to 10), then launch.");
+
+				// Keep the charge: nothing was launched.
+				var instance = manager.Powers.Values.FirstOrDefault(p => p.Instances.Contains(this));
+				self.World.AddFrameEndTask(_ => instance?.ChargeFully());
 				return;
 			}
 
@@ -606,6 +612,118 @@ namespace OpenRA.Mods.MyRA.Traits
 
 			if (w.LocalPlayer == self.Owner)
 				TextNotificationsManager.AddSystemLine("Launch", $"{troops.Count} troops are parachuting into the target zone.");
+		}
+	}
+
+	// ================================================================================================
+	// Air patrol: a plane sent to a spot on the map (not a runway) flies a figure 8 over it and attacks
+	// any enemy land, sea or air unit that comes into the area. Any other order ends the patrol.
+	// ================================================================================================
+	[Desc("After a move order, the aircraft patrols a figure 8 over that spot and attacks enemies entering the area.")]
+	public class AirPatrolInfo : TraitInfo, Requires<AircraftInfo>
+	{
+		[Desc("Half-width of the figure 8.")]
+		public readonly WDist Radius = WDist.FromCells(6);
+
+		[Desc("Enemies this close to the patrol centre are attacked.")]
+		public readonly WDist ScanRadius = WDist.FromCells(9);
+
+		public readonly int ScanInterval = 10;
+
+		public override object Create(ActorInitializer init) { return new AirPatrol(this); }
+	}
+
+	public class AirPatrol : ITick, IResolveOrder, INotifyCreated
+	{
+		readonly AirPatrolInfo info;
+		WPos? center;
+		int leg, timer;
+		Activity legActivity;
+		AttackBase[] attacks = [];
+
+		public AirPatrol(AirPatrolInfo info) { this.info = info; }
+
+		public bool Active => center != null;
+
+		void INotifyCreated.Created(Actor self) { attacks = self.TraitsImplementing<AttackBase>().ToArray(); }
+
+		void IResolveOrder.ResolveOrder(Actor self, Order order)
+		{
+			switch (order.OrderString)
+			{
+				case "Move":
+					if (order.Target.Type != TargetType.Invalid && !order.Queued)
+					{
+						var p = order.Target.CenterPosition;
+						center = new WPos(p.X, p.Y, 0);
+						leg = 0;
+						legActivity = null;
+					}
+
+					break;
+
+				// Attacking keeps the patrol (it resumes afterwards); anything else ends it.
+				case "Attack":
+				case "ForceAttack":
+					break;
+
+				default:
+					if (!order.Queued && order.OrderString is "Stop" or "ReturnToBase" or "Enter" or "ForceEnter" or "Land" or "Repair" or "Guard" or "AttackMove" or "AssaultMove")
+						center = null;
+
+					break;
+			}
+		}
+
+		WPos Point(int k)
+		{
+			// Lemniscate (figure 8) through the centre: x = R sin t, y = R sin t cos t.
+			var t = k * System.Math.PI * 2 / 8;
+			var r = info.Radius.Length;
+			return center.Value + new WVec((int)(r * System.Math.Sin(t)), (int)(r * System.Math.Sin(t) * System.Math.Cos(t) * 1.2), 0);
+		}
+
+		void ITick.Tick(Actor self)
+		{
+			if (center == null || !self.IsInWorld || --timer > 0)
+				return;
+
+			timer = info.ScanInterval;
+			var act = self.CurrentActivity;
+			var patrolling = act == null || act is Mods.Common.Activities.FlyIdle || act == legActivity;
+
+			// Look for enemies in the patrol area (only while not already fighting).
+			if (patrolling)
+			{
+				var me = self.Owner;
+				var c = center.Value;
+				var enemy = self.World.FindActorsInCircle(c, info.ScanRadius)
+					.Where(a => NycHelpers.Alive(a) && NycHelpers.Hostile(me, a.Owner) && a.CanBeViewedByPlayer(me)
+						&& a.Info.HasTraitInfo<IHealthInfo>() && !a.Info.HasTraitInfo<HuskInfo>()
+						&& !a.GetEnabledTargetTypes().Contains("NoAutoTarget")
+						&& attacks.Any(at => at.HasAnyValidWeapons(Target.FromActor(a))))
+					.MinByOrDefault(a => (a.CenterPosition - self.CenterPosition).HorizontalLengthSquared);
+
+				if (enemy != null)
+				{
+					legActivity = null;
+					foreach (var at in attacks)
+						at.AttackTarget(Target.FromActor(enemy), AttackSource.Default, false, true);
+
+					return;
+				}
+			}
+
+			// Fly the next leg of the figure 8.
+			if (act == null || act is Mods.Common.Activities.FlyIdle || (act == legActivity && act.State == ActivityState.Done))
+			{
+				if (act != null)
+					self.CancelActivity();
+
+				leg = (leg + 1) % 8;
+				legActivity = new Mods.Common.Activities.Fly(self, Target.FromPos(Point(leg)), WDist.FromCells(1));
+				self.QueueActivity(false, legActivity);
+			}
 		}
 	}
 }

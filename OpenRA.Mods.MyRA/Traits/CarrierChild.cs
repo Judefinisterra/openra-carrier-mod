@@ -23,6 +23,9 @@ namespace OpenRA.Mods.MyRA.Traits
 		[Desc("Horizontal distance from the carrier at which the aircraft lands on it.")]
 		public readonly WDist DockDistance = new(512);
 
+		[Desc("Fly home as soon as every ammo pool is empty. Turn off for aircraft that keep fighting with guns.")]
+		public readonly bool ReturnWhenOutOfAmmo = true;
+
 		public override object Create(ActorInitializer init) { return new CarrierChild(this); }
 	}
 
@@ -34,6 +37,7 @@ namespace OpenRA.Mods.MyRA.Traits
 		AmmoPool[] ammoPools;
 		Aircraft aircraft;
 		bool returning;
+		AirPatrol patrol;
 		int searchCooldown;
 
 		public CarrierChild(CarrierChildInfo info)
@@ -43,6 +47,7 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		void INotifyCreated.Created(Actor self)
 		{
+			patrol = self.TraitOrDefault<AirPatrol>();
 			ammoPools = self.TraitsImplementing<AmmoPool>().ToArray();
 			aircraft = self.TraitOrDefault<Aircraft>();
 		}
@@ -61,6 +66,10 @@ namespace OpenRA.Mods.MyRA.Traits
 		void ITick.Tick(Actor self)
 		{
 			if (!self.IsInWorld)
+				return;
+
+			// Patrolling an area the player sent it to: stay out there.
+			if (patrol != null && patrol.Active && (carrier == null || (!carrier.IsDead && carrier.IsInWorld)))
 				return;
 
 			// Built on its own (not by a carrier): once idle, join the nearest friendly carrier with a free slot.
@@ -99,7 +108,7 @@ namespace OpenRA.Mods.MyRA.Traits
 				return;
 			}
 
-			var outOfAmmo = ammoPools.Length > 0 && ammoPools.All(p => !p.HasAmmo);
+			var outOfAmmo = info.ReturnWhenOutOfAmmo && ammoPools.Length > 0 && ammoPools.All(p => !p.HasAmmo);
 			var activity = self.CurrentActivity;
 			var nothingToDo = activity == null || (activity is FlyIdle && !activity.IsCanceling);
 
