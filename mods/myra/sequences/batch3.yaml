@@ -1,0 +1,116 @@
+b2:
+	idle:
+		Filename: b2.png
+		Facings: 32
+	icon:
+		Filename: b2-icon.png
+sr71:
+	idle:
+		Filename: sr71.png
+		Facings: 32
+	icon:
+		Filename: sr71-icon.png
+kc135:
+	idle:
+		Filename: kc135.png
+		Facings: 32
+	icon:
+		Filename: kc135-icon.png
+ac130:
+	idle:
+		Filename: ac130.png
+		Facings: 32
+	icon:
+		Filename: ac130-icon.png
+c130:
+	idle:
+		Filename: c130.png
+		Facings: 32
+	icon:
+		Filename: c130-icon.png
+harrier:
+	idle:
+		Filename: harrier.png
+		Facings: 32
+	hover:
+		Filename: harrier.png
+		Start: 32
+		Facings: 32
+	icon:
+		Filename: harrier-icon.png
+apache:
+	idle:
+		Filename: apache.png
+		Facings: 32
+	rotor:
+		Filename: myrotor.png
+		Length: 4
+		Tick: 40
+	slow-rotor:
+		Filename: myrotor.png
+		Length: 4
+		Tick: 160
+	icon:
+		Filename: apache-icon.png
+newsheli:
+	idle:
+		Filename: newsheli.png
+		Facings: 32
+	rotor:
+		Filename: myrotor.png
+		Length: 4
+		Tick: 40
+	slow-rotor:
+		Filename: myrotor.png
+		Length: 4
+		Tick: 160
+samtruck:
+	idle:
+		Filename: samtruck.png
+		Facings: 32
+	turret:
+		Filename: samtruck-turret.png
+		Facings: 32
+	icon:
+		Filename: samtruck-icon.png
+zodiac:
+	idle:
+		Filename: zodiac.png
+		Facings: 32
+	icon:
+		Filename: zodiac-icon.png
+lcs:
+	idle:
+		Filename: lcs.png
+		Facings: 32
+	turret:
+		Filename: lcs-gun.png
+		Facings: 32
+	icon:
+		Filename: lcs-icon.png
+cutter:
+	idle:
+		Filename: cutter.png
+		Facings: 32
+	muzzle:
+		Filename: gunfire2.shp
+		Length: 5
+	icon:
+		Filename: cutter-icon.png
+tomahawk:
+	idle:
+		Filename: tomahawk.png
+		Facings: 32
+		ZOffset: 1023
+cop:
+	Inherits: shok
+	Defaults:
+		Filename: cop.png
+	icon:
+		Filename: cop-icon.png
+sniper:
+	Inherits: e1
+	Defaults:
+		Filename: sniper.png
+	icon:
+		Filename: sniper-icon.png

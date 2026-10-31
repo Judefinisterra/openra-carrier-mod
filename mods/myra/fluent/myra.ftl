@@ -593,3 +593,101 @@ actor-a10 =
     and it patrols there.
       Strong vs Tanks, Ships, Buildings
       Can't attack Aircraft
+
+checkbox-plague =
+    .label = Plague
+    .description = Infantry crowded together for too long catch a deadly disease that spreads
+
+actor-b2 =
+    .name = B-2 Spirit
+    .description =
+    Stealth bomber: invisible except just after it
+    attacks. Fires V2 rockets in bursts of 4 and
+    reloads in flight, so it never lands.
+      Strong vs Buildings, Vehicles
+
+actor-sr71 =
+    .name = SR-71 Blackbird
+    .description =
+    Faster than any missile. Unarmed, never lands.
+    Everywhere it flies stays revealed for good.
+
+actor-p3 =
+    .name = P-3 Orion
+    .description =
+    Anti-submarine patrol plane. Spots submarines within
+    5 cells and drops depth charges on them. Send it
+    somewhere and it patrols there. Never lands.
+      Strong vs Submarines
+
+actor-ac130 =
+    .name = AC-130 Spectre
+    .description =
+    Gunship: circles its target while three side guns
+    (25mm, 40mm, 105mm) fire. Never lands.
+      Strong vs Infantry, Vehicles
+
+actor-c130 =
+    .name = C-130 Hercules
+    .description =
+    Transport that lands wherever you send it. Load
+    troops or vehicles on the ground, fly them anywhere
+    and unload them there.
+
+actor-harrier =
+    .name = Harrier
+    .description =
+    Jump jet: takes off and lands vertically. Missiles
+    for aircraft and ground targets.
+
+actor-apache =
+    .name = Apache
+    .description =
+    Attack helicopter with Hellfire missiles and a
+    chain gun.
+      Strong vs Vehicles, Infantry
+
+actor-newsheli =
+    .name = News Helicopter
+
+actor-mobilesam =
+    .name = Mobile SAM
+    .description =
+    Anti-aircraft missile truck that keeps up with
+    your army.
+      Strong vs Aircraft
+      Can't attack ground targets
+
+actor-zodiac =
+    .name = SEAL Zodiac
+    .description =
+    Fast inflatable that runs up onto any beach.
+    Comes with 4 Navy SEALs aboard.
+
+actor-lcs =
+    .name = Littoral Combat Ship
+    .description =
+    Deck gun, depth charges, anti-air missiles and
+    Tomahawk cruise missiles (40-cell range, one every
+    15 seconds). Fires at enemy buildings it can see.
+
+actor-cutter =
+    .name = Coast Guard Cutter
+    .description =
+    Cheap, fast patrol boat that spots submarines
+    from far away.
+
+actor-cop =
+    .name = Cop
+    .description =
+    Police officer with a taser: a deadly zap at very
+    short range.
+      Strong vs Infantry
+
+actor-sniper =
+    .name = Sniper
+    .description =
+    Ghillie-suited marksman, invisible until it fires.
+    Very long range, kills infantry in one shot.
+      Strong vs Infantry
+      Weak vs Vehicles, Buildings

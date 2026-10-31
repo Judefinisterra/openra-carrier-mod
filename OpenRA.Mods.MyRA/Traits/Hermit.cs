@@ -72,6 +72,21 @@ namespace OpenRA.Mods.MyRA.Traits
 			if (amount > 0 && theirs.TakeCash(amount))
 				attacker.PlayerActor.Trait<PlayerResources>().GiveCash(amount);
 
+			// ...steal their technology: from now on we can build their faction's buildings and units.
+			var faction = victim.Faction.InternalName;
+			var stolen = self.World.Map.Rules.Actors.Values
+				.SelectMany(ai => ai.TraitInfos<ProvidesPrerequisiteInfo>())
+				.Where(i => i.Prerequisite != null && i.Factions.Contains(faction))
+				.Select(i => i.Prerequisite).Distinct().ToList();
+			var tree = attacker.PlayerActor.TraitOrDefault<TechTree>();
+			if (tree != null && stolen.Count > 0 && stolen.Any(x => !tree.Borrowed.Contains(x)))
+			{
+				tree.Borrow(stolen);
+				if (self.World.LocalPlayer == attacker)
+					TextNotificationsManager.AddSystemLine("Cyber Attack", $"Blueprints stolen: you can now build {victim.ResolvedPlayerName}'s buildings and units.");
+				GameRecorder.Note(attacker, $"stole {victim.ResolvedPlayerName}'s tech ({faction})");
+			}
+
 			// Knock out their radar for a minute...
 			foreach (var a in self.World.Actors.Where(a => a.Owner == victim && !a.IsDead && a.IsInWorld).ToList())
 				foreach (var ec in a.TraitsImplementing<ExternalCondition>())

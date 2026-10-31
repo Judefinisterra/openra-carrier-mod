@@ -1,0 +1,116 @@
+B2V2:
+	Inherits: F14V2
+	ReloadDelay: 120
+	Burst: 4
+	BurstDelays: 6
+
+Spectre25mm:
+	Inherits: ChainGun.Yak
+	MinRange: 0
+	Range: 7c0
+	ReloadDelay: 4
+	Warhead@1Dam: SpreadDamage
+		Damage: 1800
+
+Spectre40mm:
+	Inherits: 25mm
+	ReloadDelay: 30
+	Range: 7c0
+	Projectile: Bullet
+		Speed: 700
+		Blockable: false
+	Warhead@1Dam: SpreadDamage
+		Damage: 4500
+
+Spectre105mm:
+	Inherits: 155mm
+	ReloadDelay: 90
+	Range: 7c0
+	MinRange: 0
+	Projectile: Bullet
+		Speed: 500
+		LaunchAngle: 0
+		Blockable: false
+
+ApacheGun:
+	Inherits: ChainGun.Yak
+	MinRange: 0
+	Range: 4c512
+
+LcsGun:
+	Inherits: 2Inch
+	Range: 7c0
+	ReloadDelay: 40
+
+# Tomahawk: long-range cruise missile. Only at land and sea targets; one every 15 seconds.
+Tomahawk:
+	Inherits: ^AntiGroundMissile
+	ReloadDelay: 375
+	Range: 40c0
+	MinRange: 0
+	Report: missile1.aud
+	ValidTargets: Ground, Water, GroundActor, WaterActor
+	Projectile: Missile
+		Image: tomahawk
+		Speed: 300
+		CruiseAltitude: 2c0
+		RangeLimit: 50c0
+		HorizontalRateOfTurn: 40
+		Inaccuracy: 128
+		TrailImage: smokey
+		Blockable: false
+	Warhead@1Dam: SpreadDamage
+		Spread: 600
+		Damage: 25000
+		ValidTargets: GroundActor, WaterActor, Trees
+		Versus:
+			None: 60
+			Wood: 100
+			Light: 90
+			Heavy: 70
+			Concrete: 100
+		DamageTypes: Prone50Percent, TriggerProne, ExplosionDeath
+	Warhead@3Eff: CreateEffect
+		Explosions: large_explosion
+		ImpactSounds: kaboom12.aud
+
+Taser:
+	Inherits: PortaTesla
+	Range: 2c0
+	ReloadDelay: 50
+	Warhead@1Dam: SpreadDamage
+		Damage: 6000
+		Versus:
+			None: 100
+			Wood: 20
+			Light: 30
+			Heavy: 10
+			Concrete: 5
+
+SniperRifle:
+	Inherits: M1Carbine
+	ReloadDelay: 75
+	Range: 9c0
+	Report: gun27.aud
+	Warhead@1Dam: SpreadDamage
+		Damage: 15000
+		Versus:
+			None: 200
+			Wood: 5
+			Light: 5
+			Heavy: 2
+			Concrete: 2
+
+# P-3 Orion depth charges: dropped from the air onto submarines.
+P3DepthCharge:
+	Inherits: DepthCharge
+	ReloadDelay: 40
+	Range: 3c0
+	Burst: 2
+	BurstDelays: 8
+	Projectile: Bullet
+		Speed: 160
+		LaunchAngle: 0
+		Inaccuracy: 128
+	Warhead@1Dam: SpreadDamage
+		Damage: 9000

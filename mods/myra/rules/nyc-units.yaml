@@ -388,7 +388,6 @@ LAUNCHPAD:
 	Cargo:
 		Types: Infantry
 		MaxWeight: 10
-		LoadedCondition: rocket-loaded
 		RequiresCondition: !pad-empty
 		UnloadVoice: Move
 	Inherits@CARGOPIPS: ^CargoPips

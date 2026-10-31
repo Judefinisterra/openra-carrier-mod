@@ -1,0 +1,589 @@
+# ---------------------------------------------------------------------------
+# Batch 3: B-2, SR-71, KC-135 tanker, AC-130, C-130, Harrier, Apache, News Helicopter, Mobile SAM,
+# SEAL Zodiac, Littoral Combat Ship (Tomahawks), Coast Guard cutter, Cop, Sniper, plague, recall panel.
+# ---------------------------------------------------------------------------
+
+World:
+	PlagueManager:
+	RecallPanel:
+	NeutralAirSpawner:
+		Actor: newsheli
+
+^Infantry:
+	Plagueable:
+	ChangesHealth@PLAGUE:
+		PercentageStep: -1
+		Step: 0
+		Delay: 40
+		StartIfBelow: 101
+		RequiresCondition: plague
+	WithColoredOverlay@PLAGUE:
+		Color: 30C03050
+		RequiresCondition: plague
+
+HPAD:
+	ProvidesPrerequisite@anyairpad:
+		Prerequisite: anyairpad
+AFLD:
+	ProvidesPrerequisite@anyairpad:
+		Prerequisite: anyairpad
+SYRD:
+	ProvidesPrerequisite@anyshipyard:
+		Prerequisite: anyshipyard
+SPEN:
+	ProvidesPrerequisite@anyshipyard:
+		Prerequisite: anyshipyard
+
+# Planes that never land: circle when idle, patrol where they are sent, no rearming on the ground.
+^NoLandPlane:
+	Inherits: ^Plane
+	-Repairable:
+	-SpawnActorOnDeath:
+	FireWarheadsOnDeath@AIR:
+		Weapon: UnitExplodePlane
+		RequiresCondition: airborne
+	EjectOnDeath:
+		SuccessRate: 100
+	AirPatrol:
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	WithAmmoPipsDecoration:
+		Position: BottomLeft
+		Margin: 4, 3
+		RequiresSelection: true
+
+# B-2 Spirit: stealth bomber - invisible except for a few seconds after it attacks. V2 rockets in bursts
+# of 4; the bomb bay reloads slowly in flight, so it never has to land.
+B2:
+	Inherits: ^NoLandPlane
+	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Buildable:
+		Queue: Aircraft
+		BuildAtProductionType: Plane
+		BuildPaletteOrder: 60
+		Prerequisites: ~afld, ~techlevel.high
+		Description: actor-b2.description
+	Valued:
+		Cost: 3000
+	Tooltip:
+		Name: actor-b2.name
+	Health:
+		HP: 20000
+	RevealsShroud:
+		Range: 8c0
+		Type: GroundPosition
+	Armament:
+		Weapon: B2V2
+		LocalOffset: 0,-300,-100, 0,300,-100
+		PauseOnCondition: !ammo
+	AttackAircraft:
+		FacingTolerance: 80
+		PersistentTargeting: false
+		OpportunityFire: False
+	Aircraft:
+		CruiseAltitude: 3072
+		TurnSpeed: 12
+		Speed: 170
+		RepulsionSpeed: 40
+	AutoTarget:
+		InitialStance: Defend
+		InitialStanceAI: AttackAnything
+	AmmoPool:
+		Ammo: 8
+		AmmoCondition: ammo
+	ReloadAmmoPool:
+		Delay: 200
+		Count: 1
+	Cloak:
+		InitialDelay: 0
+		CloakDelay: 125
+		CloakSound: appear1.aud
+		UncloakSound: appear1.aud
+		UncloakOn: Attack, Unload, Infiltrate, Demolish, Dock, Damage
+		IsPlayerPalette: true
+	Selectable:
+		Bounds: 2560, 1536
+		DecorationBounds: 2816, 1792
+	RenderSprites:
+		Image: b2
+
+# SR-71 Blackbird: faster than any missile, unarmed. Everywhere it flies stays revealed for good.
+SR71:
+	Inherits: ^NoLandPlane
+	Buildable:
+		Queue: Aircraft
+		BuildAtProductionType: Plane
+		BuildPaletteOrder: 61
+		Prerequisites: ~afld, ~techlevel.medium
+		Description: actor-sr71.description
+	Valued:
+		Cost: 1800
+	Tooltip:
+		Name: actor-sr71.name
+	Health:
+		HP: 8000
+	RevealsShroud:
+		Range: 10c0
+		Type: GroundPosition
+	Aircraft:
+		CruiseAltitude: 3584
+		TurnSpeed: 12
+		Speed: 480
+		RepulsionSpeed: 40
+	PermanentRevealTrail:
+		Radius: 8c0
+	-WithAmmoPipsDecoration:
+	Selectable:
+		Bounds: 1792, 1536
+	RenderSprites:
+		Image: sr71
+
+# P-3 Orion: anti-submarine patrol plane. Spots submarines within 5 cells and drops depth charges on
+# them. Send it somewhere and it patrols a figure 8 there, attacking any sub that comes by. Never lands.
+P3:
+	Inherits: ^NoLandPlane
+	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Buildable:
+		Queue: Aircraft
+		BuildAtProductionType: Plane
+		BuildPaletteOrder: 62
+		Prerequisites: ~afld, ~techlevel.medium
+		Description: actor-p3.description
+	Valued:
+		Cost: 1500
+	Tooltip:
+		Name: actor-p3.name
+	Health:
+		HP: 16000
+	RevealsShroud:
+		Range: 7c0
+		Type: GroundPosition
+	Aircraft:
+		CruiseAltitude: 2048
+		TurnSpeed: 12
+		Speed: 170
+		RepulsionSpeed: 40
+	DetectCloaked:
+		DetectionTypes: Underwater
+		Range: 5c0
+	RenderDetectionCircle:
+	Armament:
+		Weapon: P3DepthCharge
+		PauseOnCondition: !ammo
+	AttackAircraft:
+		FacingTolerance: 80
+		PersistentTargeting: false
+		OpportunityFire: False
+	AutoTarget:
+		InitialStance: AttackAnything
+		InitialStanceAI: AttackAnything
+	AmmoPool:
+		Ammo: 6
+		AmmoCondition: ammo
+	ReloadAmmoPool:
+		Delay: 150
+		Count: 1
+	Selectable:
+		Bounds: 2304, 1792
+	RenderSprites:
+		Image: kc135
+
+# AC-130 Spectre: on an attack order it circles the target while three side guns fire.
+AC130:
+	Inherits: ^NoLandPlane
+	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Buildable:
+		Queue: Aircraft
+		BuildAtProductionType: Plane
+		BuildPaletteOrder: 63
+		Prerequisites: ~afld, ~techlevel.high
+		Description: actor-ac130.description
+	Valued:
+		Cost: 2500
+	Tooltip:
+		Name: actor-ac130.name
+	Health:
+		HP: 26000
+	RevealsShroud:
+		Range: 9c0
+		Type: GroundPosition
+	Turreted:
+		TurnSpeed: 512
+	Armament@GATLING:
+		Weapon: Spectre25mm
+		LocalOffset: 300,-400,-100
+	Armament@BOFORS:
+		Weapon: Spectre40mm
+		LocalOffset: 0,-400,-100
+	Armament@HOWITZER:
+		Weapon: Spectre105mm
+		LocalOffset: -300,-400,-100
+	AttackTurreted:
+		Armaments: primary
+	GunshipOrbit:
+		Radius: 5c0
+	Aircraft:
+		CruiseAltitude: 2560
+		TurnSpeed: 10
+		Speed: 140
+		RepulsionSpeed: 40
+	AutoTarget:
+		InitialStance: AttackAnything
+		InitialStanceAI: AttackAnything
+	-WithAmmoPipsDecoration:
+	Selectable:
+		Bounds: 2304, 1792
+	RenderSprites:
+		Image: ac130
+
+# C-130 Hercules: lands wherever you send it. Load troops or vehicles while it is on the ground, fly it
+# somewhere else, and unload them there.
+C130:
+	Inherits: ^Plane
+	Inherits@CARGOPIPS: ^CargoPips
+	Buildable:
+		Queue: Aircraft
+		BuildAtProductionType: Plane
+		BuildPaletteOrder: 64
+		Prerequisites: ~afld, ~techlevel.low
+		Description: actor-c130.description
+	Valued:
+		Cost: 1200
+	Tooltip:
+		Name: actor-c130.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 20000
+	RevealsShroud:
+		Range: 6c0
+		Type: GroundPosition
+	Aircraft:
+		CruiseAltitude: 2048
+		TurnSpeed: 10
+		Speed: 160
+		RepulsionSpeed: 40
+		LandableTerrainTypes: Clear, Road, Rough, Beach, Ore, Gems
+		CanForceLand: true
+		TakeOffOnResupply: false
+	Cargo:
+		Types: Infantry, Vehicle
+		MaxWeight: 10
+		AfterUnloadDelay: 10
+	LandOnMove:
+	-SpawnActorOnDeath:
+	FireWarheadsOnDeath@AIR:
+		Weapon: UnitExplodePlane
+		RequiresCondition: airborne
+	EjectOnDeath:
+		SuccessRate: 100
+	Selectable:
+		Bounds: 2304, 1792
+	RenderSprites:
+		Image: c130
+
+# Harrier: jump jet - takes off and lands vertically (helipads, airfields, anywhere). Missiles for air
+# and ground targets.
+HARRIER:
+	Inherits: ^Helicopter
+	Inherits@AUTOTARGET: ^AutoTargetAllAssaultMove
+	Buildable:
+		Queue: Aircraft
+		BuildPaletteOrder: 45
+		Prerequisites: anyairpad, ~techlevel.medium
+		Description: actor-harrier.description
+	Valued:
+		Cost: 1400
+	Tooltip:
+		Name: actor-harrier.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 9000
+	RevealsShroud:
+		MinRange: 9c0
+		Range: 11c0
+		Type: GroundPosition
+		RevealGeneratedShroud: False
+	Armament@AA:
+		Weapon: F14AAM
+		LocalOffset: 0,-400,-60, 0,400,-60
+		PauseOnCondition: !ammo
+	Armament@AG:
+		Name: secondary
+		Weapon: Maverick
+		LocalOffset: 0,-400,-60, 0,400,-60
+		PauseOnCondition: !ammo
+	AttackAircraft:
+		FacingTolerance: 80
+		PersistentTargeting: false
+		OpportunityFire: False
+	Aircraft:
+		TurnSpeed: 20
+		Speed: 210
+		LandableTerrainTypes: Clear, Rough, Road, Ore, Beach, Gems
+	AmmoPool:
+		Ammo: 6
+		AmmoCondition: ammo
+	Rearmable:
+		RearmActors: hpad, afld, afld.ukraine
+	AutoTarget:
+		InitialStance: Defend
+		InitialStanceAI: AttackAnything
+	-WithFacingSpriteBody:
+	WithFacingSpriteBody@FLY:
+		Sequence: idle
+		RequiresCondition: cruising
+	WithFacingSpriteBody@HOVER:
+		Name: hover
+		Sequence: hover
+		RequiresCondition: !cruising
+	-SpawnActorOnDeath:
+	FireWarheadsOnDeath@AIR:
+		Weapon: UnitExplodePlane
+		RequiresCondition: airborne
+	EjectOnDeath:
+		SuccessRate: 100
+	WithAmmoPipsDecoration:
+		Position: BottomLeft
+		Margin: 4, 3
+		RequiresSelection: true
+	RenderSprites:
+		Image: harrier
+
+# Apache: attack helicopter with Hellfires and a chin chain gun. Every side can build it at a Helipad.
+APACHE:
+	Inherits: HELI
+	Buildable:
+		BuildPaletteOrder: 41
+		Prerequisites: ~hpad, ~techlevel.medium
+		Description: actor-apache.description
+	Valued:
+		Cost: 1500
+	Tooltip:
+		Name: actor-apache.name
+	Armament@GUN:
+		Name: tertiary
+		Weapon: ApacheGun
+		LocalOffset: 500,0,-100
+	AttackAircraft:
+		Armaments: primary, secondary, tertiary
+	AutoTarget:
+		InitialStance: Defend
+		InitialStanceAI: AttackAnything
+	-SpawnActorOnDeath:
+	FireWarheadsOnDeath@AIR:
+		Weapon: UnitExplodeHeli
+		RequiresCondition: airborne
+	RenderSprites:
+		Image: apache
+
+# News Helicopter: neutral, wanders the map. What it sees, every player sees.
+NEWSHELI:
+	Inherits: ^Helicopter
+	-Huntable:
+	-MustBeDestroyed:
+	-EjectOnDeath:
+	-ActorLostNotification:
+	-Repairable:
+	-SpawnActorOnDeath:
+	-Capturable:
+	-CaptureManager:
+	-CaptureNotification:
+	Tooltip:
+		Name: actor-newsheli.name
+	Health:
+		HP: 6000
+	Aircraft:
+		Speed: 110
+		CruiseAltitude: 1536
+	RevealsShroud:
+		Range: 7c0
+		Type: GroundPosition
+		ValidRelationships: Ally, Neutral, Enemy
+	WandersByAir:
+	WithIdleOverlay@ROTORAIR:
+		Offset: 0,0,85
+		Sequence: rotor
+		RequiresCondition: airborne
+	WithIdleOverlay@ROTORGROUND:
+		Offset: 0,0,85
+		Sequence: slow-rotor
+		RequiresCondition: !airborne
+	FireWarheadsOnDeath@AIR:
+		Weapon: UnitExplodeHeli
+		RequiresCondition: airborne
+	RenderSprites:
+		Image: newsheli
+	MapEditorData:
+		Categories: System
+
+# Mobile SAM: anti-aircraft missile launcher on a truck. Every side, at the War Factory.
+MOBILESAM:
+	Inherits: ^Vehicle
+	Inherits@GAINSEXPERIENCE: ^GainsExperience
+	Inherits@AUTOTARGET: ^AutoTargetAir
+	Buildable:
+		Queue: Vehicle
+		BuildPaletteOrder: 95
+		Prerequisites: ~techlevel.medium
+		Description: actor-mobilesam.description
+	Valued:
+		Cost: 800
+	Tooltip:
+		Name: actor-mobilesam.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 25000
+	Armor:
+		Type: Light
+	Mobile:
+		Speed: 100
+	RevealsShroud:
+		Range: 8c0
+	Turreted:
+		TurnSpeed: 28
+		Offset: -128,0,0
+	Armament:
+		Weapon: Nike
+		LocalOffset: 200,-170,300, 200,170,300
+	AttackTurreted:
+	WithSpriteTurret:
+	RenderSprites:
+		Image: samtruck
+
+# SEAL Zodiac: fast inflatable that beaches anywhere; comes with a team of 4 SEALs aboard.
+ZODIAC:
+	Inherits: ^Ship
+	Inherits@CARGOPIPS: ^CargoPips
+	Buildable:
+		Queue: Ship
+		BuildAtProductionType: Ship
+		BuildPaletteOrder: 11
+		Prerequisites: anyshipyard, ~techlevel.low
+		Description: actor-zodiac.description
+	Valued:
+		Cost: 1200
+	Tooltip:
+		Name: actor-zodiac.name
+	Health:
+		HP: 12000
+	Armor:
+		Type: Light
+	Mobile:
+		Locomotor: lcraft
+		Speed: 200
+		TurnSpeed: 40
+	RevealsShroud:
+		Range: 6c0
+	Cargo:
+		Types: Infantry
+		MaxWeight: 5
+		PassengerFacing: 0
+		InitialUnits: seal, seal, seal, seal
+	Selectable:
+		Bounds: 1024, 1024
+	RenderSprites:
+		Image: zodiac
+
+# Littoral Combat Ship: deck gun, depth charges and long-range Tomahawk cruise missiles (slow to reload).
+LCS:
+	Inherits: DD
+	Buildable:
+		BuildAtProductionType: Ship
+		BuildPaletteOrder: 52
+		Prerequisites: anyshipyard, ~techlevel.high
+		Description: actor-lcs.description
+	Valued:
+		Cost: 2000
+	Tooltip:
+		Name: actor-lcs.name
+	Health:
+		HP: 70000
+	Turreted:
+		Offset: 810,0,128
+	Armament@PRIMARY:
+		Weapon: LcsGun
+		LocalOffset: 300,0,100
+	Armament@TERTIARY:
+		Weapon: StingerAA
+	Armament@TOMAHAWK:
+		Name: tomahawk
+		Turret: none
+		Weapon: Tomahawk
+		LocalOffset: -100,0,300
+	AttackTurreted:
+		Armaments: primary, secondary, tertiary, tomahawk
+		Turrets: primary, none
+	# Fires Tomahawks at enemy buildings it can see without being told to.
+	AutoTarget:
+		InitialStance: AttackAnything
+		InitialStanceAI: AttackAnything
+	Selectable:
+		Bounds: 2560, 2048
+	RenderSprites:
+		Image: lcs
+
+# Coast Guard cutter: cheap fast patrol boat. Spots submarines from far away; bow gun and depth charges.
+CUTTER:
+	Inherits: PT
+	Buildable:
+		BuildAtProductionType: Ship
+		BuildPaletteOrder: 9
+		Prerequisites: anyshipyard, ~techlevel.low
+		Description: actor-cutter.description
+	Valued:
+		Cost: 400
+	Tooltip:
+		Name: actor-cutter.name
+	-WithSpriteTurret:
+	DetectCloaked:
+		Range: 9c0
+	RenderDetectionCircle:
+	RenderSprites:
+		Image: cutter
+
+# Cop with taser: a lethal zap at very short range.
+COP:
+	Inherits: SHOK
+	Buildable:
+		BuildPaletteOrder: 20
+		Prerequisites: ~barracks, ~techlevel.low
+		Description: actor-cop.description
+	Valued:
+		Cost: 250
+	Tooltip:
+		Name: actor-cop.name
+	Health:
+		HP: 5000
+	Armament@PRIMARY:
+		Weapon: Taser
+	Armament@GARRISONED:
+		Weapon: Taser
+	RenderSprites:
+		Image: cop
+
+# Sniper in a ghillie suit: invisible until it fires (enemy infantry right next to it can spot it).
+# Very long range, kills infantry in one shot, slow to reload.
+SNIPER:
+	Inherits: E1
+	Buildable:
+		BuildPaletteOrder: 21
+		Prerequisites: ~barracks, ~techlevel.medium
+		Description: actor-sniper.description
+	Valued:
+		Cost: 600
+	Tooltip:
+		Name: actor-sniper.name
+	Armament@PRIMARY:
+		Weapon: SniperRifle
+	Armament@GARRISONED:
+		Weapon: SniperRifle
+	Cloak:
+		InitialDelay: 0
+		CloakDelay: 90
+		UncloakOn: Attack, Unload, Infiltrate, Demolish, Damage
+		IsPlayerPalette: true
+	RenderSprites:
+		Image: sniper

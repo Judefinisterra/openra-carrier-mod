@@ -66,8 +66,29 @@ namespace OpenRA.Mods.Common.Traits
 		public bool HasPrerequisites(IEnumerable<string> prerequisites)
 		{
 			var ownedPrereqs = GatherOwnedPrerequisites(Owner);
-			return prerequisites.All(p => !(p.Replace("~", "").StartsWith('!')
-					^ !ownedPrereqs.ContainsKey(p.Replace("!", "").Replace("~", ""))));
+			return prerequisites.All(p => Satisfied(p.Replace("~", ""), ownedPrereqs));
+		}
+
+		/// <summary>
+		/// Prerequisites gained from another player (e.g. stolen by a cyber attack). They unlock items that need
+		/// them, but never switch off items that require their absence (stored with a count of 0).
+		/// </summary>
+		public readonly HashSet<string> Borrowed = [];
+
+		public void Borrow(IEnumerable<string> prerequisites)
+		{
+			foreach (var p in prerequisites)
+				Borrowed.Add(p);
+
+			Update();
+		}
+
+		static bool Satisfied(string withoutTilde, Dictionary<string, int> owned)
+		{
+			if (withoutTilde.StartsWith('!'))
+				return !(owned.TryGetValue(withoutTilde[1..], out var count) && count > 0);
+
+			return owned.ContainsKey(withoutTilde);
 		}
 
 		static Dictionary<string, int> GatherOwnedPrerequisites(Player player)
@@ -109,6 +130,11 @@ namespace OpenRA.Mods.Common.Traits
 				ret[name] = count + 1;
 			}
 
+			var borrowed = player.PlayerActor?.TraitOrDefault<TechTree>()?.Borrowed;
+			if (borrowed != null)
+				foreach (var p in borrowed)
+					ret.TryAdd(p, 0);
+
 			return ret;
 		}
 
@@ -141,8 +167,7 @@ namespace OpenRA.Mods.Common.Traits
 				// PERF: Avoid LINQ.
 				foreach (var prereq in prerequisites)
 				{
-					var withoutTilde = prereq.Replace("~", "");
-					if (withoutTilde.StartsWith('!') ^ !ownedPrerequisites.ContainsKey(withoutTilde.Replace("!", "")))
+					if (!Satisfied(prereq.Replace("~", ""), ownedPrerequisites))
 						return false;
 				}
 
@@ -156,8 +181,7 @@ namespace OpenRA.Mods.Common.Traits
 				{
 					if (!prereq.StartsWith('~'))
 						continue;
-					var withoutTilde = prereq.Replace("~", "");
-					if (withoutTilde.StartsWith('!') ^ !ownedPrerequisites.ContainsKey(withoutTilde.Replace("!", "")))
+					if (!Satisfied(prereq.Replace("~", ""), ownedPrerequisites))
 						return true;
 				}
 

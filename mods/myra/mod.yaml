@@ -136,6 +136,7 @@ Rules:
 	myra|rules/stable-ai.yaml
 	myra|rules/nyc-units.yaml
 	myra|rules/nyc-city.yaml
+	myra|rules/batch3.yaml
 	myra|rules/ai-shipyards.yaml
 
 Sequences:
@@ -167,6 +168,7 @@ Sequences:
 	myra|sequences/seaport.yaml
 	myra|sequences/nyc-units.yaml
 	myra|sequences/nyc-city.yaml
+	myra|sequences/batch3.yaml
 
 TileSets:
 	ra|tilesets/snow.yaml
@@ -270,6 +272,7 @@ Weapons:
 	myra|weapons/tribe.yaml
 	myra|weapons/land.yaml
 	myra|weapons/nyc.yaml
+	myra|weapons/batch3.yaml
 
 Voices:
 	ra|audio/voices.yaml
