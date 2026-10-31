@@ -48,6 +48,8 @@ carrier planes are never selected.
 | `build` | `type`, `count` | queue production (`type` from `production[].buildable`) |
 | `cancel` | `type`, `count` | cancel queued production |
 | `place` | `type`, optional `cell` | place a finished building; with no cell it picks a spot near the base |
+| `nuke` | `cell` | launch a charged nuke at a cell |
+| `power` | `name`, optional `cell` | fire a charged support power by name (e.g. `PagerAttack`, `CyberAttack` with a cell near the enemy base, `ZombieApocalypse`); with no name it lists your powers and how charged they are |
 
 Examples:
 

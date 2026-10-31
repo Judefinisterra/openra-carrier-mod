@@ -587,6 +587,7 @@ namespace OpenRA.Mods.MyRA.Traits
 			{
 				"france" => Allied + " France can build fake buildings to mislead the enemy.",
 				"england" or "germany" or "allies" => Allied,
+				"israel" => Allied + " Israel's Radar Dome has the Pager Attack: every enemy infantryman explodes at once.",
 				"russia" => Soviet + " Russia gets Shock Troopers early.",
 				"ukraine" => Soviet + " Ukraine can drop Parabombs from the air.",
 				"soviet" => Soviet,

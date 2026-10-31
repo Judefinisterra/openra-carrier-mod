@@ -54,6 +54,11 @@ namespace OpenRA.Mods.Common.Traits
 
 		void INotifyActorDisposing.Disposing(Actor self)
 		{
+			Disposing(self);
+		}
+
+		protected virtual void Disposing(Actor self)
+		{
 			buffer.Dispose();
 		}
 	}

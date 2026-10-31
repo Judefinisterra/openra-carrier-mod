@@ -7,3 +7,7 @@ icon:
 		Filename: missilevolley-icon.png
 	cyberattack:
 		Filename: cyberattack-icon.png
+	pager:
+		Filename: pager-icon.png
+	zombies:
+		Filename: zombies-icon.png

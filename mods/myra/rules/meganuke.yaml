@@ -1,0 +1,30 @@
+# The Missile Silo nuke, made far bigger: an air raid siren on launch, a red-orange flash, a shockwave whose
+# damage halves every few cells from ground zero, burning structures, a huge mushroom cloud, radiation, a crater,
+# and the whole game turning burnt orange with doom music for a while (NuclearAftermathWarhead.cs, NuclearGrade.cs).
+World:
+	FlashPostProcessEffect@MEGANUKE:
+		Type: MegaNuke
+		Length: 60
+		Color: FF8C5A
+	NuclearGrade:
+		Music: nukedoom.wav
+
+MSLO:
+	NukePower:
+		MissileWeapon: MegaNuke
+		LaunchSound: nukesiren.wav
+		IncomingSound: nukesiren.wav
+		CameraRange: 30c0
+		CircleRanges: 8c0, 20c0, 54c0
+
+# Left at ground zero for good. Units drive straight over it.
+nukecrater:
+	Interactable:
+	HiddenUnderShroud:
+		Type: CenterPosition
+	BodyOrientation:
+		QuantizedFacings: 1
+	RenderSprites:
+	WithSpriteBody:
+	Immobile:
+		OccupiesSpace: false

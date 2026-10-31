@@ -1,0 +1,94 @@
+# ---------------------------------------------------------------------------
+# Israel: an Allied-side country, a clone of England plus the Pager Attack.
+#   Everything England gets, Israel gets too (the lists below add israel wherever england appears,
+#   including the Armored Bulldozer and the starting nuke).
+#   Pager Attack: a support power on the Radar Dome. Click the icon and every enemy infantryman's pager
+#   goes off: they all explode a second or two later. Recharges every 6 minutes.
+# ---------------------------------------------------------------------------
+^BaseWorld:
+	Faction@israel:
+		Name: faction-israel.name
+		InternalName: israel
+		Side: Allies
+		Description: faction-israel.description
+
+DOME:
+	PagerAttackPower@PAGER:
+		OrderName: PagerAttack
+		Prerequisites: structures.israel
+		Icon: pager
+		ChargeInterval: 9000
+		Name: actor-pager.name
+		Description: actor-pager.description
+		LaunchSound: pagerbeep.wav
+		IncomingSound: pagerbeep.wav
+		EndChargeTextNotification: notification-pager-ready
+		SupportPowerPaletteOrder: 58
+
+# Generated: every faction list that includes england, with israel added (see the header).
+CRATE:
+	GiveUnitCrateAction@jeep:
+		ValidFactions: allies, england, france, germany, stable, israel
+	GiveUnitCrateAction@1tnk:
+		ValidFactions: allies, england, france, germany, stable, israel
+	GiveUnitCrateAction@arty:
+		ValidFactions: allies, england, france, germany, stable, israel
+	GiveUnitCrateAction@2tnk:
+		ValidFactions: allies, england, france, germany, stable, israel
+	GiveUnitCrateAction@squadlight:
+		ValidFactions: allies, england, france, germany, soviet, russia, ukraine, tribal, iran, hermit, stable, israel
+	GiveUnitCrateAction@squadheavyallies:
+		ValidFactions: allies, england, france, germany, stable, israel
+	GiveUnitCrateAction@lst:
+		ValidFactions: allies, england, france, germany, soviet, russia, ukraine, tribal, iran, hermit, stable, israel
+	GiveUnitCrateAction@pt:
+		ValidFactions: allies, england, france, germany, stable, israel
+	GiveUnitCrateAction@dd:
+		ValidFactions: allies, england, france, germany, stable, israel
+	GiveUnitCrateAction@ca:
+		ValidFactions: allies, england, france, germany, stable, israel
+
+World:
+	StartingUnits@mcvonly:
+		Factions: allies, england, france, germany, soviet, russia, ukraine, tribal, iran, hermit, stable, israel
+	StartingUnits@lightallies:
+		Factions: allies, england, france, germany, israel
+	StartingUnits@heavyallies:
+		Factions: allies, england, france, germany, israel
+
+SYRD:
+	ProvidesPrerequisite@allies:
+		Factions: allies, england, france, germany, stable, israel
+	ProvidesPrerequisite@england:
+		Factions: england, israel
+
+WEAP:
+	ProvidesPrerequisite@allies:
+		Factions: allies, england, france, germany, stable, israel
+	ProvidesPrerequisite@england:
+		Factions: england, israel
+
+FACT:
+	ProvidesPrerequisite@israel:
+		Factions: israel
+		Prerequisite: structures.israel
+	ProvidesPrerequisite@allies:
+		Factions: allies, england, france, germany, stable, israel
+	ProvidesPrerequisite@england:
+		Factions: england, israel
+	ProvidesPrerequisite@STARTNUKE:
+		Factions: ukraine, england, israel
+	GrantConditionOnFaction@DOZER:
+		Factions: england, israel
+
+HPAD:
+	ProvidesPrerequisite@allies:
+		Factions: allies, england, france, germany, stable, israel
+	ProvidesPrerequisite@england:
+		Factions: england, israel
+
+TENT:
+	ProvidesPrerequisite@allies:
+		Factions: allies, england, france, germany, stable, israel
+	ProvidesPrerequisite@england:
+		Factions: england, israel

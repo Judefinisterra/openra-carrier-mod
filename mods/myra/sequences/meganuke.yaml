@@ -1,0 +1,16 @@
+# Soft cloud puffs (white, tinted in game) and the crater left by the Missile Silo nuke.
+# Both are generated textures, not original game art.
+nukepuff:
+	a:
+		Filename: nukepuff-a.png
+	b:
+		Filename: nukepuff-b.png
+	c:
+		Filename: nukepuff-c.png
+	d:
+		Filename: nukepuff-d.png
+
+nukecrater:
+	idle:
+		Filename: nukecrater.png
+		ZOffset: -2047

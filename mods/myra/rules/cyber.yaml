@@ -1,6 +1,7 @@
 # Cyber Attack: a support power on the Tech Center (every side). When ready, click near an enemy's base:
 # half of that player's money is wired to you, their radar goes dark for a minute and false 'base under attack'
-# alarms go off. Recharges every 10 minutes. (The Hermit Nation gets it from its Cyber Command instead.)
+# alarms go off, their power grid shuts down, their defences fire on their own side for 30 seconds and their ore
+# trucks drive off to the far corners of the map. Recharges every 10 minutes. (The Hermit Nation gets it from its Cyber Command instead.)
 ^CyberAttackPower:
 	CyberAttackPower@cyber:
 		OrderName: CyberAttack

@@ -66,6 +66,7 @@ namespace OpenRA.Mods.MyRA.Traits
 		readonly ClaudeControlInfo info;
 		readonly ConcurrentQueue<Request> requests = new();
 		World world;
+		WorldRenderer worldRenderer;
 		Player player;
 		HttpListener listener;
 
@@ -81,6 +82,7 @@ namespace OpenRA.Mods.MyRA.Traits
 				return;
 
 			world = w;
+			worldRenderer = wr;
 			player = w.LocalPlayer;
 
 			try
@@ -476,9 +478,65 @@ namespace OpenRA.Mods.MyRA.Traits
 				case "place":
 					return Place(cmd);
 
+				case "chat":
+				{
+					// Runs a chat command (e.g. "/claude ...") as if typed into the chat box, for testing.
+					var text = GetString(cmd, "text") ?? throw new CommandException("missing \"text\"");
+					if (!text.StartsWith('/'))
+						throw new CommandException("only chat commands starting with / can be run");
+
+					foreach (var t in world.WorldActor.TraitsImplementing<INotifyChat>())
+						t.OnChat(player.PlayerName, text);
+
+					return new { ok = true };
+				}
+
+				case "look":
+				{
+					// Moves the local camera to a cell.
+					var cell = GetCell(cmd);
+					worldRenderer.Viewport.Center(world.Map.CenterOfCell(cell));
+					return new { ok = true };
+				}
+
+				case "nuke":
+				{
+					// Launches a charged sidebar nuke (Missile Silo) at a cell.
+					var manager = player.PlayerActor.Trait<SupportPowerManager>();
+					var power = manager.Powers.Values.FirstOrDefault(p => p.Info is NukePowerInfo && p.Ready)
+						?? throw new CommandException("no nuke is ready");
+
+					var cell = GetCell(cmd);
+					world.IssueOrder(new Order(power.Key, player.PlayerActor, Target.FromCell(world, cell), false) { SuppressVisualFeedback = true });
+					return new { ok = true, cell = new[] { cell.X, cell.Y } };
+				}
+
+				case "power":
+				{
+					// Fires any charged support power by its order name (e.g. PagerAttack, CyberAttack, ZombieApocalypse).
+					// "cell" is needed for powers that take a target; without it no target is sent.
+					var name = GetString(cmd, "name");
+					var manager = player.PlayerActor.Trait<SupportPowerManager>();
+					var powers = manager.Powers.Values.Where(p => p.Instances.Count > 0 && !p.Disabled).ToList();
+					if (name == null)
+						return new { ok = true, powers = powers.Select(p => new { name = p.Info.OrderName, ready = p.Ready, ticks_left = p.RemainingTicks }) };
+
+					var power = powers.FirstOrDefault(p => p.Info.OrderName == name)
+						?? throw new CommandException($"no \"{name}\" power: use one of {string.Join(", ", powers.Select(p => p.Info.OrderName))}");
+					if (!power.Ready)
+						throw new CommandException($"\"{name}\" is not ready ({power.RemainingTicks} ticks left)");
+
+					var order = cmd.TryGetProperty("cell", out _)
+						? new Order(power.Key, player.PlayerActor, Target.FromCell(world, GetCell(cmd)), false)
+						: new Order(power.Key, player.PlayerActor, false);
+					order.SuppressVisualFeedback = true;
+					world.IssueOrder(order);
+					return new { ok = true, power = name };
+				}
+
 				default:
 					throw new CommandException(
-						$"unknown action \"{action}\": use move, attack_move, assault_move, attack, attack_ground, stop, deploy, build, cancel or place");
+						$"unknown action \"{action}\": use move, attack_move, assault_move, attack, attack_ground, stop, deploy, build, cancel, place, chat, nuke, power or look");
 			}
 		}
 

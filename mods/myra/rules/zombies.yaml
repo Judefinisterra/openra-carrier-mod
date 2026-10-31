@@ -1,0 +1,71 @@
+# Zombie Apocalypse: a superweapon, like the nuke. Build the Zombie Lab (Defense tab, needs a Tech Center, one
+# per player). When it has charged, click its icon: every infantryman who has died this game, on any side,
+# climbs out of his grave where he fell as a zombie and goes for the nearest living unit. Zombies belong to the
+# hostile Creeps player, so they attack everyone - including you. (Zombies.cs)
+World:
+	ZombieGraveyard:
+		Zombie: risen
+
+^Infantry:
+	LeavesGrave:
+
+ZLAB:
+	Inherits: ^ScienceBuilding
+	Inherits@IDISABLE: ^DisableOnLowPowerOrPowerDown
+	Inherits@shape: ^2x2Shape
+	Selectable:
+		Bounds: 2048, 2048
+	Valued:
+		Cost: 2500
+	Tooltip:
+		Name: actor-zlab.name
+	Buildable:
+		Queue: Defense
+		BuildPaletteOrder: 141
+		Prerequisites: techcenter, ~techlevel.unrestricted
+		BuildLimit: 1
+		Description: actor-zlab.description
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+	Health:
+		HP: 100000
+	Armor:
+		Type: Wood
+	RevealsShroud:
+		Range: 5c0
+	RenderSprites:
+		Image: zlab
+	ZombieApocalypsePower:
+		OrderName: ZombieApocalypse
+		PauseOnCondition: disabled
+		Icon: zombies
+		ChargeInterval: 15000
+		Name: actor-zlab.power-name
+		Description: actor-zlab.power-description
+		BeginChargeTextNotification: notification-zombies-charging
+		EndChargeTextNotification: notification-zombies-ready
+		LaunchSound: zombierise.wav
+		IncomingSound: zombierise.wav
+		DisplayTimerRelationships: Ally, Neutral, Enemy
+		DisplayRadarPing: False
+		SupportPowerPaletteOrder: 71
+	SupportPowerChargeBar:
+	InfiltrateForSupportPowerReset:
+		Types: SpyInfiltrate
+		PlayerExperience: 10
+	Targetable:
+		TargetTypes: GroundActor, C4, DetonateAttack, Structure, SpyInfiltrate
+	Power:
+		Amount: -150
+
+# A risen soldier: Red Alert's own Zombie (from the Counterstrike missions), not buildable, hunting on its own.
+RISEN:
+	Inherits: Zombie
+	-Buildable:
+	-LeavesGrave:
+	RenderSprites:
+		Image: zombie
+	Health:
+		HP: 15000
+	ZombieBrain:
