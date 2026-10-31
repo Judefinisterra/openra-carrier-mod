@@ -691,3 +691,7 @@ actor-sniper =
     Very long range, kills infantry in one shot.
       Strong vs Infantry
       Weak vs Vehicles, Buildings
+
+## ClaudeChat
+description-claude-command = give Claude Code an order for your army, e.g. /claude attack with all tanks
+description-claude-terminal-command = open a terminal running Claude Code to control your army

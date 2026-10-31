@@ -66,6 +66,7 @@ namespace OpenRA.Mods.MyRA.Traits
 		readonly ClaudeControlInfo info;
 		readonly ConcurrentQueue<Request> requests = new();
 		World world;
+		WorldRenderer worldRenderer;
 		Player player;
 		HttpListener listener;
 
@@ -81,6 +82,7 @@ namespace OpenRA.Mods.MyRA.Traits
 				return;
 
 			world = w;
+			worldRenderer = wr;
 			player = w.LocalPlayer;
 
 			try
@@ -476,9 +478,42 @@ namespace OpenRA.Mods.MyRA.Traits
 				case "place":
 					return Place(cmd);
 
+				case "chat":
+				{
+					// Runs a chat command (e.g. "/claude ...") as if typed into the chat box, for testing.
+					var text = GetString(cmd, "text") ?? throw new CommandException("missing \"text\"");
+					if (!text.StartsWith('/'))
+						throw new CommandException("only chat commands starting with / can be run");
+
+					foreach (var t in world.WorldActor.TraitsImplementing<INotifyChat>())
+						t.OnChat(player.PlayerName, text);
+
+					return new { ok = true };
+				}
+
+				case "look":
+				{
+					// Moves the local camera to a cell.
+					var cell = GetCell(cmd);
+					worldRenderer.Viewport.Center(world.Map.CenterOfCell(cell));
+					return new { ok = true };
+				}
+
+				case "nuke":
+				{
+					// Launches a charged sidebar nuke (Missile Silo) at a cell.
+					var manager = player.PlayerActor.Trait<SupportPowerManager>();
+					var power = manager.Powers.Values.FirstOrDefault(p => p.Info is NukePowerInfo && p.Ready)
+						?? throw new CommandException("no nuke is ready");
+
+					var cell = GetCell(cmd);
+					world.IssueOrder(new Order(power.Key, player.PlayerActor, Target.FromCell(world, cell), false) { SuppressVisualFeedback = true });
+					return new { ok = true, cell = new[] { cell.X, cell.Y } };
+				}
+
 				default:
 					throw new CommandException(
-						$"unknown action \"{action}\": use move, attack_move, assault_move, attack, attack_ground, stop, deploy, build, cancel or place");
+						$"unknown action \"{action}\": use move, attack_move, assault_move, attack, attack_ground, stop, deploy, build, cancel, place, chat, nuke or look");
 			}
 		}
 
