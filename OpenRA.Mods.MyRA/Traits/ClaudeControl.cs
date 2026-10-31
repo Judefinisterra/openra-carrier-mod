@@ -511,9 +511,32 @@ namespace OpenRA.Mods.MyRA.Traits
 					return new { ok = true, cell = new[] { cell.X, cell.Y } };
 				}
 
+				case "power":
+				{
+					// Fires any charged support power by its order name (e.g. PagerAttack, CyberAttack, ZombieApocalypse).
+					// "cell" is needed for powers that take a target; without it no target is sent.
+					var name = GetString(cmd, "name");
+					var manager = player.PlayerActor.Trait<SupportPowerManager>();
+					var powers = manager.Powers.Values.Where(p => p.Instances.Count > 0 && !p.Disabled).ToList();
+					if (name == null)
+						return new { ok = true, powers = powers.Select(p => new { name = p.Info.OrderName, ready = p.Ready, ticks_left = p.RemainingTicks }) };
+
+					var power = powers.FirstOrDefault(p => p.Info.OrderName == name)
+						?? throw new CommandException($"no \"{name}\" power: use one of {string.Join(", ", powers.Select(p => p.Info.OrderName))}");
+					if (!power.Ready)
+						throw new CommandException($"\"{name}\" is not ready ({power.RemainingTicks} ticks left)");
+
+					var order = cmd.TryGetProperty("cell", out _)
+						? new Order(power.Key, player.PlayerActor, Target.FromCell(world, GetCell(cmd)), false)
+						: new Order(power.Key, player.PlayerActor, false);
+					order.SuppressVisualFeedback = true;
+					world.IssueOrder(order);
+					return new { ok = true, power = name };
+				}
+
 				default:
 					throw new CommandException(
-						$"unknown action \"{action}\": use move, attack_move, assault_move, attack, attack_ground, stop, deploy, build, cancel, place, chat, nuke or look");
+						$"unknown action \"{action}\": use move, attack_move, assault_move, attack, attack_ground, stop, deploy, build, cancel, place, chat, nuke, power or look");
 			}
 		}
 

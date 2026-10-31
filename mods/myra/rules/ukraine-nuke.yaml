@@ -1,0 +1,41 @@
+# Ukraine and England start with a nuke: the Construction Yard carries its own Missile Silo strike, charged
+# and ready from the first second, then recharging like a normal silo. Kept separate from the silo's power so
+# the two charge apart.
+FACT:
+	ProvidesPrerequisite@STARTNUKE:
+		Factions: ukraine, england
+		Prerequisite: startnuke
+	NukePower@UKRAINE:
+		OrderName: UkraineNuke
+		Prerequisites: startnuke
+		StartFullyCharged: true
+		PauseOnCondition: being-captured
+		Cursor: nuke
+		Icon: abomb
+		ChargeInterval: 13500
+		Name: actor-mslo.nukepower-name
+		Description: actor-mslo.nukepower-description
+		BeginChargeSpeechNotification: AbombPrepping
+		EndChargeSpeechNotification: AbombReady
+		SelectTargetSpeechNotification: SelectTarget
+		IncomingSpeechNotification: AbombLaunchDetected
+		SelectTargetTextNotification: notification-select-target
+		BeginChargeTextNotification: notification-abomb-prepping
+		EndChargeTextNotification: notification-abomb-ready
+		IncomingTextNotification: notification-abomb-launch-detected
+		LaunchSound: nukesiren.wav
+		IncomingSound: nukesiren.wav
+		MissileWeapon: MegaNuke
+		MissileImage: atomic
+		MissileDelay: 5
+		SpawnOffset: 0,0,0
+		DisplayTimerRelationships: Ally, Neutral, Enemy
+		DisplayBeacon: True
+		DisplayRadarPing: True
+		BeaconPoster: atomicon
+		CameraRange: 30c0
+		CircleRanges: 8c0, 20c0, 54c0
+		ArrowSequence: arrow
+		ClockSequence: clock
+		CircleSequence: circles
+		SupportPowerPaletteOrder: 69

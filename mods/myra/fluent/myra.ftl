@@ -430,8 +430,10 @@ actor-cyber =
     .name = Cyber Attack
     .description = Hack an enemy: click near their base. Half of their
       money is wired to you, their radar goes dark for a minute,
-      and false "base under attack" alarms go off.
-      Recharges every 10 minutes.
+      and false "base under attack" alarms go off. Their power
+      grid shuts down, their defences turn on their own side for
+      30 seconds, and their ore trucks drive off to the far
+      corners of the map. Recharges every 10 minutes.
 
 ## Hermit Nation
 faction-hermit =
@@ -695,3 +697,43 @@ actor-sniper =
 ## ClaudeChat
 description-claude-command = give Claude Code an order for your army, e.g. /claude attack with all tanks
 description-claude-terminal-command = open a terminal running Claude Code to control your army
+
+## Armored Bulldozer
+actor-dozer =
+    .name = Armored Bulldozer
+    .description =
+    Armoured bulldozer built at the Construction Yard.
+    Cannot be damaged. Drive it into any enemy unit or
+    building to flatten it. England only.
+      Strong vs Everything it touches
+      Weak vs Nothing
+
+## Israel
+faction-israel =
+    .name = Israel
+    .description = Israel: Pager Attack
+     A clone of England with one more trick.
+     Pager Attack (Radar Dome): every enemy infantryman's pager
+     goes off at once, and they all explode.
+
+actor-pager =
+    .name = Pager Attack
+    .description = Every enemy infantryman's pager goes off at once.
+     A second later, they all explode. No target needed.
+
+notification-pager-ready = Pager Attack ready.
+
+## Zombie Apocalypse
+actor-zlab =
+    .name = Zombie Lab
+    .description =
+    Superweapon. When charged, every infantryman who has
+    died this game rises from his grave as a zombie and
+    attacks the nearest living unit. Zombies attack everyone,
+    including you. Requires power.
+    .power-name = Zombie Apocalypse
+    .power-description = Raise every dead infantryman on the map as a zombie.
+     No target needed. Zombies attack everyone.
+
+notification-zombies-charging = Zombie Apocalypse charging.
+notification-zombies-ready = Zombie Apocalypse ready.

@@ -138,6 +138,10 @@ Rules:
 	myra|rules/nyc-city.yaml
 	myra|rules/batch3.yaml
 	myra|rules/meganuke.yaml
+	myra|rules/ukraine-nuke.yaml
+	myra|rules/dozer.yaml
+	myra|rules/israel.yaml
+	myra|rules/zombies.yaml
 	myra|rules/ai-shipyards.yaml
 
 Sequences:
@@ -171,6 +175,7 @@ Sequences:
 	myra|sequences/nyc-city.yaml
 	myra|sequences/batch3.yaml
 	myra|sequences/meganuke.yaml
+	myra|sequences/dozer.yaml
 
 TileSets:
 	ra|tilesets/snow.yaml

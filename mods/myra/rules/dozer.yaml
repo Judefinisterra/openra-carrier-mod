@@ -1,0 +1,83 @@
+# Armored Bulldozer (England only): $100, built straight from the Construction Yard, no War Factory needed.
+# It cannot be damaged, and any enemy unit or building it drives into is destroyed (allies are spared).
+# Works through crushing: the dozer locomotor crushes the "dozer" class, which every vehicle and building has.
+DOZER:
+	Inherits: ^TrackedVehicle
+	-Crushable@DOZER:
+	Buildable:
+		Queue: Dozer
+		BuildPaletteOrder: 5
+		Prerequisites: structures.england
+		Description: actor-dozer.description
+	Valued:
+		Cost: 100
+	Tooltip:
+		Name: actor-dozer.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 100000
+	Armor:
+		Type: Heavy
+	DamageMultiplier@INVINCIBLE:
+		Modifier: 0
+	Mobile:
+		Speed: 64
+		TurnSpeed: 16
+		Locomotor: dozer
+	RevealsShroud:
+		Range: 5c0
+	RenderSprites:
+		Image: dozer
+	Selectable:
+		DecorationBounds: 1280, 1280
+
+# The Construction Yard builds dozers for England, out of its front.
+FACT:
+	GrantConditionOnFaction@DOZER:
+		Condition: dozer-yard
+		Factions: england
+	Production@DOZER:
+		Produces: Dozer
+		RequiresCondition: dozer-yard
+	Exit@DOZER:
+		SpawnOffset: 0,1024,0
+		ExitCell: 1,4
+		ProductionTypes: Dozer
+
+Player:
+	ClassicProductionQueue@Dozer:
+		Type: Dozer
+		Group: Vehicle
+		DisplayOrder: 3
+		ReadyAudio: UnitReady
+		ReadyTextNotification: notification-unit-ready
+		BlockedAudio: NoBuild
+		BlockedTextNotification: notification-unable-to-build-more
+		LimitedAudio: BuildingInProgress
+		LimitedTextNotification: notification-unable-to-comply-building-in-progress
+		QueuedAudio: Building
+		OnHoldAudio: OnHold
+		CancelledAudio: Cancelled
+
+World:
+	Locomotor@DOZER:
+		Name: dozer
+		Crushes: wall, heavywall, infantry, mine, crate, dozer
+		TerrainSpeeds:
+			Clear: 100
+			Rough: 88
+			Road: 125
+			Bridge: 125
+			Ore: 88
+			Gems: 88
+			Beach: 88
+
+^Vehicle:
+	Crushable@DOZER:
+		CrushClasses: dozer
+
+^BasicBuilding:
+	Crushable@DOZER:
+		CrushClasses: dozer
+		WarnProbability: 0

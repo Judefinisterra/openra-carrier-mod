@@ -22,7 +22,10 @@ using OpenRA.Traits;
 namespace OpenRA.Mods.MyRA.Traits
 {
 	// ================================================================================================
-	// Cyber Attack: click near an enemy's base; half of that player's money is transferred to you.
+	// Cyber Attack: click near an enemy's base. Half of that player's money is transferred to you, their radar
+	// goes dark with false alarms, their power grid shuts down, their armed structures are hijacked and fire on
+	// their own side for a while (handed to the hostile Creeps player, or to you on maps without one), and their
+	// ore trucks are sent off to the far corners of the map.
 	// ================================================================================================
 	[Desc("Support power that steals a share of the money of the player whose base is nearest the target.")]
 	public class CyberAttackPowerInfo : SupportPowerInfo
@@ -39,12 +42,25 @@ namespace OpenRA.Mods.MyRA.Traits
 		[Desc("Fake 'base under attack' alarms the victim hears, spread over the jamming time.")]
 		public readonly int FakeAlarms = 3;
 
+		[Desc("How long the victim's power grid is shut down (ticks). 0 disables.")]
+		public readonly int PowerOutageTicks = 1500;
+
+		[Desc("How long the victim's armed structures fire on their own side (ticks). 0 disables.")]
+		public readonly int HijackTicks = 750;
+
+		[Desc("Player that hijacked structures are handed to. Falls back to the attacker if the map has none.")]
+		public readonly string HijackPlayer = "Creeps";
+
+		[Desc("Send the victim's ore trucks to the far corners of the map.")]
+		public readonly bool ScatterHarvesters = true;
+
 		public override object Create(ActorInitializer init) { return new CyberAttackPower(init.Self, this); }
 	}
 
 	public class CyberAttackPower : SupportPower, ITick
 	{
 		readonly List<(int Due, Player Victim)> alarms = [];
+		readonly List<(int Due, Actor Structure, Player Hijacker, Player Victim)> hijacked = [];
 
 		public CyberAttackPower(Actor self, CyberAttackPowerInfo info)
 			: base(self, info) { }
@@ -58,7 +74,7 @@ namespace OpenRA.Mods.MyRA.Traits
 
 			// Victim: the enemy whose building is closest to where we clicked.
 			var nearest = self.World.ActorsHavingTrait<Building>()
-				.Where(a => !a.IsDead && a.IsInWorld && a.Owner.Playable && a.Owner != attacker
+				.Where(a => !a.IsDead && a.IsInWorld && !a.Owner.NonCombatant && a.Owner != attacker
 					&& attacker.RelationshipWith(a.Owner) != PlayerRelationship.Ally && a.Owner.WinState == WinState.Undefined)
 				.MinByOrDefault(a => (a.CenterPosition - pos).LengthSquared);
 
@@ -97,22 +113,113 @@ namespace OpenRA.Mods.MyRA.Traits
 			for (var i = 0; i < info.FakeAlarms; i++)
 				alarms.Add((self.World.WorldTick + 5 + i * info.JamTicks / Math.Max(1, info.FakeAlarms), victim));
 
+			if (info.PowerOutageTicks > 0)
+				victim.PlayerActor.TraitOrDefault<PowerManager>()?.TriggerPowerOutage(info.PowerOutageTicks);
+
+			var hijackedCount = info.HijackTicks > 0 ? Hijack(self, info, attacker, victim) : 0;
+			var scattered = info.ScatterHarvesters ? ScatterHarvesters(self, victim) : 0;
+
 			var w = self.World;
 			var at = nearest.CenterPosition;
 			w.AddFrameEndTask(_ =>
 			{
 				if (w.LocalPlayer == attacker)
+				{
 					TextNotificationsManager.AddSystemLine("Cyber Attack", $"Hacked {victim.ResolvedPlayerName}'s bank: you stole ${amount}!");
+					TextNotificationsManager.AddSystemLine("Cyber Attack",
+						$"Their power grid is down, {hijackedCount} defences turned on them and {scattered} ore trucks sent away.");
+				}
 				else if (w.LocalPlayer == victim)
+				{
 					TextNotificationsManager.AddSystemLine("Cyber Attack", $"{attacker.ResolvedPlayerName} hacked your bank and stole ${amount}!");
+					TextNotificationsManager.AddSystemLine("Cyber Attack",
+						$"Your power grid is down, {hijackedCount} of your defences are firing on you and your ore trucks are driving away!");
+				}
 
 				if (amount > 0 && (w.LocalPlayer == attacker || w.LocalPlayer == victim))
 					w.Add(new FloatingText(at, Color.Red, "-" + FloatingText.FormatCashTick(amount)[1..], 60));
 			});
 		}
 
+		// Hands the victim's armed structures to a hostile player for a while, so they open fire on their old side.
+		int Hijack(Actor self, CyberAttackPowerInfo info, Player attacker, Player victim)
+		{
+			var w = self.World;
+			var hijacker = w.Players.FirstOrDefault(p => p.InternalName == info.HijackPlayer) ?? attacker;
+
+			// The hijacker may have no power plants: keep the hijacked defences running.
+			var dev = hijacker.PlayerActor.TraitOrDefault<DeveloperMode>();
+			if (dev != null && hijacker != attacker)
+				dev.CheatUnlimitedPower = true;
+
+			var structures = w.Actors
+				.Where(a => a.Owner == victim && !a.IsDead && a.IsInWorld
+					&& a.Info.HasTraitInfo<BuildingInfo>() && a.Info.HasTraitInfo<AttackBaseInfo>())
+				.ToList();
+
+			var due = w.WorldTick + info.HijackTicks;
+			foreach (var a in structures)
+			{
+				hijacked.Add((due, a, hijacker, victim));
+				w.AddFrameEndTask(_ =>
+				{
+					if (!a.IsDead && a.IsInWorld)
+						a.ChangeOwner(hijacker);
+				});
+			}
+
+			return structures.Count;
+		}
+
+		// Sends each ore truck to the map corner farthest from it.
+		static int ScatterHarvesters(Actor self, Player victim)
+		{
+			var map = self.World.Map;
+			var b = map.Bounds;
+			var corners = new[]
+			{
+				new MPos(b.Left + 1, b.Top + 1).ToCPos(map),
+				new MPos(b.Right - 2, b.Top + 1).ToCPos(map),
+				new MPos(b.Left + 1, b.Bottom - 2).ToCPos(map),
+				new MPos(b.Right - 2, b.Bottom - 2).ToCPos(map),
+			};
+
+			var count = 0;
+			foreach (var a in self.World.ActorsHavingTrait<Harvester>().Where(a => a.Owner == victim && !a.IsDead && a.IsInWorld).ToList())
+			{
+				var mobile = a.TraitOrDefault<Mobile>();
+				if (mobile == null)
+					continue;
+
+				var corner = corners.MaxBy(c => (c - a.Location).LengthSquared);
+				var cell = map.FindTilesInCircle(corner, 12)
+					.Where(c => map.Contains(c) && mobile.CanEnterCell(c, null, BlockedByActor.Immovable))
+					.Cast<CPos?>()
+					.FirstOrDefault();
+				if (cell == null)
+					continue;
+
+				a.CancelActivity();
+				a.QueueActivity(mobile.MoveTo(cell.Value, 2));
+				count++;
+			}
+
+			return count;
+		}
+
 		void ITick.Tick(Actor self)
 		{
+			for (var i = hijacked.Count - 1; i >= 0; i--)
+			{
+				var (due, structure, hijacker, victim) = hijacked[i];
+				if (self.World.WorldTick < due)
+					continue;
+
+				hijacked.RemoveAt(i);
+				if (!structure.IsDead && structure.IsInWorld && structure.Owner == hijacker && victim.WinState == WinState.Undefined)
+					self.World.AddFrameEndTask(_ => structure.ChangeOwner(victim));
+			}
+
 			for (var i = alarms.Count - 1; i >= 0; i--)
 			{
 				var (due, victim) = alarms[i];

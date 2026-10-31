@@ -30,6 +30,7 @@ GenericVoice:
 		iran: .r01,.r03
 		hermit: .r01,.r03
 		stable: .v01,.v03
+		israel: .v01,.v03
 
 VehicleVoice:
 	Variants:
@@ -37,3 +38,4 @@ VehicleVoice:
 		iran: .r00,.r02
 		hermit: .r00,.r02
 		stable: .v00,.v02
+		israel: .v00,.v02

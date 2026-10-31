@@ -1,0 +1,13 @@
+# Armored Bulldozer: rendered from a small voxel model, 32 facings, team colour on the armour plates.
+dozer:
+	idle:
+		Filename: dozer.png
+		Facings: 32
+	icon:
+		Filename: dozer-icon.png
+
+# Zombie Lab: Red Alert's biological lab with a new sidebar icon.
+zlab:
+	Inherits: bio
+	icon:
+		Filename: zlab-icon.png
