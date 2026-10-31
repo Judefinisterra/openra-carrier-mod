@@ -737,3 +737,11 @@ actor-zlab =
 
 notification-zombies-charging = Zombie Apocalypse charging.
 notification-zombies-ready = Zombie Apocalypse ready.
+
+## Pirate Ship
+actor-pirate =
+    .name = Pirate Ship
+    .description =
+    A galleon flying the Jolly Roger. Fires cannon
+    broadsides from both sides at once.
+      Strong vs Ships, Infantry, Buildings near the shore
