@@ -114,3 +114,9 @@ sniper:
 		Filename: sniper.png
 	icon:
 		Filename: sniper-icon.png
+pirate:
+	idle:
+		Filename: pirate.png
+		Facings: 32
+	icon:
+		Filename: pirate-icon.png

@@ -587,3 +587,43 @@ SNIPER:
 		IsPlayerPalette: true
 	RenderSprites:
 		Image: sniper
+
+# Pirate Ship: a galleon flying the Jolly Roger. Broadsides from cannons along both sides.
+PIRATE:
+	Inherits: ^Ship
+	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
+	Buildable:
+		Queue: Ship
+		BuildAtProductionType: Ship
+		BuildPaletteOrder: 15
+		Prerequisites: anyshipyard, ~techlevel.low
+		Description: actor-pirate.description
+	Valued:
+		Cost: 900
+	Tooltip:
+		Name: actor-pirate.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 45000
+	Armor:
+		Type: Light
+	Mobile:
+		TurnSpeed: 20
+		Speed: 85
+	RevealsShroud:
+		Range: 7c0
+	Armament@PORT:
+		Weapon: Broadside
+		LocalOffset: 500,-300,150, 0,-300,150, -500,-300,150
+	Armament@STARBOARD:
+		Name: secondary
+		Weapon: Broadside
+		LocalOffset: 500,300,150, 0,300,150, -500,300,150
+	AttackFrontal:
+		FacingTolerance: 512
+		Armaments: primary, secondary
+	Selectable:
+		Bounds: 2048, 1792
+	RenderSprites:
+		Image: pirate

@@ -691,3 +691,10 @@ actor-sniper =
     Very long range, kills infantry in one shot.
       Strong vs Infantry
       Weak vs Vehicles, Buildings
+
+actor-pirate =
+    .name = Pirate Ship
+    .description =
+    A galleon flying the Jolly Roger. Fires cannon
+    broadsides from both sides at once.
+      Strong vs Ships, Infantry, Buildings near the shore
