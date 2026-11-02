@@ -156,7 +156,7 @@ namespace OpenRA.Mods.MyRA.Traits
 
 				var recruits = world.FindActorsInCircle(house.CenterPosition, Info.GatherRadius)
 					.Where(a => a.Owner == player && !a.IsDead && a.IsInWorld && a.IsIdle
-						&& Info.UnitTypes.Contains(a.Info.Name) && !sent.ContainsKey(a) && cargo.CanLoad(a))
+						&& Info.UnitTypes.Contains(a.Info.Name) && !sent.ContainsKey(a) && cargo.CanLoad(a) && AIGeneral.Free(a))
 					.OrderBy(a => (a.CenterPosition - house.CenterPosition).LengthSquared)
 					.Take(room)
 					.ToList();

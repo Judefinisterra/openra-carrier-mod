@@ -781,3 +781,6 @@ actor-presidente =
 
 actor-bodyguard =
     .name = Bodyguard
+
+bot-skynet =
+    .name = SkyNet

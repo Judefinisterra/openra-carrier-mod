@@ -67,10 +67,8 @@ namespace OpenRA.Mods.MyRA.Traits
 		/// <summary>What the AI is allowed to know: buildings it has explored, units it can see.</summary>
 		public static bool Known(Player me, Actor a)
 		{
-			// Everyone knows where each side started, so buildings around an enemy's start position count as known
-			// even before they've been scouted.
 			if (a.Info.HasTraitInfo<BuildingInfo>())
-				return me.Shroud.IsExplored(a.Location) || (a.Location - a.Owner.HomeLocation).LengthSquared <= 16 * 16;
+				return me.Shroud.IsExplored(a.Location);
 			return a.CanBeViewedByPlayer(me);
 		}
 
@@ -560,7 +558,8 @@ namespace OpenRA.Mods.MyRA.Traits
 			// Follow the AI Commander: strike only its target, and launch nothing while it says to stay home.
 			var commander = AICommanderBotModule.For(player);
 			commandTarget = commander?.ActiveTarget;
-			if (commander != null && commander.HoldOffensives && Info.HomeRadius == 0)
+			var general = AIGeneral.For(player);
+			if (((commander != null && commander.HoldOffensives) || (general != null && !general.AllowNewAttacks && group.Count == 0)) && Info.HomeRadius == 0)
 			{
 				if (group.Count > 0)
 					Disband(bot, true);
@@ -600,7 +599,7 @@ namespace OpenRA.Mods.MyRA.Traits
 			cooldown = Info.Interval;
 			var squads = BotHelpers.Squads(player);
 			var idle = world.Actors.Where(a => a.Owner == player && !a.IsDead && a.IsInWorld && Info.UnitTypes.Contains(a.Info.Name)
-				&& (a.IsIdle || (squads != null && squads.IdleBaseUnits.Contains(a))) && (squads == null || !squads.IsClaimed(a))).ToList();
+				&& (a.IsIdle || (squads != null && squads.IdleBaseUnits.Contains(a))) && (squads == null || !squads.IsClaimed(a)) && AIGeneral.Free(a)).ToList();
 			var size = world.LocalRandom.Next(Info.MinGroupSize, Info.MaxGroupSize + 1);
 			if (idle.Count < Math.Min(size, Info.MinGroupSize) || idle.Count < Info.MinGroupSize)
 				return;
@@ -692,7 +691,7 @@ namespace OpenRA.Mods.MyRA.Traits
 			scouts.RemoveAll(a => a.IsDead || !a.IsInWorld || a.Owner != player);
 			if (scouts.Count < Info.MaxScouts)
 			{
-				var pick = world.Actors.FirstOrDefault(a => a.Owner == player && !a.IsDead && a.IsInWorld && Info.UnitTypes.Contains(a.Info.Name)
+				var pick = world.Actors.FirstOrDefault(a => a.Owner == player && !a.IsDead && a.IsInWorld && Info.UnitTypes.Contains(a.Info.Name) && AIGeneral.Free(a)
 					&& !scouts.Contains(a) && (squads == null || !squads.IsClaimed(a)) && (a.IsIdle || (squads != null && squads.IdleBaseUnits.Contains(a))));
 				if (pick != null)
 				{
@@ -1267,6 +1266,11 @@ namespace OpenRA.Mods.MyRA.Traits
 					if (commander != null && commander.HoldOffensives)
 						return;
 
+					// ...and the General: no invasion while home (or El Presidente) isn't safely guarded.
+					var general = AIGeneral.For(player);
+					if (general != null && !general.AllowNewAttacks)
+						return;
+
 					// Fill a whole wave of empty transports at once.
 					var ready = boats.Where(b => b.IsIdle && b.Trait<Cargo>().IsEmpty()).Take(Math.Max(1, Info.BoatsPerWave)).ToList();
 					if (ready.Count == 0)
@@ -1322,7 +1326,7 @@ namespace OpenRA.Mods.MyRA.Traits
 					// Troops: anyone of the right type on our island who isn't fighting or busy for another module.
 					// Squad members count too - their squads can't walk across the sea anyway.
 					var cargo0 = ready[0].Trait<Cargo>();
-					var pool = world.Actors.Where(x => x.Owner == player && !x.IsDead && x.IsInWorld && !landed.Contains(x) && !squads.IsClaimed(x)
+					var pool = world.Actors.Where(x => x.Owner == player && !x.IsDead && x.IsInWorld && !landed.Contains(x) && !squads.IsClaimed(x) && AIGeneral.Free(x)
 							&& FitsIn(x, cargo0) && x.Info.HasTraitInfo<AttackBaseInfo>() && !Fighting(x)
 							&& (x.Location - pickupShore.Value).LengthSquared < 60 * 60)
 						.OrderBy(x => (x.Location - pickupShore.Value).LengthSquared)
@@ -1631,6 +1635,10 @@ namespace OpenRA.Mods.MyRA.Traits
 			var level = self.World.LobbyInfo.GlobalSettings.OptionOrDefault(info.OptionID, info.Default);
 			if (!info.Levels.Contains(level))
 				level = info.Default;
+
+			// SkyNet plays on brains alone: no difficulty bonuses or handicaps.
+			if (self.Owner.BotType == "skynet")
+				level = "normal";
 
 			provided = ["ai-" + level];
 			if (info.ConditionLevels.Contains(level))

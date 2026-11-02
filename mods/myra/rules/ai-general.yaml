@@ -1,0 +1,38 @@
+# The AI chain of command (OpenRA.Mods.MyRA/Traits/AIGeneral.cs) and SkyNet (SkyNet.cs).
+Player:
+	# Roster (VIPs and the home guard are never borrowed), fog-limited intel, posture and home guard.
+	# Personalities by bot type: Aggression 0-100 (how outnumbered it will still attack), HomeGuard = % of the
+	# army kept home in normal games (El Presidente games keep at least 30%).
+	AIGeneral:
+		Aggression:
+			default: 60
+			rush: 85
+			turtle: 30
+			naval: 55
+			stable: 30
+			iran: 70
+			tribal: 85
+			hermit: 60
+			skynet: 60
+		HomeGuard:
+			default: 15
+			rush: 5
+			turtle: 35
+			stable: 35
+			tribal: 5
+			hermit: 15
+			iran: 15
+			skynet: 20
+	# SkyNet: one lobby slot played by the language model (settings in ai-commander.json). It runs on the normal
+	# AI's modules, with the model making the decisions.
+	ModularBot@SkyNet:
+		Name: bot-skynet.name
+		Type: skynet
+	GrantConditionOnBotOwner@skynetbase:
+		Condition: enable-normal-ai
+		Bots: skynet
+	GrantConditionOnBotOwner@skynet:
+		Condition: enable-skynet-ai
+		Bots: skynet
+	SkyNetBotModule:
+		RequiresCondition: enable-skynet-ai

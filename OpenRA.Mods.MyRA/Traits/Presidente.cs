@@ -237,18 +237,6 @@ namespace OpenRA.Mods.MyRA.Traits
 		[Desc("Ticks between re-aiming attack groups at an enemy president.")]
 		public readonly int HuntInterval = 250;
 
-		[Desc("Share of our fighting strength (by cost) kept home guarding the president.")]
-		public readonly int ReservePercent = 30;
-
-		[Desc("Share kept home for a while after he was threatened.")]
-		public readonly int AlarmReservePercent = 50;
-
-		[Desc("Never keep less than this much (by cost) at home, if we have it.")]
-		public readonly int MinReserveValue = 2500;
-
-		[Desc("How long (ticks) after a threat the bigger home guard is kept.")]
-		public readonly int AlarmMemory = 3000;
-
 		public override object Create(ActorInitializer init) { return new PresidenteBotModule(init.Self, this); }
 	}
 
@@ -258,7 +246,6 @@ namespace OpenRA.Mods.MyRA.Traits
 		static readonly HashSet<string> NotFighters = ["harv", "mcv", "mcv.tribal", "e6", "spy", "medi", "mech", "truk", "oiltruck", "supplytruck", "oilhauler", "dog"];
 
 		readonly Player player;
-		readonly HashSet<Actor> reserve = [];
 		int ticks, lastHp = -1, lastAlarm = -10000, lastHunt = -10000;
 
 		public PresidenteBotModule(Actor self, PresidenteBotModuleInfo info)
@@ -330,18 +317,19 @@ namespace OpenRA.Mods.MyRA.Traits
 				&& (carrier == null || carrier.IsIdle) && (carrier != null || pres.IsIdle))
 				MoveVip(bot, w, pres, carrier, safe);
 
-			// Before anything goes out to attack, make sure he isn't left undefended.
-			var guarded = KeepHomeGuard(bot, w, vip, safe);
+			// Before anything goes out to attack, the General makes sure he isn't left undefended.
+			var general = AIGeneral.For(player);
+			var guarded = general == null || general.AllowNewAttacks;
 
 			// Our goal: kill the other presidents. Point the attack groups at the nearest one we know about,
 			// but only while home is properly guarded.
 			if (guarded && w.WorldTick - lastHunt >= Info.HuntInterval)
 			{
 				lastHunt = w.WorldTick;
+				// Only presidents (or the vehicle/building hiding one) we can see right now - no peeking through fog.
 				var prey = mgr.Presidents.Where(kv => enemies.Contains(kv.Key) && !kv.Value.IsDead)
 					.Select(kv => PresidenteManager.CarrierOf(kv.Value) ?? (kv.Value.IsInWorld ? kv.Value : null))
-					.Where(a => a != null && (a.CanBeViewedByPlayer(player) || BotHelpers.Known(player, a)
-						|| (a.Location - a.Owner.HomeLocation).LengthSquared <= 16 * 16))
+					.Where(a => a != null && a.CanBeViewedByPlayer(player))
 					.MinByOrDefault(a => (a.Location - player.HomeLocation).LengthSquared);
 				if (prey != null)
 					foreach (var sm in player.PlayerActor.TraitsImplementing<SquadManagerBotModule>())
@@ -349,81 +337,6 @@ namespace OpenRA.Mods.MyRA.Traits
 							if (s.Type is SquadType.Assault or SquadType.Rush or SquadType.Air && s.Units.Count > 0)
 								s.SetActorToTarget((prey, WVec.Zero));
 			}
-		}
-
-		static int Value(Actor a)
-		{
-			var cost = a.Info.TraitInfoOrDefault<ValuedInfo>()?.Cost ?? 100;
-			var h = a.TraitOrDefault<IHealth>();
-			return h == null || h.MaxHP == 0 ? cost : (int)((long)cost * h.HP / h.MaxHP);
-		}
-
-		bool Usable(Actor a) => a.Owner == player && !a.IsDead && a.IsInWorld && Fighter(a)
-			&& !Vip.Contains(a.Info.Name) && !NotFighters.Contains(a.Info.Name) && !a.Info.HasTraitInfo<AircraftInfo>();
-
-		/// <summary>
-		/// Keeps enough of the army (plus base defences) near the president. Pulls units out of attack groups that
-		/// are still at home when the guard is too thin, and lets extras go when there are plenty.
-		/// Returns true when home is guarded well enough to go hunting.
-		/// </summary>
-		bool KeepHomeGuard(IBot bot, World w, Actor vip, CPos safe)
-		{
-			reserve.RemoveWhere(a => a.IsDead || !a.IsInWorld || a.Owner != player);
-			var squads = player.PlayerActor.TraitsImplementing<SquadManagerBotModule>().SelectMany(sm => sm.Squads).ToList();
-			var inSquads = squads.SelectMany(s => s.Units).ToHashSet();
-			var army = w.Actors.Where(Usable).ToList();
-			var total = army.Sum(Value);
-			var radius2 = (long)Info.DefendRadius.Length * Info.DefendRadius.Length;
-
-			// Base defences near him count too.
-			var towers = w.Actors.Where(a => a.Owner == player && !a.IsDead && a.IsInWorld && a.Info.HasTraitInfo<BuildingInfo>()
-				&& a.Info.HasTraitInfo<AttackBaseInfo>() && (a.CenterPosition - vip.CenterPosition).HorizontalLengthSquared <= radius2).Sum(Value);
-			var guard = towers + reserve.Sum(Value);
-
-			var pct = w.WorldTick - lastAlarm < Info.AlarmMemory ? Info.AlarmReservePercent : Info.ReservePercent;
-			var need = Math.Min(Math.Max(Info.MinReserveValue, (int)((long)(total + towers) * pct / 100)), total + towers);
-
-			if (guard < need)
-			{
-				// Take units from attack groups that haven't left home yet, then any idle fighters, nearest first.
-				var home2 = 20L * 20 * 1024 * 1024;
-				var candidates = army.Where(a => !reserve.Contains(a)
-						&& (a.CenterPosition - vip.CenterPosition).HorizontalLengthSquared <= home2)
-					.OrderBy(a => inSquads.Contains(a) ? 1 : 0)
-					.ThenBy(a => (a.CenterPosition - vip.CenterPosition).HorizontalLengthSquared)
-					.ToList();
-				foreach (var a in candidates)
-				{
-					if (guard >= need)
-						break;
-					foreach (var s in squads)
-						s.Units.Remove(a);
-					reserve.Add(a);
-					guard += Value(a);
-				}
-			}
-			else if (guard > need * 3 / 2 && reserve.Count > 0)
-			{
-				// Plenty at home: hand the extras back to an attack group.
-				var assault = squads.FirstOrDefault(s => s.Type is SquadType.Assault or SquadType.Rush && s.Units.Count > 0);
-				if (assault != null)
-					foreach (var a in reserve.OrderBy(Value).ToList())
-					{
-						if (guard - Value(a) < need * 5 / 4)
-							break;
-						reserve.Remove(a);
-						assault.Units.Add(a);
-						guard -= Value(a);
-					}
-			}
-
-			// The guard waits around his safe spot, ready to fight.
-			var spot = w.Map.CenterOfCell(safe);
-			foreach (var a in reserve)
-				if (a.IsIdle && (a.CenterPosition - spot).HorizontalLengthSquared > 6L * 6 * 1024 * 1024)
-					bot.QueueOrder(new Order("AttackMove", a, Target.FromCell(w, safe), false));
-
-			return guard >= need;
 		}
 
 		// Somewhere inside our base, on the side away from the enemy.

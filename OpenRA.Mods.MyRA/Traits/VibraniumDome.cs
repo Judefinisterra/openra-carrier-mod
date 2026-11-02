@@ -78,6 +78,9 @@ namespace OpenRA.Mods.MyRA.Traits
 			Small = info.SmallCharges;
 		}
 
+		/// <summary>Ticks before the warhead reaches the dome at which it starts forming (it takes 36 to inflate).</summary>
+		public const int RaiseLead = 44;
+
 		public bool NukeReady => NukeCooldown <= 0 && !busy && self.IsInWorld && !self.IsDead;
 		public WPos Center => self.CenterPosition - new WVec(0, 0, self.CenterPosition.Z - self.World.Map.CenterOfCell(self.Location).Z);
 		public int Height => Info.Radius.Length * Info.HeightPercent / 100;
@@ -122,7 +125,7 @@ namespace OpenRA.Mods.MyRA.Traits
 		{
 			if (shown != null && !shown.Done)
 			{
-				shown.Hold(40);
+				shown.Hold(20);
 				return;
 			}
 
@@ -328,7 +331,7 @@ namespace OpenRA.Mods.MyRA.Traits
 			charge = chargeLength = ticks;
 			impact = where;
 			impactAt = this.ticks;
-			Hold(ticks + 50);
+			Hold(ticks + 90);
 		}
 
 		public void Drop() { dropping = true; }
@@ -670,6 +673,7 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		readonly VibraniumManagerInfo info;
 		readonly HashSet<IEffect> handled = [];
+		readonly Dictionary<IEffect, WPos> lastPos = [];
 		HashSet<WeaponInfo> nuclear = [], small = [];
 
 		public int Absorbed { get; private set; }
@@ -684,6 +688,16 @@ namespace OpenRA.Mods.MyRA.Traits
 			small = info.SmallWeapons.Where(weapons.ContainsKey).Select(n => weapons[n]).ToHashSet();
 		}
 
+		static WPos FallbackSource(World w, Player firer, WPos near)
+		{
+			if (firer == null)
+				return near;
+			var theirs = w.Actors.Where(a => a.Owner == firer && !a.IsDead && a.IsInWorld && a.Info.HasTraitInfo<BuildingInfo>()).ToList();
+			var pick = theirs.Where(a => a.Info.Name == "mslo").MinByOrDefault(a => (a.CenterPosition - near).HorizontalLengthSquared)
+				?? theirs.Where(a => a.Info.Name == "fact").MinByOrDefault(a => (a.CenterPosition - near).HorizontalLengthSquared);
+			return pick?.CenterPosition ?? w.Map.CenterOfCell(firer.HomeLocation);
+		}
+
 		static bool Hostile(VibraniumDome d, Actor dome, Player firer) =>
 			firer == null || (firer != dome.Owner && firer.RelationshipWith(dome.Owner) != PlayerRelationship.Ally);
 
@@ -691,6 +705,8 @@ namespace OpenRA.Mods.MyRA.Traits
 		{
 			var w = self.World;
 			handled.RemoveWhere(e => !w.Effects.Contains(e));
+			foreach (var gone in lastPos.Keys.Where(e => !w.Effects.Contains(e)).ToList())
+				lastPos.Remove(gone);
 			List<(Actor A, VibraniumDome D)> domes = null;
 
 			foreach (var e in w.Effects.ToList())
@@ -741,13 +757,28 @@ namespace OpenRA.Mods.MyRA.Traits
 
 					if (nuke)
 					{
+						// No launch position reported (e.g. a missile that skips its climb): strike back at the
+						// attacker's nearest silo, else their construction yard, else where they started.
+						if (source == WPos.Zero || !w.Map.Contains(w.Map.CellContaining(source)))
+							source = FallbackSource(w, firer, d.Center);
+
 						if (d.Covers(source))
 							continue;
 						if (!d.NukeReady)
 							continue;
 
-						// Put the shield up as soon as the warhead is on its way down, catch it on the dome.
-						d.Raise();
+						// Raise the shield so it has just finished forming when the warhead reaches it, and keep it
+						// up until the warhead arrives.
+						var prev = lastPos.TryGetValue(e, out var lp) ? lp : pos;
+						lastPos[e] = pos;
+						var fall = Math.Max(1, prev.Z - pos.Z);
+						var ground = w.Map.CenterOfCell(w.Map.CellContaining(pos)).Z;
+						var r = (long)d.Info.Radius.Length;
+						var off = (pos - d.Center).HorizontalLengthSquared;
+						var domeHeight = off >= r * r ? 0 : (int)(d.Height * Math.Sqrt(1 - (double)off / (r * r)));
+						var ticksToShield = (pos.Z - ground - domeHeight) / fall;
+						if (ticksToShield <= VibraniumDome.RaiseLead || d.Inside(pos))
+							d.Raise();
 						if (!d.Inside(pos))
 							break;
 

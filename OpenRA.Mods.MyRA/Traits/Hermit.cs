@@ -404,7 +404,7 @@ namespace OpenRA.Mods.MyRA.Traits
 		}
 
 		List<Actor> Army() => world.Actors.Where(a => a.Owner == player && !a.IsDead && a.IsInWorld
-			&& !Info.ExcludeTypes.Contains(a.Info.Name)
+			&& !Info.ExcludeTypes.Contains(a.Info.Name) && AIGeneral.Free(a)
 			&& a.Info.HasTraitInfo<MobileInfo>() && a.Info.HasTraitInfo<AttackBaseInfo>()).ToList();
 
 		static int ArmyValue(Player p) => p.PlayerActor.TraitOrDefault<PlayerStatistics>()?.ArmyValue ?? 0;

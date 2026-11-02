@@ -115,6 +115,7 @@ namespace OpenRA.Mods.MyRA.Traits
 			public bool ShowTaunts { get; set; } = true;
 			public string Personality { get; set; } = "";
 			public string ReasoningEffort { get; set; } = "low";
+			public double SkyNetCallsPerMinute { get; set; } = 6;
 		}
 
 		static readonly object Sync = new();
@@ -469,6 +470,8 @@ namespace OpenRA.Mods.MyRA.Traits
   ""ApiKeyEnvironmentVariable"": ""AI_COMMANDER_API_KEY"",
   // Consultations per minute. Each one covers ALL computer players in a single request.
   ""CallsPerMinute"": 1,
+  // How often SkyNet (the one lobby slot played by the model) is consulted, per minute.
+  ""SkyNetCallsPerMinute"": 6,
   ""JsonMode"": true,
   ""TimeoutSeconds"": 20,
   // For reasoning models (gpt-oss): how hard to think before answering - low, medium or high.
@@ -536,7 +539,7 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		/// <summary>The AI Commander module of a player whose orders are in force, if any.</summary>
 		public static AICommanderBotModule For(Player p) =>
-			p.PlayerActor.TraitsImplementing<AICommanderBotModule>().FirstOrDefault(m => m.enabled && m.ActiveStance != null);
+			p.PlayerActor.TraitsImplementing<AICommanderBotModule>().FirstOrDefault(m => (m.enabled || m.DrivenBySkyNet) && m.ActiveStance != null);
 		int ticks, lastReport = -100000, waveSent;
 		Plan plan;
 		TruceManager truces;
@@ -565,9 +568,29 @@ namespace OpenRA.Mods.MyRA.Traits
 		bool Rival(Player p) => p != null && p.Playable && !p.NonCombatant && p != player && p.WinState == WinState.Undefined
 			&& (player.RelationshipWith(p) == PlayerRelationship.Enemy || (truces != null && truces.InTruce(player, p)));
 
+		/// <summary>SkyNet is giving this player's orders (instead of the shared AI Commander consultation).</summary>
+		public bool DrivenBySkyNet { get; set; }
+
+		/// <summary>Orders from SkyNet, in the same JSON format the AI Commander uses.</summary>
+		public void Feed(string json) => replies.Enqueue(json);
+
 		void IBotTick.BotTick(IBot bot)
 		{
-			if (!enabled || ++ticks < Info.Interval)
+			if (DrivenBySkyNet)
+			{
+				if (++ticks < Info.Interval)
+					return;
+				ticks = 0;
+				while (replies.TryDequeue(out var t))
+					Apply(bot, t);
+				if (plan != null)
+					Carry(bot);
+				return;
+			}
+
+			// With SkyNet in the match, the AI Commander option defers to it: the other computer players play on
+			// their own built-in commanders.
+			if (!enabled || SkyNetBotModule.ActiveIn(world) || ++ticks < Info.Interval)
 				return;
 
 			ticks = 0;
@@ -612,7 +635,7 @@ namespace OpenRA.Mods.MyRA.Traits
 		// The situation report.
 		// Each army's playbook: what its side is good at and which units and strategies to lean on all game.
 		// Only the army's own playbook goes into its section (nothing about the other armies).
-		static string FactionHint(FactionInfo f)
+		internal static string FactionHint(FactionInfo f)
 		{
 			const string Allied = "ALLIED side: fast and flexible. Light and Medium Tanks, Rangers, artillery for sieges, Rocket Soldiers against armour, "
 				+ "Mobile Gap Generators to hide forces, spies and thieves, Tanya for raids. Strongest navy: Destroyers, Cruisers, the Aircraft Carrier. "
@@ -659,7 +682,7 @@ namespace OpenRA.Mods.MyRA.Traits
 			return "vehicles";
 		}
 
-		string Report()
+		internal string Report()
 		{
 			var sb = new StringBuilder();
 			var sec = world.WorldTick / TicksPerSecond(world);
@@ -734,7 +757,7 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		// Other players are shown to the model only as "Player 1", "Player 2"... (by lobby slot), never by name, so
 		// it can't tell humans from computer players and has no reason to treat the other AIs as friends.
-		static string Label(Player p) => $"Player {p.World.Players.Where(x => x.Playable).ToList().IndexOf(p) + 1}";
+		internal static string Label(Player p) => $"Player {p.World.Players.Where(x => x.Playable).ToList().IndexOf(p) + 1}";
 
 		static string Name(ActorInfo ai) => ai.TraitInfoOrDefault<TooltipInfo>() is TooltipInfo t ? FluentProvider.GetMessage(t.Name) : ai.Name;
 
@@ -998,7 +1021,7 @@ namespace OpenRA.Mods.MyRA.Traits
 			var exclude = squads?.Info.ExcludeFromSquadsTypes;
 			return world.Actors.Where(a => a.Owner == player && Alive(a)
 					&& a.Info.HasTraitInfo<MobileInfo>() && a.Info.HasTraitInfo<AttackBaseInfo>() && !a.Info.HasTraitInfo<AircraftInfo>()
-					&& !a.Info.HasTraitInfo<HarvesterInfo>() && (exclude == null || !exclude.Contains(a.Info.Name))
+					&& !a.Info.HasTraitInfo<HarvesterInfo>() && (exclude == null || !exclude.Contains(a.Info.Name)) && AIGeneral.Free(a)
 					&& (wave.Contains(a) || squads == null || !squads.IsClaimed(a)))
 				.ToList();
 		}

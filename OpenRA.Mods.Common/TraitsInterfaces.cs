@@ -608,6 +608,14 @@ namespace OpenRA.Mods.Common.Traits
 	[RequireExplicitImplementation]
 	public interface IBotTick { void BotTick(IBot bot); }
 
+	/// <summary>(MyRA) A bot's unit roster: units it has reserved (VIPs, home guard) are never put into squads,
+	/// and the roster can hold back new attacks.</summary>
+	public interface IBotUnitRoster
+	{
+		bool IsReserved(Actor a);
+		bool AllowNewAttacks { get; }
+	}
+
 	[RequireExplicitImplementation]
 	public interface IBotRespondToAttack { void RespondToAttack(IBot bot, Actor self, AttackInfo e); }
 

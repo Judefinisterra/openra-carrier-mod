@@ -146,6 +146,7 @@ Rules:
 	myra|rules/israel.yaml
 	myra|rules/zombies.yaml
 	myra|rules/ai-shipyards.yaml
+	myra|rules/ai-general.yaml
 	myra|rules/pricing.yaml
 
 Sequences:
