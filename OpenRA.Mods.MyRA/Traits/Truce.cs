@@ -58,6 +58,12 @@ namespace OpenRA.Mods.MyRA.Traits
 		[Desc("Warning time (ticks) between announcing the end of a truce and breaking it.")]
 		public readonly int BotBreakWarning = 750;
 
+		[Desc("Computer players make no truces before this game time (ticks). 4500 = 3 minutes.")]
+		public readonly int BotTruceStartTicks = 4500;
+
+		[Desc("Most truces a computer player keeps at once.")]
+		public readonly int MaxBotTruces = 2;
+
 		[Desc("Players of these factions start the game in a truce with everyone (until someone breaks it).")]
 		public readonly HashSet<string> AutoTruceFactions = [];
 
@@ -116,6 +122,24 @@ namespace OpenRA.Mods.MyRA.Traits
 			if (!CanTruce(from, to) || InTruce(from, to) || from.RelationshipWith(to) != PlayerRelationship.Enemy)
 				return;
 
+			// Computer players don't make truces in the opening minutes, and keep only a couple at a time.
+			if ((from.IsBot || to.IsBot) && world.WorldTick < info.BotTruceStartTicks)
+			{
+				if (IsLocal(from))
+					Say("Too early for truces - the computer players won't talk peace in the first 3 minutes.");
+
+				return;
+			}
+
+			var full = new[] { from, to }.FirstOrDefault(p => p.IsBot && TruceCount(p) >= info.MaxBotTruces);
+			if (full != null)
+			{
+				if (IsLocal(from))
+					Say($"{full.ResolvedPlayerName} already has as many truces as it wants.");
+
+				return;
+			}
+
 			proposals.Add((Index(from), Index(to)));
 			if (IsLocal(from))
 				Say($"You proposed a truce to {to.ResolvedPlayerName}. Waiting for an answer...");
@@ -165,6 +189,14 @@ namespace OpenRA.Mods.MyRA.Traits
 			if (!CanTruce(from, answering) || from.RelationshipWith(answering) != PlayerRelationship.Enemy)
 				return;
 
+			if ((from.IsBot && TruceCount(from) >= info.MaxBotTruces) || (answering.IsBot && TruceCount(answering) >= info.MaxBotTruces))
+			{
+				if (IsLocal(from) || IsLocal(answering))
+					Say($"No truce between {from.ResolvedPlayerName} and {answering.ResolvedPlayerName}: one of them already has enough truces.");
+
+				return;
+			}
+
 			proposals.Remove((offer.To, offer.From));
 			truces[Key(offer.From, me)] = world.WorldTick;
 			SetEnemies(from, answering, false);
@@ -175,17 +207,23 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		bool startingTrucesDone;
 
+		int TruceCount(Player p) => world.Players.Count(o => o != p && InTruce(p, o));
+
 		void ITick.Tick(Actor self)
 		{
 			// Peaceful factions start the game at peace with everyone.
-			if (!startingTrucesDone)
+			// (After the opening minutes, and only with their nearest neighbours, up to MaxBotTruces.)
+			if (!startingTrucesDone && world.WorldTick >= info.BotTruceStartTicks)
 			{
 				startingTrucesDone = true;
 				foreach (var p in world.Players.Where(p => p.Playable && info.AutoTruceFactions.Contains(p.Faction.InternalName)))
 				{
-					foreach (var o in world.Players)
+					foreach (var o in world.Players.OrderBy(o => (o.HomeLocation - p.HomeLocation).LengthSquared))
 					{
 						if (!CanTruce(p, o) || p.RelationshipWith(o) != PlayerRelationship.Enemy || InTruce(p, o))
+							continue;
+
+						if (TruceCount(p) >= info.MaxBotTruces || (o.IsBot && TruceCount(o) >= info.MaxBotTruces))
 							continue;
 
 						truces[Key(Index(p), Index(o))] = world.WorldTick;
@@ -193,7 +231,7 @@ namespace OpenRA.Mods.MyRA.Traits
 					}
 
 					if (world.Players.Any(o => o != p && InTruce(p, o)))
-						Say($"{p.ResolvedPlayerName} is a peaceful nation and starts in a truce with everyone. Attacking them will break it.");
+						Say($"{p.ResolvedPlayerName} is a peaceful nation and has made truces with its neighbours. Attacking them will break it.");
 				}
 			}
 

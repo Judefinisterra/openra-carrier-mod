@@ -40,6 +40,7 @@ Player:
 			spirittotem: 12
 			fieldhosp: 2
 			farm: 2
+			vibdome: 2
 		BuildingFractions:
 			powr: 14
 			proc: 12
@@ -52,6 +53,7 @@ Player:
 			spirittotem: 6
 			fieldhosp: 2
 			farm: 2
+			vibdome: 8
 		BuildingDelays:
 			weap: 2500
 			animalpen: 3500
@@ -59,6 +61,7 @@ Player:
 			spirittotem: 2000
 			fieldhosp: 4000
 			farm: 6000
+			vibdome: 1500
 			kenn: 1500
 			tribaldock: 5000
 	# Attacks in a steady stream of medium-sized waves instead of waiting for one giant blob.

@@ -198,7 +198,7 @@ PROTESTER:
 	MilitiaUprising:
 		Actor: militia
 		Delay: 1500
-		Chance: 25
+		Chance: 50
 
 MILITIA:
 	Inherits: PROTESTER

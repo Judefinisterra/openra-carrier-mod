@@ -60,7 +60,44 @@ namespace OpenRA.Mods.MyRA.Traits
 		}
 	}
 
-	public class AICommanderOptions { }
+	// Says at the start of the game whether the AI Commander is running, and if not, why.
+	public class AICommanderOptions : ITick
+	{
+		bool told;
+
+		void ITick.Tick(Actor self)
+		{
+			var w = self.World;
+			if (told || w.WorldTick < 75 || w.Type != WorldType.Regular)
+				return;
+
+			told = true;
+			if (w.LocalPlayer == null && !Game.IsHost)
+				return;
+
+			if (!w.Players.Any(p => p.IsBot && p.Playable))
+				return;
+
+			const string Label = "AI Commander";
+			if (!w.LobbyInfo.GlobalSettings.OptionOrDefault("aicommander", false))
+			{
+				TextNotificationsManager.AddSystemLine(Label, "OFF - tick \"AI Commander\" in the lobby options to let the language model run the computer players.");
+				return;
+			}
+
+			if (!Game.IsHost)
+			{
+				TextNotificationsManager.AddSystemLine(Label, "ON - it runs on the host's computer, using the host's API key.");
+				return;
+			}
+
+			var settings = AICommanderLink.Load(out var error);
+			if (error != null || settings == null)
+				TextNotificationsManager.AddSystemLine(Label, $"ON but can't run: {error}");
+			else
+				TextNotificationsManager.AddSystemLine(Label, $"ON - model {settings.Model}, consulted about {settings.CallsPerMinute:0.#} time(s) a minute.");
+		}
+	}
 
 	// The model connection, shared by every AI player on this computer (so the call limit is global).
 	static class AICommanderLink

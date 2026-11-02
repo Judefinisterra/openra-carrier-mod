@@ -11,8 +11,8 @@ Player:
 		Bots: stable
 	BaseBuilderBotModule@stable:
 		RequiresCondition: enable-stable-ai
-		MinimumExcessPower: 50
-		MaximumExcessPower: 250
+		MinimumExcessPower: 150
+		MaximumExcessPower: 400
 		ExcessPowerIncrement: 50
 		ExcessPowerIncreaseThreshold: 4
 		ConstructionYardTypes: fact
@@ -25,8 +25,8 @@ Player:
 		NavalProductionTypes: syrd
 		NewProductionCashThreshold: 4000
 		BuildingLimits:
-			tent: 2
-			weap: 2
+			tent: 4
+			weap: 4
 			dome: 1
 			fix: 1
 			atek: 1
@@ -37,7 +37,7 @@ Player:
 			proc: 3
 			mansion: 1
 		BuildingFractions:
-			powr: 12
+			powr: 16
 			proc: 8
 			tent: 3
 			weap: 3
@@ -61,10 +61,10 @@ Player:
 	# Town planner: street grid, perimeter walls with openings for the roads, towers.
 	StableBasePlannerBotModule@stable:
 		RequiresCondition: enable-stable-ai
-		WallType: sbag
+		WallType: brik
 		GateDefenseTypes: pbox, gun
-		CornerDefenseTypes: agun, gun
-		Blocks: 2
+		CornerDefenseTypes: agun
+		Blocks: 3
 		SuburbBlocks: 4
 		StartTick: 3000
 		MinimumCash: 800
@@ -88,7 +88,7 @@ Player:
 		ConstructionYardTypes: fact
 		AirUnitsTypes: heli, hind, mh60
 		AircraftTargetType: AirborneActor
-		ProtectionTypes: harv, mcv, mansion, fact, proc, powr, apwr, tent, weap, dome, fix, atek, govbuilding, hospital, stablehouse, farm, pbox, gun, agun, checkpoint, checkpoint.v, sbag, supplytruck, oilhauler
+		ProtectionTypes: harv, mcv, mansion, fact, proc, powr, apwr, tent, weap, dome, fix, atek, govbuilding, hospital, stablehouse, farm, pbox, gun, agun, checkpoint, checkpoint.v, sbag, brik, supplytruck, oilhauler
 		IgnoredEnemyTargetTypes: AirborneActor
 		ProtectUnitScanRadius: 20
 		ProtectionScanRadius: 18
@@ -116,7 +116,7 @@ Player:
 		AntiArmorUnits: e3, 2tnk
 		AntiInfantryUnits: e1, jeep
 		AntiAirDefenses: agun
-		MaxAntiAirDefenses: 6
+		MaxAntiAirDefenses: 10
 		KeepBuildings:
 			fix: 1
 		SurplusCash: 4000

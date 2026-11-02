@@ -1,0 +1,21 @@
+presidente:
+	Inherits: c1
+	Defaults:
+		Filename: presidente.png
+bodyguard:
+	Inherits: spy
+	Defaults:
+		Filename: bodyguard.png
+	garrison-muzzle:
+		Filename: minigun.shp
+		Length: 3
+		Stride: 6
+		Facings: 8
+	parachute:
+		Start: 0
+limo:
+	idle:
+		Filename: limo.png
+		Facings: 32
+	icon:
+		Filename: limo-icon.png

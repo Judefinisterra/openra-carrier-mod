@@ -102,12 +102,12 @@ B2:
 		UncloakOn: Attack, Unload, Infiltrate, Demolish, Dock, Damage
 		IsPlayerPalette: true
 	Selectable:
-		Bounds: 2560, 1536
-		DecorationBounds: 2816, 1792
+		Bounds: 5120, 3072
+		DecorationBounds: 5632, 3584
 	RenderSprites:
 		Image: b2
 
-# SR-71 Blackbird: faster than any missile, unarmed. Everywhere it flies stays revealed for good.
+# SR-71 Blackbird: faster than any missile, unarmed. Sees 10 cells around it; the fog closes back in behind it.
 SR71:
 	Inherits: ^NoLandPlane
 	Buildable:
@@ -130,8 +130,6 @@ SR71:
 		TurnSpeed: 12
 		Speed: 480
 		RepulsionSpeed: 40
-	PermanentRevealTrail:
-		Radius: 8c0
 	-WithAmmoPipsDecoration:
 	Selectable:
 		Bounds: 1792, 1536
@@ -583,8 +581,25 @@ SNIPER:
 	Cloak:
 		InitialDelay: 0
 		CloakDelay: 90
-		UncloakOn: Attack, Unload, Infiltrate, Demolish, Damage
+		UncloakOn: Attack, Unload, Infiltrate, Demolish
 		IsPlayerPalette: true
+	SniperScope:
+	# Sees as far as it shoots. Holds fire until put on Guard (G), so it can sneak into a base.
+	RevealsShroud:
+		Range: 9c512
+	AutoTarget:
+		ScanRadius: 9
+		InitialStance: HoldFire
+		InitialStanceAI: AttackAnything
+	Mobile:
+		PauseOnCondition: planted
+	WithInfantryBody:
+		RequiresCondition: !planted
+	WithInfantryBody@PLANTED:
+		RequiresCondition: planted
+		StandSequences: prone-stand
+		DefaultAttackSequence: prone-shoot
+		IdleSequences:
 	RenderSprites:
 		Image: sniper
 

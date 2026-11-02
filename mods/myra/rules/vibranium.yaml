@@ -1,0 +1,42 @@
+# Tribal Vibranium Dome (OpenRA.Mods.MyRA/Traits/VibraniumDome.cs): a shield generator that catches nukes on a
+# blue force field over the base and fires a beam back at the launch site; quick small domes stop V2s,
+# Tomahawks and Missile City rockets on separate charges.
+World:
+	VibraniumManager:
+	SniperScopeUI:
+
+SPIRITTOTEM:
+	ProvidesPrerequisite@vibdome:
+		Prerequisite: spirittotem
+
+VIBDOME:
+	Inherits: ^Building
+	Inherits@shape: ^2x2Shape
+	Buildable:
+		Queue: Defense
+		BuildPaletteOrder: 20
+		Prerequisites: spirittotem, ~tribalkingdom
+		Description: actor-vibdome.description
+	Valued:
+		Cost: 2500
+	Tooltip:
+		Name: actor-vibdome.name
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+	Health:
+		HP: 100000
+	Armor:
+		Type: Heavy
+	RevealsShroud:
+		Range: 6c0
+	VibraniumDome:
+		Radius: 15c0
+	WithRangeCircle:
+		Type: vibdome
+		Range: 15c0
+		Color: 50A0FF60
+	Selectable:
+		Bounds: 2048, 2560, 0, -512
+	RenderSprites:
+		Image: vibdome

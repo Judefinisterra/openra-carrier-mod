@@ -1,5 +1,5 @@
 # Armored Bulldozer (England only): $100, built straight from the Construction Yard, no War Factory needed.
-# It cannot be damaged, and any enemy unit or building it drives into is destroyed (allies are spared).
+# It has 4x a Heavy Tank's health (240,000), and any enemy unit or building it drives into is destroyed (allies are spared).
 # Works through crushing: the dozer locomotor crushes the "dozer" class, which every vehicle and building has.
 DOZER:
 	Inherits: ^TrackedVehicle
@@ -16,11 +16,9 @@ DOZER:
 	UpdatesPlayerStatistics:
 		AddToArmyValue: true
 	Health:
-		HP: 100000
+		HP: 240000
 	Armor:
 		Type: Heavy
-	DamageMultiplier@INVINCIBLE:
-		Modifier: 0
 	Mobile:
 		Speed: 64
 		TurnSpeed: 16

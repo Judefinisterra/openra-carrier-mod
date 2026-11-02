@@ -120,3 +120,21 @@ pirate:
 		Facings: 32
 	icon:
 		Filename: pirate-icon.png
+nike:
+	Defaults:
+		Filename: nike.png
+		Offset: 0,-8
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: nike-icon.png
+		Offset: 0,0
+satellite:
+	idle:
+		Filename: satellite.png
+		ZOffset: 2047

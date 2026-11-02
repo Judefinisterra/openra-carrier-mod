@@ -827,7 +827,10 @@ namespace OpenRA.Mods.MyRA.Traits
 		public readonly ImmutableArray<string> ShipyardTypes = ["spen", "syrd", "tribaldock"];
 
 		[Desc("Don't sail with fewer passengers than this.")]
-		public readonly int MinPassengers = 3;
+		public readonly int MinPassengers = 8;
+
+		[Desc("Avoid landing within this many cells of a landing where a wave was lost or turned back.")]
+		public readonly int FailedLandingRadius = 10;
 
 		[Desc("How many transports sail together in one wave.")]
 		public readonly int BoatsPerWave = 1;
@@ -1001,9 +1004,23 @@ namespace OpenRA.Mods.MyRA.Traits
 			stageStarted = world.WorldTick;
 		}
 
+		// Landings where a wave was sunk or had to turn back: tried elsewhere next time.
+		readonly List<CPos> failedLandings = [];
+		int waitingSince = -1;
+
+		void LandingFailed(CPos where, string why)
+		{
+			failedLandings.Add(where);
+			if (failedLandings.Count > 12)
+				failedLandings.RemoveAt(0);
+
+			Say($"{why} - will land somewhere else next time");
+		}
+
 		CPos? FindLanding(Locomotor boat, Locomotor troops, CPos boatAt, CPos targetCell)
 		{
 			var tries = 0;
+			var avoid = Info.FailedLandingRadius * Info.FailedLandingRadius;
 			var max = Math.Min(Info.MaxLandingDistance, world.Map.Grid.MaximumTileSearchRange);
 			var cells = world.Map.FindTilesInAnnulus(targetCell, Info.MinLandingDistance, max);
 			if (max < world.Map.Grid.MaximumTileSearchRange)
@@ -1012,6 +1029,9 @@ namespace OpenRA.Mods.MyRA.Traits
 			foreach (var c in cells)
 			{
 				if (!world.Map.Contains(c) || boat.MovementCostForCell(c) == short.MaxValue)
+					continue;
+
+				if (failedLandings.Any(f => (f - c).LengthSquared < avoid))
 					continue;
 
 				// The boat cell must touch land our troops can walk on, connected to the target.
@@ -1188,6 +1208,9 @@ namespace OpenRA.Mods.MyRA.Traits
 			fleetBoats.RemoveAll(b => b.IsDead || !b.IsInWorld || b.Owner != player);
 			if (stage is Stage.Loading or Stage.Sailing or Stage.Landing && fleetBoats.Count == 0)
 			{
+				if (stage == Stage.Sailing)
+					LandingFailed(landing, $"wave lost at sea on the way to {landing}");
+
 				Release();
 				seat.Clear();
 				SetStage(Stage.Idle);
@@ -1326,16 +1349,27 @@ namespace OpenRA.Mods.MyRA.Traits
 						}
 					}
 
-					if (chosen.Count < Info.MinPassengers)
+					// Wait for a proper wave (MinPassengers, or full boats if they hold fewer); after 3 minutes of
+					// waiting, go with whatever is there as long as it's at least 3.
+					var capacity = ready.Sum(r => r.Trait<Cargo>().Info.MaxWeight);
+					var need = Math.Min(Info.MinPassengers, capacity);
+					if (waitingSince < 0)
+						waitingSince = world.WorldTick;
+					if (world.WorldTick - waitingSince > 4500)
+						need = Math.Min(need, 3);
+
+					if (chosen.Count < need)
 					{
 						if (world.WorldTick - lastWhy > 1500)
 						{
 							lastWhy = world.WorldTick;
-							Say($"{ready.Count} boats ready but only {chosen.Count} troops free to board (need {Info.MinPassengers})");
+							Say($"{ready.Count} boats ready but only {chosen.Count} troops free to board (need {need})");
 						}
 
 						return;
 					}
+
+					waitingSince = -1;
 
 					fleetBoats.Clear();
 					fleetBoats.AddRange(chosen.Values.Distinct());
@@ -1433,7 +1467,7 @@ namespace OpenRA.Mods.MyRA.Traits
 					}
 					else if (elapsed > Info.VoyageTimeout)
 					{
-						Say($"voyage to {landing} failed (lead boat stuck at {fleetBoats[0].Location}) - turning back");
+						LandingFailed(landing, $"voyage to {landing} failed (lead boat stuck at {fleetBoats[0].Location}) - turning back");
 						foreach (var b in fleetBoats)
 						{
 							bot.QueueOrder(new Order("Move", b, Target.FromCell(world, home), false));

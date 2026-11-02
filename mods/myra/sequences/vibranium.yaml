@@ -1,0 +1,21 @@
+vibdome:
+	Defaults:
+		Filename: vibdome.png
+		Offset: 0,-12
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: vibdome-icon.png
+		Offset: 0,0
+vibdomefx:
+	shield:
+		Filename: vibdome-shield.png
+	glow:
+		Filename: vibdome-glow.png
+	flash:
+		Filename: vibdome-flash.png

@@ -307,6 +307,9 @@ namespace OpenRA.Mods.MyRA.Traits
 	{
 		public readonly int Interval = 50;
 
+		[Desc("No outbreaks before this game time (ticks). 7500 = 5 minutes.")]
+		public readonly int GracePeriod = 7500;
+
 		[Desc("Infantry of one player in one area that counts as a crowd.")]
 		public readonly int CrowdSize = 20;
 
@@ -356,7 +359,7 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		void ITick.Tick(Actor self)
 		{
-			if (!enabled || --timer > 0)
+			if (!enabled || --timer > 0 || self.World.WorldTick < info.GracePeriod)
 				return;
 
 			timer = info.Interval;
