@@ -20,6 +20,8 @@ LIMO:
 		HP: 60000
 	Armor:
 		Type: Heavy
+	AutoTarget:
+		InitialStanceAI: Defend
 	-Armament:
 	Armament@LIMO:
 		Weapon: M60mg
@@ -65,6 +67,8 @@ BODYGUARD:
 	Armament@GARRISONED:
 		Weapon: BodyguardSMG
 	Bodyguard:
+	AutoTarget:
+		InitialStanceAI: Defend
 	RenderSprites:
 		Image: bodyguard
 	MapEditorData:
