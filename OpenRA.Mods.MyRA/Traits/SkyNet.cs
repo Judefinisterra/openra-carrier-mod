@@ -143,6 +143,7 @@ namespace OpenRA.Mods.MyRA.Traits
 				return;
 
 			ListenToChat(bot);
+			KeepPowerUp(bot);
 
 			while (replies.TryDequeue(out var text))
 				Use(bot, text);
@@ -201,6 +202,24 @@ namespace OpenRA.Mods.MyRA.Traits
 					replies.Enqueue("");
 				}
 			});
+		}
+
+		// Safety net: never sit on negative power, whatever the model says.
+		int lastPowerOrder = -10000;
+
+		void KeepPowerUp(IBot bot)
+		{
+			var pm = player.PlayerActor.TraitOrDefault<PowerManager>();
+			if (pm == null || pm.ExcessPower >= 0 || world.WorldTick - lastPowerOrder < 250)
+				return;
+			if (BotHelpers.Queued(player, "apwr") + BotHelpers.Queued(player, "powr") > 0)
+				return;
+			var plant = new[] { "apwr", "powr" }.FirstOrDefault(t => BotHelpers.CanBuild(player, t));
+			if (plant != null && BotHelpers.Queue(bot, player, plant))
+			{
+				lastPowerOrder = world.WorldTick;
+				Log("safety net: queued " + plant + " (power " + pm.ExcessPower + ")");
+			}
 		}
 
 		void GoOffline(string why, string shown = "SkyNet OFFLINE")
@@ -263,7 +282,7 @@ namespace OpenRA.Mods.MyRA.Traits
 			sb.AppendLine("  \"thinking\": \"your reasoning in 1-3 sentences (private)\",");
 			sb.AppendLine("  \"stance\": \"attack\" | \"raid\" | \"invade\" | \"defend\" | \"economy\",");
 			sb.AppendLine("  \"target_player\": \"Player N\" or null,");
-			sb.AppendLine("  \"build\": [{\"item\": \"<exact id from the Can build lists>\", \"count\": N}]  (count = how many you want to HAVE in total; up to 6 entries),");
+			sb.AppendLine("  \"build\": [{\"item\": \"<exact id from the Can build lists>\", \"count\": N}]  (count = how many MORE to build now: units 1-10, buildings 1-3; up to 6 entries),");
 			sb.AppendLine("  \"home_guard_percent\": 0-80  (share of your army that stays home guarding" + (presidente ? " El Presidente" : " the base") + "),");
 			sb.AppendLine("  \"use_power\": \"<ready support power id>\" or null, \"power_target\": \"Player N\" or null,");
 			sb.AppendLine("  \"chat\": \"your reply to whoever spoke to you, or a rare line at a major moment\" or null,");
@@ -280,7 +299,7 @@ namespace OpenRA.Mods.MyRA.Traits
 			sb.AppendLine("Stances: attack = main army attacks the target's base; raid = fast units hit their economy; invade = load troops into transports "
 				+ "and land on the target across water (needs a shipyard + transports); defend = everyone fights at home; economy = build up, no attacks.");
 			sb.AppendLine("Example: {\"thinking\":\"They have no anti-air, so I build MiGs and keep pressure.\",\"stance\":\"attack\",\"target_player\":\"Player 2\","
-				+ "\"build\":[{\"item\":\"mig\",\"count\":6},{\"item\":\"3tnk\",\"count\":12}],\"home_guard_percent\":30,\"use_power\":null,\"power_target\":null,"
+				+ "\"build\":[{\"item\":\"mig\",\"count\":4},{\"item\":\"3tnk\",\"count\":6},{\"item\":\"powr\",\"count\":2}],\"home_guard_percent\":30,\"use_power\":null,\"power_target\":null,"
 				+ "\"chat\":\"Your air defence ends at the river. I noticed.\",\"memory\":\"P2 base NE, weak to air.\",\"offer_surrender\":false}");
 			sb.AppendLine("Rules: orders you give that are impossible (not buildable, no such player, power not ready) are rejected and reported back. "
 				+ "Keep enough harvesters and power. Build what counters what you've SEEN. Vary your plan as the game changes. "
@@ -321,6 +340,14 @@ namespace OpenRA.Mods.MyRA.Traits
 				}
 			}
 
+			// What it already has and what's being made, so build orders can be exact.
+			var mineB = world.Actors.Where(a => a.Owner == player && Alive(a) && a.Info.HasTraitInfo<BuildingInfo>()).ToList();
+			sb.AppendLine("Your buildings: " + string.Join(", ", mineB.GroupBy(a => a.Info.Name).OrderByDescending(g => g.Count()).Select(g => $"{g.Count()} {g.Key}")));
+			var queued = BotHelpers.Queues(player).SelectMany(q => q.AllQueued()).GroupBy(i => i.Item).Select(g => $"{g.Count()} {g.Key}").ToList();
+			sb.AppendLine("In production: " + (queued.Count > 0 ? string.Join(", ", queued) : "nothing"));
+			var pm = player.PlayerActor.TraitOrDefault<PowerManager>();
+			if (pm != null && pm.ExcessPower < 0)
+				sb.AppendLine($"POWER IS NEGATIVE ({pm.ExcessPower}): everything builds slowly and defences shut down. Order power plants (powr/apwr) now.");
 			sb.AppendLine($"Current posture: {general.Posture}.");
 			if (lastDecision.Length > 0)
 				sb.AppendLine("Your last orders: " + lastDecision);
@@ -461,7 +488,13 @@ namespace OpenRA.Mods.MyRA.Traits
 						if (!buildable.Contains(item))
 							rejections.Add($"can't build \"{item}\" now");
 						else
-							build.Add(new Dictionary<string, object> { ["item"] = item, ["count"] = Math.Clamp(count, 1, 30) });
+						{
+							// SkyNet says how many MORE; the commander wants how many to HAVE.
+							var isBuilding = world.Map.Rules.Actors[item].HasTraitInfo<BuildingInfo>();
+							var more = Math.Clamp(count, 1, isBuilding ? 3 : 10);
+							var have = world.Actors.Count(x => x.Owner == player && Alive(x) && x.Info.Name == item) + BotHelpers.Queued(player, item);
+							build.Add(new Dictionary<string, object> { ["item"] = item, ["count"] = have + more });
+						}
 					}
 
 				var power = Str("use_power");

@@ -66,6 +66,10 @@ namespace OpenRA.Mods.MyRA.Traits
 			if (IsTraitDisabled || ++ticks % Info.Interval != 0)
 				return;
 
+			// SkyNet decides how its money is spent.
+			if (player.PlayerActor.TraitsImplementing<AICommanderBotModule>().Any(m => m.DrivenBySkyNet))
+				return;
+
 			var cash = player.PlayerActor.Trait<PlayerResources>().GetCashAndResources();
 			if (cash < Info.RichCash)
 				return;
