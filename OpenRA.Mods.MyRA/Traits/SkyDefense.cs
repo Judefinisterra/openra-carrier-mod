@@ -67,6 +67,11 @@ namespace OpenRA.Mods.MyRA.Traits
 				if (self.IsDead || self.Disposed)
 					return;
 
+				// Launch effect: a flash on the station and a smoke column climbing to where the satellites appear.
+				w.Add(new SpriteEffect(self.CenterPosition, w, "explosion", "small_napalm", "effect"));
+				for (var z = 0; z <= info.LaunchAltitude.Length; z += 256)
+					w.Add(new SpriteEffect(self.CenterPosition + new WVec(0, 0, z), w, "smokey", "idle", "effect"));
+
 				// Spread the launch headings evenly round the compass from a random start.
 				var start = w.SharedRandom.Next(1024);
 				for (var i = 0; i < info.Count; i++)
@@ -290,6 +295,9 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		public bool Ready(Actor self) => !IsTraitDisabled && !IsTraitPaused && pool.HasAmmo && self.IsInWorld && !self.IsDead;
 
+		// Where the interceptor that fires next sits on the pad (front rail while both are loaded, then the back one).
+		public WPos LaunchPoint(Actor self) => self.CenterPosition + (pool.CurrentAmmoCount >= 2 ? new WVec(-367, -196, 0) : new WVec(128, -341, 0));
+
 		public void Spend(Actor self) { pool.TakeAmmo(self, 1); }
 	}
 
@@ -399,7 +407,7 @@ namespace OpenRA.Mods.MyRA.Traits
 
 				site.Trait.Spend(site.Actor);
 				engaged.Add(t.Effect);
-				var from = site.Actor.CenterPosition + site.Trait.Info.LaunchOffset;
+				var from = site.Trait.LaunchPoint(site.Actor);
 				var defender = site.Actor.Owner;
 				var chance = site.Trait.Info.HitChance;
 				Game.Sound.Play(SoundType.World, "missile1.aud", from);
@@ -463,9 +471,54 @@ namespace OpenRA.Mods.MyRA.Traits
 			world.AddFrameEndTask(w => { w.Remove(this); w.ScreenMap.Remove(this); });
 		}
 
+		// Launch sequence: ignition flash and a billowing cloud on the pad, a straight vertical climb on the booster,
+		// booster separation (it tumbles away), then the sustainer pitches over and homes on the missile.
+		const int BoostTicks = 16;
+
+		void Launch(World w)
+		{
+			var p = pos;
+			w.AddFrameEndTask(ww =>
+			{
+				ww.Add(new SpriteEffect(p, ww, "explosion", "small_napalm", "effect"));
+				for (var i = 0; i < 6; i++)
+				{
+					var a = new WAngle(i * 170 + 40);
+					var puff = p + new WVec(a.Sin() * 300 / 1024, a.Cos() * 200 / 1024, 0);
+					ww.Add(new SpriteEffect(puff, ww, "smokey", "idle", "effect"));
+				}
+			});
+		}
+
 		public void Tick(World w)
 		{
 			anim.Tick();
+			if (ticks == 0)
+				Launch(w);
+
+			if (ticks < BoostTicks)
+			{
+				// Booster burn: straight up, accelerating, a thick trail and a flame under the tail.
+				ticks++;
+				facing = WAngle.Zero;
+				pos += new WVec(0, 0, 40 + ticks * 14);
+				var p = pos;
+				w.AddFrameEndTask(ww =>
+				{
+					ww.Add(new SpriteEffect(p - new WVec(0, 0, 120), ww, "smokey", "idle", "effect"));
+					if (ticks % 3 == 0)
+						ww.Add(new SpriteEffect(p - new WVec(0, 0, 60), ww, "explosion", "piffs", "effect"));
+				});
+				if (ticks == BoostTicks)
+				{
+					w.AddFrameEndTask(ww => ww.Add(new SpriteEffect(p, ww, "explosion", "piff", "effect")));
+					w.AddFrameEndTask(ww => ww.Add(new FallingBooster(ww, p)));
+				}
+
+				w.ScreenMap.Update(this, pos, anim.Image);
+				return;
+			}
+
 			var dest = MissileDefenseManager.PositionOf(w, threat);
 			if (dest == null || ++ticks > 250)
 			{
@@ -496,6 +549,43 @@ namespace OpenRA.Mods.MyRA.Traits
 			}
 
 			w.ScreenMap.Update(this, pos, anim.Image);
+		}
+
+		public IEnumerable<IRenderable> Render(WorldRenderer wr) => anim.Render(pos, wr.Palette("effect"));
+	}
+
+	// The spent Nike booster: tumbles back down trailing smoke and puffs on the ground.
+	sealed class FallingBooster : IEffect
+	{
+		readonly Animation anim;
+		WPos pos;
+		WAngle facing;
+		int fall, ticks;
+
+		public FallingBooster(World world, WPos from)
+		{
+			pos = from;
+			anim = new Animation(world, "dragon", () => facing);
+			anim.PlayRepeating("idle");
+		}
+
+		public void Tick(World w)
+		{
+			ticks++;
+			facing = new WAngle(ticks * 96);
+			fall += 6;
+			pos += new WVec(18, 10, -fall);
+			if (ticks % 3 == 0)
+			{
+				var p = pos;
+				w.AddFrameEndTask(ww => ww.Add(new SpriteEffect(p, ww, "smokey", "idle", "effect")));
+			}
+
+			if (pos.Z <= 0 || ticks > 120)
+			{
+				var p = new WPos(pos.X, pos.Y, 0);
+				w.AddFrameEndTask(ww => { ww.Remove(this); ww.Add(new SpriteEffect(p, ww, "explosion", "piff", "effect")); });
+			}
 		}
 
 		public IEnumerable<IRenderable> Render(WorldRenderer wr) => anim.Render(pos, wr.Palette("effect"));

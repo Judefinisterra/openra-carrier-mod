@@ -77,7 +77,7 @@ namespace OpenRA.Mods.MyRA.Traits
 
 			var victim = nearest.Owner;
 			var armed = w.Actors
-				.Where(a => a.Owner == victim && !a.IsDead && a.IsInWorld && a.Info.HasTraitInfo<AttackBaseInfo>())
+				.Where(a => a.Owner == victim && !a.IsDead && a.IsInWorld && a.Info.HasTraitInfo<AttackBaseInfo>() && !PresidenteManager.IsProtected(a))
 				.ToList();
 			var army = Shuffled(w, armed.Where(a => a.Info.HasTraitInfo<IMoveInfo>()));
 			var defences = Shuffled(w, armed.Where(a => a.Info.HasTraitInfo<BuildingInfo>()));
@@ -104,6 +104,9 @@ namespace OpenRA.Mods.MyRA.Traits
 			}
 
 			wait = 1;
+			GameRecorder.Note(attacker, $"POLITICAL COUP in {victim.ResolvedPlayerName.Trim()}'s army: "
+				+ $"{turned.Count}/{army.Count} units ({string.Join(", ", turned.GroupBy(a => a.Info.Name).Select(g => $"{g.Count()} {g.Key}"))}) "
+				+ $"and {turnedDefences.Count}/{defences.Count} defences defect for {info.Duration / 25 / 60} min");
 			w.AddFrameEndTask(ww =>
 			{
 				if (ww.LocalPlayer == attacker)
@@ -161,6 +164,7 @@ namespace OpenRA.Mods.MyRA.Traits
 			if (restored > 0 && self.World.LocalPlayer != null)
 			{
 				var text = $"The coup in {restoredTo.ResolvedPlayerName}'s army has collapsed: {restored} defectors have gone back.";
+				GameRecorder.Note(restoredTo, text);
 				self.World.AddFrameEndTask(_ => TextNotificationsManager.AddSystemLine("Political Coup", text));
 			}
 

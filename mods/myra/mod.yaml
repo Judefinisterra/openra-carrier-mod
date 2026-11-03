@@ -151,6 +151,9 @@ Rules:
 	myra|rules/ai-shipyards.yaml
 	myra|rules/ai-general.yaml
 	myra|rules/pricing.yaml
+	myra|rules/northkorea.yaml
+	myra|rules/airbase.yaml
+	myra|rules/mothball.yaml
 
 Sequences:
 	ra|sequences/ships.yaml
@@ -188,6 +191,7 @@ Sequences:
 	myra|sequences/dozer.yaml
 	myra|sequences/irondome.yaml
 	myra|sequences/moses.yaml
+	myra|sequences/northkorea.yaml
 
 TileSets:
 	ra|tilesets/snow.yaml
@@ -296,6 +300,7 @@ Weapons:
 	myra|weapons/meganuke.yaml
 	myra|weapons/pager.yaml
 	myra|weapons/zombie.yaml
+	myra|weapons/northkorea.yaml
 
 Voices:
 	ra|audio/voices.yaml

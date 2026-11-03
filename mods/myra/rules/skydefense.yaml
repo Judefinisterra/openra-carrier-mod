@@ -44,9 +44,23 @@ NIKE:
 		Amount: -60
 	AmmoPool:
 		Ammo: 2
+		AmmoCondition: nikeammo
 	ReloadAmmoPool:
 		Delay: 1500
 		Count: 1
+	# The pad shows how many interceptors are loaded: two, one, or empty rails.
+	WithSpriteBody:
+		RequiresCondition: nikeammo >= 2
+	WithSpriteBody@one:
+		Name: one
+		Sequence: idle1
+		RequiresCondition: nikeammo == 1
+	WithSpriteBody@none:
+		Name: none
+		Sequence: idle0
+		RequiresCondition: !nikeammo
+	WithMakeAnimation:
+		BodyNames: body, one, none
 	WithAmmoPipsDecoration:
 		Position: BottomLeft
 		Margin: 4, 3

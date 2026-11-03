@@ -1,0 +1,34 @@
+# Ships as mobile airbases (MobileAirbase / DeckLander in OpenRA.Mods.MyRA/Traits/MobileAirbase.cs).
+# Select an aircraft and right-click a friendly ship to land on its deck. It sits there - riding along as the
+# ship sails - and is rearmed and repaired. Any other order lifts it off. If the ship sinks, what's parked on it
+# goes down with it.
+
+# Every helicopter (and the Harrier, a jump jet built on the helicopter base) can land on a deck.
+^Helicopter:
+	DeckLander:
+
+F14:
+	DeckLander:
+	-CarrierChild:
+
+# Aircraft Carrier: a floating airfield with 4 parking spots, for F-14s and Harriers only. No more planes
+# launching on their own: you fly your own planes onto it. Close-in anti-air missiles for self defence.
+CARRIER:
+	-CarrierParent:
+	-WithCarrierParkedPlanes:
+	Armament:
+		Weapon: StingerAA
+		LocalOffset: 0,0,300
+	MobileAirbase:
+		AircraftTypes: f14, harrier
+		Spots: 1363,210,0, 1071,-240,0, -974,-191,0, -1300,230,0
+		DeckHeight: 380
+
+# Littoral Combat Ship: a floating helipad with one pad on the stern. Comes with a Black Hawk parked on it.
+# Any helicopter, or a Harrier, can land there.
+LCS:
+	MobileAirbase:
+		AnyHelicopter: true
+		Spots: -700,0,0
+		DeckHeight: 220
+		InitialAircraft: mh60

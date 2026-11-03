@@ -1,0 +1,82 @@
+hwasong:
+	idle:
+		Filename: hwasong.png
+		Facings: 32
+		Offset: 0,-6
+	icon:
+		Filename: hwasong-icon.png
+
+hwasong-missile:
+	idle:
+		Filename: hwasong-missile.png
+		Facings: 32
+		ZOffset: 1023
+
+artsite:
+	Defaults:
+		Filename: artsite.png
+		Offset: 0,-8
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: artsite-icon.png
+		Offset: 0,0
+
+nktunnel:
+	Defaults:
+		Filename: nktunnel.png
+		Offset: 0,-8
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: nktunnel-icon.png
+		Offset: 0,0
+
+tunnelexit:
+	Defaults:
+		Filename: tunnelexit.png
+		Offset: 0,-4
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+
+juche:
+	Defaults:
+		Filename: juche.png
+		Offset: 0,-16
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: juche-icon.png
+		Offset: 0,0
+
+an2:
+	idle:
+		Filename: an2.png
+		Facings: 32
+	icon:
+		Filename: an2-icon.png
+
+trashballoon:
+	idle:
+		Filename: trashballoon.png
+		ZOffset: 1023

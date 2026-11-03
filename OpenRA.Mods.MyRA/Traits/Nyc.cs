@@ -668,7 +668,7 @@ namespace OpenRA.Mods.MyRA.Traits
 					break;
 
 				default:
-					if (!order.Queued && order.OrderString is "Stop" or "ReturnToBase" or "Enter" or "ForceEnter" or "Land" or "Repair" or "Guard" or "AttackMove" or "AssaultMove")
+					if (!order.Queued && order.OrderString is "Stop" or "ReturnToBase" or "Enter" or "ForceEnter" or "Land" or "Repair" or "Guard" or "AttackMove" or "AssaultMove" or "LandOnDeck")
 						center = null;
 
 					break;

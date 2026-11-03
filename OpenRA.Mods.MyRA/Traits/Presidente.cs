@@ -50,7 +50,7 @@ namespace OpenRA.Mods.MyRA.Traits
 
 	public class PresidenteManager : ITick, INotifyCreated, IRenderAnnotations
 	{
-		readonly PresidenteManagerInfo info;
+		internal readonly PresidenteManagerInfo info;
 		readonly Dictionary<Player, int> objectives = [];
 		public readonly Dictionary<Player, Actor> Presidents = [];
 		public bool Enabled { get; private set; }
@@ -104,8 +104,9 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		public void Died(Actor pres)
 		{
-			var p = pres.Owner;
-			if (!Presidents.TryGetValue(p, out var known) || known != pres)
+			// He always belongs to the side he started with, even if something (a coup, a capture) changed his owner.
+			var p = Presidents.FirstOrDefault(kv => kv.Value == pres).Key;
+			if (p == null)
 				return;
 
 			Presidents.Remove(p);
@@ -113,6 +114,20 @@ namespace OpenRA.Mods.MyRA.Traits
 			var mo = p.PlayerActor.TraitOrDefault<MissionObjectives>();
 			if (mo != null && objectives.TryGetValue(p, out var id))
 				p.World.AddFrameEndTask(_ => mo.MarkFailed(p, id));
+		}
+
+		/// <summary>El Presidente, a bodyguard, his limo, or anything carrying one of them: never defects or changes side.</summary>
+		public static bool IsProtected(Actor a)
+		{
+			if (a == null)
+				return false;
+			if (a.Info.HasTraitInfo<PresidenteInfo>() || a.Info.HasTraitInfo<BodyguardInfo>())
+				return true;
+			var mgr = a.World.WorldActor.TraitOrDefault<PresidenteManager>();
+			if (mgr != null && mgr.Enabled && a.Info.Name == mgr.info.Limo)
+				return true;
+			var cargo = a.TraitOrDefault<Cargo>();
+			return cargo != null && cargo.Passengers.Any(IsProtected);
 		}
 
 		/// <summary>The actor El Presidente is riding in, if any.</summary>

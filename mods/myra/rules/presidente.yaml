@@ -63,9 +63,9 @@ BODYGUARD:
 	Health:
 		HP: 7500
 	Armament@PRIMARY:
-		Weapon: BodyguardSMG
+		Weapon: BodyguardColt
 	Armament@GARRISONED:
-		Weapon: BodyguardSMG
+		Weapon: BodyguardColt
 	Bodyguard:
 	AutoTarget:
 		InitialStanceAI: Defend
