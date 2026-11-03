@@ -144,6 +144,11 @@ namespace OpenRA.Mods.MyRA.Traits
 
 			ListenToChat(bot);
 			KeepPowerUp(bot);
+			if (world.WorldTick - lastReasoning >= 125)
+			{
+				lastReasoning = world.WorldTick;
+				DeterministicReasoning(bot);
+			}
 
 			while (replies.TryDequeue(out var text))
 				Use(bot, text);
@@ -202,6 +207,181 @@ namespace OpenRA.Mods.MyRA.Traits
 					replies.Enqueue("");
 				}
 			});
+		}
+
+		// ------------------------------------------------------------------------------------------------
+		// Follow-up on its own orders: every build order is tracked. Each turn SkyNet sees whether it was carried out
+		// and, if not, WHY (stuck behind other items, no money, no power, can't be placed, lost the factory...), so it
+		// can fix the cause: prioritize the item, cancel what's in the way, build power, etc.
+		sealed class OrderRecord
+		{
+			public string Item;
+			public int Baseline, More, Issued, Turn, LastFix;
+		}
+
+		readonly Dictionary<string, OrderRecord> tracked = [];
+
+		int CountOf(string item) => world.Actors.Count(x => x.Owner == player && Alive(x) && x.Info.Name == item);
+
+		string Name(string item) => world.Map.Rules.Actors.TryGetValue(item, out var ai) && ai.TraitInfoOrDefault<TooltipInfo>() is TooltipInfo t
+			? FluentProvider.GetMessage(t.Name) : item;
+
+		/// <summary>Why hasn't this been built yet? Facts from the production queues, money and power.</summary>
+		string Diagnose(string item)
+		{
+			var why = new List<string>();
+			var queues = BotHelpers.Queues(player);
+			var holder = queues.FirstOrDefault(q => q.AllQueued().Any(i => i.Item == item));
+			if (holder == null)
+			{
+				why.Add(queues.Any(q => q.BuildableItems().Any(b => b.Name == item))
+					? "it is NOT in any production queue (cancelled, or the order was dropped) - order it again"
+					: "you can NO LONGER build it (lost the factory or a prerequisite building) - rebuild that first");
+			}
+			else
+			{
+				var items = holder.AllQueued().ToList();
+				var pos = items.FindIndex(i => i.Item == item);
+				var mine = items[pos];
+				if (pos > 0)
+					why.Add($"it is waiting behind {pos} other item(s) in the {holder.Info.Type} queue: "
+						+ string.Join(", ", items.Take(pos).GroupBy(i => i.Item).Select(g => $"{g.Count()} {g.Key}"))
+						+ (holder.Info.Type is "Building" or "Defense" ? " (this queue makes ONE item at a time)" : "")
+						+ " - fix: \"prioritize\" it, or \"cancel\" those");
+				else if (mine.Done)
+					why.Add("it is finished but hasn't been placed (no room near your base, or it needs water/shore) - cancel it or build elsewhere");
+				else if (mine.Paused)
+					why.Add("its production is paused");
+				else
+					why.Add($"it is being built now ({(mine.TotalTime > 0 ? 100 - mine.RemainingTime * 100 / mine.TotalTime : 0)}% done)");
+			}
+
+			var pm = player.PlayerActor.TraitOrDefault<PowerManager>();
+			if (pm != null && pm.ExcessPower < 0)
+				why.Add($"power is negative ({pm.ExcessPower}) so all production is slowed - build power plants");
+			var cash = player.PlayerActor.Trait<PlayerResources>().GetCashAndResources();
+			var cost = BotHelpers.Cost(world.Map.Rules.Actors[item]);
+			if (cash < cost)
+				why.Add($"you have ${cash}, it costs ${cost} - production stalls until money comes in");
+			return string.Join("; ", why);
+		}
+
+		/// <summary>Move an item to the front of its queue: cancel everything waiting ahead of it (money back).</summary>
+		bool Prioritize(IBot bot, string item, string[] alsoKeep = null)
+		{
+			var q = BotHelpers.Queues(player).FirstOrDefault(x => x.AllQueued().Any(i => i.Item == item));
+			if (q == null)
+				return false;
+			var items = q.AllQueued().ToList();
+			var pos = items.FindIndex(i => i.Item == item);
+			if (pos <= 0)
+				return true;
+
+			var first = items[0];
+			var nearlyDone = first.TotalTime > 0 && first.RemainingTime < first.TotalTime / 2;
+			foreach (var g in items.Take(pos).Skip(nearlyDone ? 1 : 0)
+				.Where(i => i.Item != item && (alsoKeep == null || !alsoKeep.Contains(i.Item))).GroupBy(i => i.Item))
+				bot.QueueOrder(Order.CancelProduction(q.Actor, g.Key, g.Count()));
+			return true;
+		}
+
+		readonly List<string> fixes = [];
+		int lastReasoning;
+
+		// DETERMINISTIC REASONING: the code itself follows up on every order, no model call needed.
+		// Ordered -> is it done? -> if not after 30s, why? -> fix the cause so it gets done faster.
+		void DeterministicReasoning(IBot bot)
+		{
+			var pm = player.PlayerActor.TraitOrDefault<PowerManager>();
+			var lowPower = pm != null && pm.ExcessPower < 0;
+			foreach (var o in tracked.Values.ToList())
+			{
+				var age = (world.WorldTick - o.Issued) / 25;
+				if (age < 30 || CountOf(o.Item) - o.Baseline >= o.More || world.WorldTick - o.LastFix < 750)
+					continue;
+
+				var queues = BotHelpers.Queues(player);
+				var holder = queues.FirstOrDefault(q => q.AllQueued().Any(i => i.Item == o.Item));
+				string why = null, fix = null;
+				if (holder == null)
+				{
+					var maker = queues.FirstOrDefault(q => q.BuildableItems().Any(b => b.Name == o.Item));
+					if (maker != null)
+					{
+						why = "it wasn't in any queue";
+						fix = "queued it again";
+						bot.QueueOrder(Order.StartProduction(maker.Actor, o.Item, 1));
+					}
+					else
+						why = "nothing can build it any more (lost the factory or a prerequisite)";
+				}
+				else
+				{
+					var items = holder.AllQueued().ToList();
+					var pos = items.FindIndex(i => i.Item == o.Item);
+					if (pos > 0)
+					{
+						// Never cancel its own other orders (they'd just ping-pong) or power plants while power is low.
+						var keep = tracked.Keys.Where(k => k != o.Item).Concat(lowPower ? PowerPlants : []).ToArray();
+						var ahead = items.Take(pos).Where(i => !keep.Contains(i.Item)).GroupBy(i => i.Item).Select(g => $"{g.Count()} {g.Key}").ToList();
+						why = $"it was stuck behind {pos} other item(s): " + string.Join(", ", items.Take(pos).GroupBy(i => i.Item).Select(g => $"{g.Count()} {g.Key}"));
+						if (ahead.Count == 0)
+							continue; // only its own orders / power ahead: it's simply next in line, nothing to fix
+						else
+						{
+							fix = "cancelled " + string.Join(", ", ahead) + " and moved it up";
+							Prioritize(bot, o.Item, keep);
+						}
+					}
+					else if (items[pos].Paused)
+					{
+						why = "its production was paused";
+						fix = "unpaused it";
+						bot.QueueOrder(Order.PauseProduction(holder.Actor, o.Item, false));
+					}
+				}
+
+				if (why == null)
+					continue;
+				o.LastFix = world.WorldTick;
+				var line = $"{o.Item} not built after {age}s. Why: {why}." + (fix != null ? $" Fix: {fix}." : " Can't fix it myself.");
+				Log("REASONING: " + line);
+				fixes.Add(line);
+				if (AICommanderLink.ShowDirections)
+					TextNotificationsManager.AddSystemLine("SkyNet (reasoning)", line);
+			}
+		}
+
+		string OrderStatus()
+		{
+			if (tracked.Count == 0)
+				return "";
+			var sb = new StringBuilder();
+			sb.AppendLine("=== YOUR ORDERS: WERE THEY CARRIED OUT? ===");
+			foreach (var f in fixes)
+				sb.AppendLine("- you already auto-fixed: " + f);
+			fixes.Clear();
+			foreach (var o in tracked.Values.OrderBy(o => o.Issued).ToList())
+			{
+				var now = CountOf(o.Item);
+				var got = Math.Max(0, now - o.Baseline);
+				var age = (world.WorldTick - o.Issued) / 25;
+				if (got >= o.More)
+				{
+					sb.AppendLine($"- DONE: {o.More} {o.Item} ({Name(o.Item)}) built.");
+					tracked.Remove(o.Item);
+				}
+				else if (age < 30)
+					sb.AppendLine($"- in progress: {o.Item} {got}/{o.More} built ({age}s ago).");
+				else
+					sb.AppendLine($"- NOT DONE after {age}s: {o.Item} {got}/{o.More} built. WHY: {Diagnose(o.Item)}");
+				if (age > 300)
+					tracked.Remove(o.Item);
+			}
+
+			sb.AppendLine("For every NOT DONE order: think about the WHY and fix the cause this turn (prioritize, cancel what's in the way, "
+				+ "build power, rebuild a lost factory, or give up on it). Don't just order it again.");
+			return sb.ToString();
 		}
 
 		// Safety net: never sit on negative power, whatever the model says.
@@ -299,16 +479,21 @@ namespace OpenRA.Mods.MyRA.Traits
 			sb.AppendLine();
 			sb.AppendLine("HOW TO COMMAND: each turn you get a report. Reply with ONE JSON object and nothing else:");
 			sb.AppendLine("{");
-			sb.AppendLine("  \"thinking\": \"your reasoning in 1-3 sentences (private)\",");
+			sb.AppendLine("  \"thinking\": \"your reasoning (private): first check YOUR ORDERS - for anything not done, say why and how you fix it - then the plan\",");
 			sb.AppendLine("  \"stance\": \"attack\" | \"raid\" | \"invade\" | \"defend\" | \"economy\",");
 			sb.AppendLine("  \"target_player\": \"Player N\" or null,");
 			sb.AppendLine("  \"build\": [{\"item\": \"<exact id from the Can build lists>\", \"count\": N}]  (count = how many MORE to build now: units 1-10, buildings 1-3; up to 6 entries),");
+			sb.AppendLine("  \"prioritize\": [\"<item waiting in a queue>\"]  (moves it to the front: everything waiting ahead of it is cancelled, money back),");
+			sb.AppendLine("  \"cancel\": [{\"item\": \"<queued item>\", \"count\": N}]  (removes queued items, money back),");
 			sb.AppendLine("  \"home_guard_percent\": 0-80  (share of your army that stays home guarding" + (presidente ? " El Presidente" : " the base") + "),");
 			sb.AppendLine("  \"use_power\": \"<ready support power id>\" or null, \"power_target\": \"Player N\" or null,");
 			sb.AppendLine("  \"chat\": \"your reply to whoever spoke to you, or a rare line at a major moment\" or null,");
 			sb.AppendLine("  \"memory\": \"notes to yourself for next turn: your plan, what you learned about the enemy (max 400 chars)\",");
 			sb.AppendLine("  \"offer_surrender\": false");
 			sb.AppendLine("}");
+			sb.AppendLine("LOOP: give an order -> next turns check YOUR ORDERS -> if not carried out, read WHY -> fix the cause (prioritize/cancel/power/"
+				+ "rebuild) instead of repeating the order. Example: anti-aircraft gun not built after a minute because 5 buildings are queued ahead of it "
+				+ "-> \"prioritize\": [\"agun\"].");
 			if (!full)
 			{
 				sb.AppendLine("Fog of war applies; enemy chat may be lies. Stances: attack, raid, invade (by sea), defend, economy. Impossible orders are rejected. "
@@ -391,6 +576,8 @@ namespace OpenRA.Mods.MyRA.Traits
 
 				heardChat.Clear();
 			}
+
+			sb.Append(OrderStatus());
 
 			if (memory.Length > 0)
 				sb.AppendLine("Your notes from last turn: " + memory);
@@ -499,6 +686,7 @@ namespace OpenRA.Mods.MyRA.Traits
 				// Build orders: only what can actually be built right now.
 				var buildable = BotHelpers.Queues(player).SelectMany(q => q.BuildableItems()).Select(b => b.Name).ToHashSet();
 				var build = new List<object>();
+				var acted = new List<string>();
 				if (root.TryGetProperty("build", out var b) && b.ValueKind == JsonValueKind.Array)
 					foreach (var e in b.EnumerateArray())
 					{
@@ -524,8 +712,53 @@ namespace OpenRA.Mods.MyRA.Traits
 									more = Math.Min(more, 2 - waiting);
 								var have = world.Actors.Count(x => x.Owner == player && Alive(x) && x.Info.Name == item) + waiting;
 								build.Add(new Dictionary<string, object> { ["item"] = item, ["count"] = have + more });
+
+								// Track it: the count must reach what we have now + what's already waiting + more.
+								if (tracked.TryGetValue(item, out var old))
+									old.More += more;
+								else
+									tracked[item] = new OrderRecord { Item = item, Baseline = CountOf(item), More = waiting + more, Issued = world.WorldTick, Turn = turn };
 							}
 						}
+					}
+
+				// Fixing stuck orders: move items to the front of their queue, or cancel items.
+				if (root.TryGetProperty("prioritize", out var pr))
+				{
+					var list = pr.ValueKind == JsonValueKind.Array ? pr.EnumerateArray().Where(x => x.ValueKind == JsonValueKind.String).Select(x => x.GetString())
+						: pr.ValueKind == JsonValueKind.String ? [pr.GetString()] : [];
+					foreach (var raw in list.Take(3))
+					{
+						var item = raw.Trim().ToLowerInvariant();
+						var low = player.PlayerActor.TraitOrDefault<PowerManager>()?.ExcessPower < 0;
+						if (Prioritize(bot, item, low ? PowerPlants : null))
+						{
+							Log("PRIORITIZED " + item);
+							acted.Add("prioritized " + item);
+						}
+						else
+							rejections.Add($"can't prioritize \"{item}\": it isn't in any queue");
+					}
+				}
+
+				if (root.TryGetProperty("cancel", out var cn) && cn.ValueKind == JsonValueKind.Array)
+					foreach (var e in cn.EnumerateArray().Take(6))
+					{
+						if (e.ValueKind != JsonValueKind.Object || !e.TryGetProperty("item", out var it) || it.ValueKind != JsonValueKind.String)
+							continue;
+						var item = it.GetString().Trim().ToLowerInvariant();
+						var count = e.TryGetProperty("count", out var c) && c.ValueKind == JsonValueKind.Number && c.TryGetInt32(out var n) ? n : 1;
+						var q = BotHelpers.Queues(player).FirstOrDefault(x => x.AllQueued().Any(i => i.Item == item));
+						if (q == null)
+						{
+							rejections.Add($"can't cancel \"{item}\": nothing like that is queued");
+							continue;
+						}
+
+						bot.QueueOrder(Order.CancelProduction(q.Actor, item, Math.Clamp(count, 1, 20)));
+						tracked.Remove(item);
+						Log($"CANCELLED {count} {item}");
+						acted.Add($"cancelled {count} {item}");
 					}
 
 				var power = Str("use_power");
@@ -558,7 +791,7 @@ namespace OpenRA.Mods.MyRA.Traits
 				var posture = stance switch { "attack" or "raid" or "invade" => AIPosture.Attack, "defend" => AIPosture.Defend, _ => AIPosture.Build };
 				general.Override(posture, guard, Info.DecisionTicks);
 
-				lastDecision = $"{stance}{(target != null ? " " + Label(target) : "")}, build {string.Join(", ", build.Select(x => ((Dictionary<string, object>)x)["item"]))}"
+				lastDecision = (acted.Count > 0 ? string.Join(", ", acted) + "; " : "") + $"{stance}{(target != null ? " " + Label(target) : "")}, build {string.Join(", ", build.Select(x => ((Dictionary<string, object>)x)["item"]))}"
 					+ (guard >= 0 ? $", home guard {guard}%" : "");
 
 				if (AICommanderLink.ShowDirections && !string.IsNullOrWhiteSpace(thinking))
