@@ -207,11 +207,31 @@ namespace OpenRA.Mods.MyRA.Traits
 		// Safety net: never sit on negative power, whatever the model says.
 		int lastPowerOrder = -10000;
 
+		static readonly string[] PowerPlants = ["apwr", "powr"];
+
 		void KeepPowerUp(IBot bot)
 		{
 			var pm = player.PlayerActor.TraitOrDefault<PowerManager>();
-			if (pm == null || pm.ExcessPower >= 0 || world.WorldTick - lastPowerOrder < 250)
+			if (pm == null || pm.ExcessPower >= 0 || world.WorldTick - lastPowerOrder < 100)
 				return;
+
+			// Buildings are made one at a time, and with no power each one crawls. Power plants waiting behind other
+			// buildings jump the queue: everything else still waiting is cancelled (money back) and can be ordered again.
+			foreach (var q in BotHelpers.Queues(player).Where(q => q.Info.Type == "Building"))
+			{
+				var items = q.AllQueued().ToList();
+				if (items.Count < 2 || !items.Any(i => PowerPlants.Contains(i.Item)) || PowerPlants.Contains(items[0].Item))
+					continue;
+
+				var first = items[0];
+				var started = first.TotalTime > 0 && first.RemainingTime < first.TotalTime / 2;
+				foreach (var g in items.Skip(started ? 1 : 0).Where(i => !PowerPlants.Contains(i.Item)).GroupBy(i => i.Item))
+					bot.QueueOrder(Order.CancelProduction(q.Actor, g.Key, g.Count()));
+				lastPowerOrder = world.WorldTick;
+				Log($"power {pm.ExcessPower}: moved power plants to the front of the building queue");
+				return;
+			}
+
 			if (BotHelpers.Queued(player, "apwr") + BotHelpers.Queued(player, "powr") > 0)
 				return;
 			var plant = new[] { "apwr", "powr" }.FirstOrDefault(t => BotHelpers.CanBuild(player, t));
@@ -347,7 +367,8 @@ namespace OpenRA.Mods.MyRA.Traits
 			sb.AppendLine("In production: " + (queued.Count > 0 ? string.Join(", ", queued) : "nothing"));
 			var pm = player.PlayerActor.TraitOrDefault<PowerManager>();
 			if (pm != null && pm.ExcessPower < 0)
-				sb.AppendLine($"POWER IS NEGATIVE ({pm.ExcessPower}): everything builds slowly and defences shut down. Order power plants (powr/apwr) now.");
+				sb.AppendLine($"POWER IS NEGATIVE ({pm.ExcessPower}): everything builds slowly and defences shut down. Order power plants (powr/apwr) now "
+					+ "and nothing else in the Building list until power is positive - buildings are made one at a time.");
 			sb.AppendLine($"Current posture: {general.Posture}.");
 			if (lastDecision.Length > 0)
 				sb.AppendLine("Your last orders: " + lastDecision);
@@ -492,8 +513,18 @@ namespace OpenRA.Mods.MyRA.Traits
 							// SkyNet says how many MORE; the commander wants how many to HAVE.
 							var isBuilding = world.Map.Rules.Actors[item].HasTraitInfo<BuildingInfo>();
 							var more = Math.Clamp(count, 1, isBuilding ? 3 : 10);
-							var have = world.Actors.Count(x => x.Owner == player && Alive(x) && x.Info.Name == item) + BotHelpers.Queued(player, item);
-							build.Add(new Dictionary<string, object> { ["item"] = item, ["count"] = have + more });
+							var waiting = BotHelpers.Queued(player, item);
+
+							// Buildings are made one at a time: don't pile up a long backlog of the same one.
+							if (isBuilding && waiting >= 2)
+								rejections.Add($"{item}: {waiting} already waiting to be built");
+							else
+							{
+								if (isBuilding)
+									more = Math.Min(more, 2 - waiting);
+								var have = world.Actors.Count(x => x.Owner == player && Alive(x) && x.Info.Name == item) + waiting;
+								build.Add(new Dictionary<string, object> { ["item"] = item, ["count"] = have + more });
+							}
 						}
 					}
 
