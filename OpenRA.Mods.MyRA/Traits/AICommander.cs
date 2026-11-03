@@ -587,7 +587,7 @@ namespace OpenRA.Mods.MyRA.Traits
 			{
 				"france" => Allied + " France can build fake buildings to mislead the enemy.",
 				"england" or "germany" or "allies" => Allied,
-				"israel" => Allied + " Israel's Radar Dome has the Pager Attack: every enemy infantryman explodes at once.",
+				"israel" => Allied + " Israel's Radar Dome has the Pager Attack: every enemy infantryman explodes at once. Its Iron Dome battery shoots down incoming missiles, shells, bombs and half of all nukes. Its Moses (one only) parts the sea: a strip of dry land across water that lasts while he lives.",
 				"russia" => Soviet + " Russia gets Shock Troopers early.",
 				"ukraine" => Soviet + " Ukraine can drop Parabombs from the air.",
 				"soviet" => Soviet,

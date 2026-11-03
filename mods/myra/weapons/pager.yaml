@@ -1,0 +1,16 @@
+# Pager Attack blast: each exploding pager damages buildings and vehicles close by.
+PagerBlast:
+	Inherits: ^Explosion
+	Warhead@1Dam: SpreadDamage
+		Spread: 512
+		Damage: 9000
+		ValidRelationships: Enemy, Neutral
+		Versus:
+			None: 40
+			Wood: 100
+			Light: 100
+			Heavy: 60
+			Concrete: 70
+	Warhead@2Eff: CreateEffect
+		Explosions: med_explosion
+		ImpactSounds: kaboom25.aud

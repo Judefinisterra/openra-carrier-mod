@@ -43,6 +43,7 @@ carrier planes are never selected.
 | `move` | units, `cell` | move without stopping to fight |
 | `attack` | units, `target` (enemy id) | attack one enemy |
 | `attack_ground` | units, `cell` | force-fire at a spot; sends a Drone Swarm (`dswarm`) that way |
+| `part_sea` | units (Moses), `cell` | Moses walks to the shore and parts the water toward the cell |
 | `stop` | units | stop |
 | `deploy` | units (MCV) | unpack an MCV into a construction yard |
 | `build` | `type`, `count` | queue production (`type` from `production[].buildable`) |

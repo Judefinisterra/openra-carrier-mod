@@ -1,0 +1,38 @@
+# Moses (Israel): a one-of-a-kind infantry unit with no weapon. Right-click water with him selected: he walks to the
+# shore and parts the sea, opening a three-cell-wide strip of dry seabed to the far shore. Land units can cross it;
+# ships and submarines can't. It stays open while he lives; when he dies (or parts the sea somewhere else) the
+# water crashes back and anything still on the seabed drowns.
+MOSES:
+	Inherits: ^CivInfantry
+	-Wanders:
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: Soldier
+		BuildPaletteOrder: 95
+		BuildLimit: 1
+		Prerequisites: ~tent, atek, structures.israel, ~techlevel.high
+		Description: actor-moses.description
+	Valued:
+		Cost: 1500
+	Tooltip:
+		Name: actor-moses.name
+		GenericVisibility: Enemy
+	Selectable:
+		Class: moses
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 20000
+	Mobile:
+		Speed: 56
+	RevealsShroud:
+		Range: 6c0
+	Passenger:
+		CustomPipType: blue
+	Voiced:
+		VoiceSet: EinsteinVoice
+	PartsTheSea:
+	RenderSprites:
+		Image: moses
+	MapEditorData:
+		Categories: Infantry

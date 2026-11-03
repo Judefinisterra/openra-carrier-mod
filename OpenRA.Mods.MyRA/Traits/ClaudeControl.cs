@@ -433,6 +433,17 @@ namespace OpenRA.Mods.MyRA.Traits
 					return Issued(units);
 				}
 
+				case "part_sea":
+				{
+					// Moses: walk to the shore and part the water toward a cell.
+					var target = Target.FromCell(world, GetCell(cmd));
+					var units = SelectUnits(cmd).Where(a => a.Info.HasTraitInfo<PartsTheSeaInfo>()).ToList();
+					foreach (var a in units)
+						world.IssueOrder(new Order(PartsTheSea.OrderID, a, target, queued));
+
+					return Issued(units);
+				}
+
 				case "stop":
 				{
 					var units = SelectUnits(cmd).ToList();

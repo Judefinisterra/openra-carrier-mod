@@ -1,6 +1,7 @@
 # Zombie Apocalypse: a superweapon, like the nuke. Build the Zombie Lab (Defense tab, needs a Tech Center, one
 # per player). When it has charged, click its icon: every infantryman who has died this game, on any side,
-# climbs out of his grave where he fell as a zombie and goes for the nearest living unit. Zombies belong to the
+# climbs out of his grave where he fell as a zombie and goes for the nearest living unit. Whoever a zombie kills
+# gets back up as a zombie too, so they spread. Zombies belong to the
 # hostile Creeps player, so they attack everyone - including you. (Zombies.cs)
 World:
 	ZombieGraveyard:
@@ -66,6 +67,17 @@ RISEN:
 	-LeavesGrave:
 	RenderSprites:
 		Image: zombie
+	# Far tougher than a soldier, quicker than Red Alert's shambler, and the claws go through armour and walls. Anyone
+	# they kill gets back up as one of them (ZombieGraveyard.InfectTicks).
 	Health:
-		HP: 15000
+		HP: 60000
+	Mobile:
+		Speed: 60
+	Armament:
+		Weapon: ZombieClaw
+	ChangesHealth:
+		Step: 500
+		Delay: 25
+		StartIfBelow: 100
+		DamageCooldown: 75
 	ZombieBrain:

@@ -1,0 +1,27 @@
+# Political Coup: a support power on the Tech Center (every side). When ready, click near an enemy's base: a
+# third of that player's armed units and half of their defences (turrets, Tesla coils, SAM sites) defect to you for
+# five minutes. The units attack their old side's most valuable buildings and units. Recharges every 10 minutes.
+^PoliticalCoupPower:
+	PoliticalCoupPower@coup:
+		OrderName: PoliticalCoup
+		Icon: coup
+		ChargeInterval: 15000
+		DefectPercent: 33
+		DefencePercent: 50
+		Duration: 7500
+		Name: actor-coup.name
+		Description: actor-coup.description
+		LaunchSound: coupdrums.wav
+		IncomingSound: coupdrums.wav
+		SelectTargetSpeechNotification: SelectTarget
+		SelectTargetTextNotification: notification-select-target
+		EndChargeTextNotification: notification-coup-ready
+		Cursor: ability
+		DisplayRadarPing: true
+		SupportPowerPaletteOrder: 60
+
+ATEK:
+	Inherits@COUP: ^PoliticalCoupPower
+
+STEK:
+	Inherits@COUP: ^PoliticalCoupPower

@@ -719,7 +719,8 @@ faction-israel =
 actor-pager =
     .name = Pager Attack
     .description = Every enemy infantryman's pager goes off at once.
-     A second later, they all explode. No target needed.
+     A second later, they all explode, damaging buildings and
+     vehicles next to them. No target needed.
 
 notification-pager-ready = Pager Attack ready.
 
@@ -745,3 +746,28 @@ actor-pirate =
     A galleon flying the Jolly Roger. Fires cannon
     broadsides from both sides at once.
       Strong vs Ships, Infantry, Buildings near the shore
+
+## Political Coup
+actor-coup =
+    .name = Political Coup
+    .description = Click near an enemy's base. For five minutes, a third
+     of that player's armed units and half of their turrets and SAM
+     sites switch to your side and attack their old base.
+
+notification-coup-ready = Political Coup ready.
+
+## Iron Dome
+actor-idome =
+    .name = Iron Dome
+    .description = Missile-defence battery. Fires interceptors at every
+     enemy missile, shell, bomb and nuke coming down within 20 cells.
+     Shoots down 50% of nukes. Needs power.
+      Strong vs Missiles, Artillery, Bombs, Nukes
+
+## Moses
+actor-moses =
+    .name = Moses
+    .description = Parts the sea. Right-click any water: he walks to the
+     shore and opens a strip of dry land to the far side. Land units can
+     cross; ships can't. It stays open while he lives. No weapon.
+      Unique: only one at a time

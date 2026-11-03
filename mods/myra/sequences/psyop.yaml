@@ -11,3 +11,5 @@ icon:
 		Filename: pager-icon.png
 	zombies:
 		Filename: zombies-icon.png
+	coup:
+		Filename: coup-icon.png

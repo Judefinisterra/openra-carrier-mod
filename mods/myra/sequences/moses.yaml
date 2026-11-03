@@ -1,0 +1,38 @@
+# Moses uses Red Alert's Einstein sprite (white-haired old man) with his own sidebar icon.
+moses:
+	Inherits: einstein
+	icon:
+		Filename: moses-icon.png
+
+# The parted sea: dry seabed, the walls of water either side (raised surface, the face seen across
+# the crossing, the back slope, the foam along the crest) and the white water when
+# it closes.
+seapath:
+	seabed:
+		Filename: seabed.png
+		Length: *
+	top:
+		Filename: seatop.png
+		Length: *
+	wall:
+		Filename: seawall.png
+		Length: *
+	wall-outer:
+		Filename: seawall-low.png
+		Length: *
+	lip:
+		Filename: sealip.png
+		Length: *
+	lip-e:
+		Filename: sealip-e.png
+		Length: *
+	lip-w:
+		Filename: sealip-w.png
+		Length: *
+	shade-e:
+		Filename: seashade-e.png
+	shade-w:
+		Filename: seashade-w.png
+	foam:
+		Filename: seafoam.png
+		Length: *

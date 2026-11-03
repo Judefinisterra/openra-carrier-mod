@@ -11,7 +11,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using OpenRA.Mods.Common.Effects;
+using OpenRA.GameRules;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Primitives;
 using OpenRA.Traits;
@@ -20,7 +20,7 @@ namespace OpenRA.Mods.MyRA.Traits
 {
 	// ================================================================================================
 	// Pager Attack (Israel): no target needed. Every enemy infantryman's pager beeps, and over the next couple of
-	// seconds each one blows up where he stands.
+	// seconds each one blows up where he stands, damaging buildings and vehicles close by.
 	// ================================================================================================
 	[Desc("Instant support power: every enemy infantry unit on the map explodes.")]
 	public class PagerAttackPowerInfo : SupportPowerInfo
@@ -36,15 +36,9 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		public readonly BitSet<DamageType> DamageTypes = new("ExplosionDeath");
 
-		public readonly string ExplosionImage = "explosion";
-
-		[SequenceReference(nameof(ExplosionImage))]
-		public readonly string ExplosionSequence = "small_explosion";
-
-		[PaletteReference]
-		public readonly string ExplosionPalette = "effect";
-
-		public readonly string ExplosionSound = "kaboom25.aud";
+		[WeaponReference]
+		[Desc("The blast at each victim: its damage to whatever is nearby, explosion and sound.")]
+		public readonly string Weapon = "PagerBlast";
 
 		public override object Create(ActorInitializer init) { return new PagerAttackPower(init.Self, this); }
 	}
@@ -106,10 +100,10 @@ namespace OpenRA.Mods.MyRA.Traits
 					continue;
 
 				var pos = victim.CenterPosition;
-				var w = self.World;
-				w.AddFrameEndTask(ww => ww.Add(new SpriteEffect(pos, ww, info.ExplosionImage, info.ExplosionSequence, info.ExplosionPalette)));
-				Game.Sound.Play(SoundType.World, info.ExplosionSound, pos);
 				victim.Kill(self, info.DamageTypes);
+				var weapon = self.World.Map.Rules.Weapons[info.Weapon.ToLowerInvariant()];
+				var target = Target.FromPos(pos);
+				weapon.Impact(target, new WarheadArgs { Weapon = weapon, Source = pos, SourceActor = self, WeaponTarget = target });
 			}
 		}
 	}

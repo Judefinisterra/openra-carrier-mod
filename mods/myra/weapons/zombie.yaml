@@ -1,0 +1,12 @@
+# A risen zombie's claws: much harder than Red Alert's own, and they tear into vehicles and buildings too.
+ZombieClaw:
+	Inherits: Claw
+	ReloadDelay: 18
+	Warhead@1Dam: SpreadDamage
+		Damage: 7000
+		Versus:
+			None: 100
+			Wood: 75
+			Light: 70
+			Heavy: 50
+			Concrete: 45

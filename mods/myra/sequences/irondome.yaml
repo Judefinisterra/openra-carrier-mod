@@ -1,0 +1,15 @@
+# Iron Dome battery: rendered from a voxel model (see the rules file). Frame 0 idle, 1 damaged, 2-13 build-up.
+irondome:
+	Defaults:
+		Filename: irondome.png
+		Offset: 0,-8
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	icon:
+		Filename: irondome-icon.png
+		Offset: 0,0

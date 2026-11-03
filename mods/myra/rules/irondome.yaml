@@ -1,0 +1,46 @@
+# Iron Dome (Israel): an expensive late-game air-defence battery. Every enemy missile, artillery shell, bomb or nuke
+# coming down within 20 cells gets an interceptor. Ordinary rounds are always shot down; a nuke is stopped half the time.
+# Needs a Tech Center and power.
+IDOME:
+	Inherits: ^Building
+	Inherits@IDISABLE: ^DisableOnLowPowerOrPowerDown
+	Inherits@selection: ^SelectableCombatBuilding
+	Buildable:
+		Queue: Defense
+		BuildPaletteOrder: 115
+		Prerequisites: atek, structures.israel, ~techlevel.high
+		Description: actor-idome.description
+	Valued:
+		Cost: 5000
+	Tooltip:
+		Name: actor-idome.name
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+	Selectable:
+		Bounds: 2048, 2048
+		DecorationBounds: 2048, 2560, 0, -256
+	HitShape:
+		Type: Rectangle
+			TopLeft: -1024, -1024
+			BottomRight: 1024, 1024
+	Health:
+		HP: 120000
+	Armor:
+		Type: Heavy
+	RevealsShroud:
+		Range: 10c0
+	Power:
+		Amount: -250
+	IronDome:
+		Range: 20c0
+		NukeKillChance: 50
+		RequiresCondition: !disabled
+	WithRangeCircle:
+		Range: 20c0
+		Color: 4FC3F780
+	FireWarheadsOnDeath:
+		Weapon: SmallBuildingExplode
+		EmptyWeapon: SmallBuildingExplode
+	RenderSprites:
+		Image: irondome

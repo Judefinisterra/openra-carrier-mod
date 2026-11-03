@@ -37,6 +37,9 @@ namespace OpenRA.Mods.MyRA.Traits
 		[Desc("At most this many graves are kept (the oldest are forgotten first).")]
 		public readonly int MaxGraves = 400;
 
+		[Desc("Infantry killed by a zombie get back up as one after this many ticks.")]
+		public readonly int InfectTicks = 50;
+
 		[Desc("The dead climb out over this many ticks.")]
 		public readonly int RiseTicks = 125;
 
@@ -71,6 +74,12 @@ namespace OpenRA.Mods.MyRA.Traits
 			graves.Add(cell);
 			if (graves.Count > info.MaxGraves)
 				graves.RemoveAt(0);
+		}
+
+		// Someone a zombie killed: they get back up on their own a moment later, without waiting for the power.
+		public void Infect(World world, CPos cell)
+		{
+			rising.Add((world.WorldTick + info.InfectTicks, cell));
 		}
 
 		// Raises every grave. Returns how many zombies are coming.
@@ -171,7 +180,11 @@ namespace OpenRA.Mods.MyRA.Traits
 			if (self.Info.HasTraitInfo<ZombieBrainInfo>())
 				return;
 
-			self.World.WorldActor.TraitOrDefault<ZombieGraveyard>()?.Record(self.Location);
+			var graveyard = self.World.WorldActor.TraitOrDefault<ZombieGraveyard>();
+			if (e.Attacker != null && !e.Attacker.IsDead && e.Attacker.Info.HasTraitInfo<ZombieBrainInfo>())
+				graveyard?.Infect(self.World, self.Location);
+			else
+				graveyard?.Record(self.Location);
 		}
 	}
 

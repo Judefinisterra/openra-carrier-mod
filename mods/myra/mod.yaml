@@ -142,6 +142,9 @@ Rules:
 	myra|rules/dozer.yaml
 	myra|rules/israel.yaml
 	myra|rules/zombies.yaml
+	myra|rules/coup.yaml
+	myra|rules/irondome.yaml
+	myra|rules/moses.yaml
 	myra|rules/ai-shipyards.yaml
 
 Sequences:
@@ -176,6 +179,8 @@ Sequences:
 	myra|sequences/batch3.yaml
 	myra|sequences/meganuke.yaml
 	myra|sequences/dozer.yaml
+	myra|sequences/irondome.yaml
+	myra|sequences/moses.yaml
 
 TileSets:
 	ra|tilesets/snow.yaml
@@ -281,6 +286,8 @@ Weapons:
 	myra|weapons/nyc.yaml
 	myra|weapons/batch3.yaml
 	myra|weapons/meganuke.yaml
+	myra|weapons/pager.yaml
+	myra|weapons/zombie.yaml
 
 Voices:
 	ra|audio/voices.yaml
