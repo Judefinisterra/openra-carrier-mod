@@ -1,4 +1,4 @@
-# Skywatch Spire: $1, no requirements. Reveals the whole map while it stands.
+# Skyview tower: launches 5 satellites (rules/skydefense.yaml) that sweeps the map for its team.
 SPIRE:
 	Inherits: ^Building
 	Inherits@shape: ^2x2Shape
@@ -19,7 +19,9 @@ SPIRE:
 		Type: Heavy
 	RevealsShroud:
 		Range: 6c0
-	RevealsMap:
+	SatelliteLauncher:
+		Actor: satellite
+		Count: 5
 	Selectable:
 		Bounds: 2048, 3072, 0, -512
 		DecorationBounds: 2048, 3072, 0, -512

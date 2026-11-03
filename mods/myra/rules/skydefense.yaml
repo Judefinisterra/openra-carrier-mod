@@ -1,0 +1,94 @@
+# Nike missile defense site and Skyview satellites (OpenRA.Mods.MyRA/Traits/SkyDefense.cs).
+World:
+	MissileDefenseManager:
+
+# Radar Dome or a Tech Center unlocks the Nike site.
+DOME:
+	ProvidesPrerequisite@nike:
+		Prerequisite: nikeradar
+ATEK:
+	ProvidesPrerequisite@nike:
+		Prerequisite: nikeradar
+STEK:
+	ProvidesPrerequisite@nike:
+		Prerequisite: nikeradar
+SPIRITTOTEM:
+	ProvidesPrerequisite@nike:
+		Prerequisite: nikeradar
+
+# Nike missile defense site: shoots down nuclear missiles and Missile City rockets aimed within 15 cells.
+# 2 interceptors ready, 75% hit chance each, one reloads every 60 seconds. Needs power.
+NIKE:
+	Inherits: ^Building
+	Inherits@IDISABLE: ^DisableOnLowPowerOrPowerDown
+	Inherits@shape: ^2x2Shape
+	Buildable:
+		Queue: Defense
+		BuildPaletteOrder: 105
+		Prerequisites: nikeradar, ~techlevel.medium
+		Description: actor-nike.description
+	Valued:
+		Cost: 2500
+	Tooltip:
+		Name: actor-nike.name
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+	Health:
+		HP: 80000
+	Armor:
+		Type: Heavy
+	RevealsShroud:
+		Range: 6c0
+	Power:
+		Amount: -60
+	AmmoPool:
+		Ammo: 2
+	ReloadAmmoPool:
+		Delay: 1500
+		Count: 1
+	WithAmmoPipsDecoration:
+		Position: BottomLeft
+		Margin: 4, 3
+		RequiresSelection: true
+	NikeSite:
+		Range: 15c0
+		HitChance: 75
+		PauseOnCondition: disabled
+	WithRangeCircle:
+		Type: Nike
+		Range: 15c0
+		Color: FF4040
+	Selectable:
+		Bounds: 2048, 2560, 0, -256
+	RenderSprites:
+		Image: nike
+
+# Skyview satellite: each Skyview Tower launches 5; they ping-pong around the map and show their team
+# everything under it. Can't be selected, targeted or shot at.
+SATELLITE:
+	Inherits@1: ^ExistsInWorld
+	Inherits@4: ^SpriteActor
+	-AppearsOnRadar:
+	-GivesExperience:
+	Interactable:
+	Aircraft:
+		Speed: 110
+		CruiseAltitude: 4096
+		TurnSpeed: 20
+		Repulsable: false
+		CanHover: false
+		IdleBehavior: None
+	SatelliteOrbit:
+	RevealsShroud:
+		Range: 10c0
+		Type: GroundPosition
+	HiddenUnderFog:
+		Type: CenterPosition
+	WithFacingSpriteBody:
+	Tooltip:
+		Name: actor-satellite.name
+	RenderSprites:
+		Image: satellite
+	MapEditorData:
+		Categories: System

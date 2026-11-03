@@ -478,7 +478,10 @@ namespace OpenRA.Mods.MyRA.Traits
 					center = home.Location + new CVec(bi.Dimensions.X / 2, bi.Dimensions.Y / 2);
 			}
 
+			// Spread out (every other cell) so a cheat army isn't one big crowd - crowds catch the plague.
 			var cells = w.Map.FindTilesInAnnulus(center, spot != null ? 0 : 1, 30).Where(c => w.Map.Contains(c)).ToList();
+			if (spot == null)
+				cells = cells.Where(c => ((c.X - center.X) & 1) == 0 && ((c.Y - center.Y) & 1) == 0).Concat(cells).Distinct().ToList();
 			var made = 0;
 
 			// One soldier per cell first so they ring the base, then pack more in if there's no room.

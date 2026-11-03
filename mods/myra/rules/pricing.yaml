@@ -1,0 +1,198 @@
+# Prices and build requirements, rebalanced against stock Red Alert (see the MyRA Price List page).
+# Loaded last so it overrides each unit's own file.
+
+F14:
+	Valued:
+		Cost: 2000
+
+A10:
+	Valued:
+		Cost: 1800
+
+APACHE:
+	Valued:
+		Cost: 2000
+	Buildable:
+		Prerequisites: ~hpad, ~techlevel.medium, techcenter
+
+HARRIER:
+	Valued:
+		Cost: 1500
+
+P3:
+	Valued:
+		Cost: 1300
+
+SR71:
+	Valued:
+		Cost: 1200
+
+AC130:
+	Valued:
+		Cost: 2800
+	Buildable:
+		Prerequisites: ~afld, ~techlevel.high, techcenter
+
+B2:
+	Buildable:
+		Prerequisites: ~afld, ~techlevel.high, techcenter
+
+DOZER:
+	Valued:
+		Cost: 1800
+	Buildable:
+		Prerequisites: structures.england, weap
+
+MOBILESAM:
+	Buildable:
+		Prerequisites: ~techlevel.medium, dome
+
+TECHNICAL:
+	Valued:
+		Cost: 400
+
+TECHNICAL.RPG:
+	Valued:
+		Cost: 500
+
+TRUCKBOMB:
+	Valued:
+		Cost: 1000
+	Buildable:
+		Prerequisites: ~vehicles.soviet, ~hermitnation, dome
+
+DSWARM:
+	Buildable:
+		Prerequisites: techcenter, ~vehicles.soviet, ~techlevel.medium
+
+SNIPER:
+	Valued:
+		Cost: 700
+	Buildable:
+		Prerequisites: ~barracks, ~techlevel.medium, dome
+
+SEAL:
+	Valued:
+		Cost: 700
+
+COP:
+	Valued:
+		Cost: 200
+
+MERC.COMMANDO:
+	Valued:
+		Cost: 1500
+
+SUICIDEBOMBER:
+	Valued:
+		Cost: 300
+
+SHAHED:
+	Valued:
+		Cost: 300
+	Buildable:
+		Prerequisites: ~barracks, shahedunits, ~!tribalkingdom, dome
+
+PROTESTER:
+	Valued:
+		Cost: 50
+
+PONY:
+	Valued:
+		Cost: 400
+
+WHITEVAN:
+	Valued:
+		Cost: 500
+
+PINKJEEP:
+	Valued:
+		Cost: 500
+
+RPGFELLA:
+	Valued:
+		Cost: 250
+
+TRIBALHERO:
+	Valued:
+		Cost: 300
+
+LION:
+	Valued:
+		Cost: 200
+
+PITDIGGER:
+	Valued:
+		Cost: 200
+
+RHINO:
+	Valued:
+		Cost: 900
+
+ELEPHANT:
+	Valued:
+		Cost: 1500
+
+ZODIAC:
+	Valued:
+		Cost: 600
+
+CUTTER:
+	Valued:
+		Cost: 600
+
+FAB:
+	Valued:
+		Cost: 450
+
+LCS:
+	Valued:
+		Cost: 2200
+	Buildable:
+		Prerequisites: anyshipyard, ~techlevel.high, techcenter
+
+SUBCARRIER:
+	Valued:
+		Cost: 2500
+	Buildable:
+		Prerequisites: ~spen, fantasyfactory, ~techlevel.low, ~!tribalkingdom, techcenter
+
+CARRIER:
+	Buildable:
+		Prerequisites: seaport, ~techlevel.medium, dome
+
+CANOE:
+	Valued:
+		Cost: 250
+
+FANTASY:
+	Valued:
+		Cost: 2500
+	Buildable:
+		Prerequisites: ~!tribalkingdom, proc, dome
+
+SPIRE:
+	Valued:
+		Cost: 1500
+	Buildable:
+		Prerequisites: ~!tribalkingdom, dome
+
+NPP:
+	Valued:
+		Cost: 2000
+
+SEAPORT:
+	Buildable:
+		Prerequisites: ~techlevel.low, proc
+
+TUNNEL:
+	Valued:
+		Cost: 800
+
+NIKE:
+	Valued:
+		Cost: 2000
+
+SPIRITTOTEM:
+	Valued:
+		Cost: 1000

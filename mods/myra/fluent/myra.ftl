@@ -70,7 +70,9 @@ actor-shahed =
 actor-spire =
     .name = Skywatch Spire
     .description =
-    Observatory tower. Reveals the entire map while it stands.
+    Observatory tower. Launches 5 satellites that roam the map,
+    bouncing off its edges and showing your team everything beneath them.
+    Each tower adds 5 more.
 
 actor-tribalhero =
     .name = Tribal Hero
@@ -612,7 +614,7 @@ actor-sr71 =
     .name = SR-71 Blackbird
     .description =
     Faster than any missile. Unarmed, never lands.
-    Everywhere it flies stays revealed for good.
+    Sees a wide area below it as it flies.
 
 actor-p3 =
     .name = P-3 Orion
@@ -689,8 +691,10 @@ actor-cop =
 actor-sniper =
     .name = Sniper
     .description =
-    Ghillie-suited marksman, invisible until it fires.
-    Very long range, kills infantry in one shot.
+    Ghillie-suited marksman, invisible until it fires or an
+    enemy comes within 2 cells. Holds fire until put on
+    Guard (G). Very long range, kills infantry in one shot.
+    Deploy to go prone and aim through the scope yourself.
       Strong vs Infantry
       Weak vs Vehicles, Buildings
 
@@ -703,10 +707,10 @@ actor-dozer =
     .name = Armored Bulldozer
     .description =
     Armoured bulldozer built at the Construction Yard.
-    Cannot be damaged. Drive it into any enemy unit or
-    building to flatten it. England only.
+    4x the armour of a Heavy Tank. Drive it into any enemy
+    unit or building to flatten it. England only.
       Strong vs Everything it touches
-      Weak vs Nothing
+      Weak vs Massed anti-tank fire
 
 ## Israel
 faction-israel =
@@ -771,3 +775,38 @@ actor-moses =
      shore and opens a strip of dry land to the far side. Land units can
      cross; ships can't. It stays open while he lives. No weapon.
       Unique: only one at a time
+
+actor-nike =
+    .name = Nike Missile Site
+    .description =
+    Missile defense. Shoots down nuclear missiles and Missile City
+    rockets aimed within 15 cells. 2 interceptors (75% hit each),
+    one reloads every 60 seconds. Requires power.
+
+actor-satellite =
+    .name = Skywatch Satellite
+
+actor-vibdome =
+    .name = Vibranium Dome
+    .description =
+    Shield generator. When a nuke comes down within 15 cells, a blue
+    force field rises and nothing under it is harmed. It soaks up the
+    blast, then fires a beam back at the launch site. Also stops V2s,
+    Tomahawks and Missile City rockets (6 charges, 1 back every 10 s).
+    Nuke shield recharges in 3 minutes.
+
+checkbox-presidente =
+    .label = El Presidente
+    .description = Everyone starts with El Presidente and 4 bodyguards in a limousine. Lose him and you lose
+
+actor-limo =
+    .name = Presidential Limousine
+
+actor-presidente =
+    .name = El Presidente
+
+actor-bodyguard =
+    .name = Bodyguard
+
+bot-skynet =
+    .name = SkyNet

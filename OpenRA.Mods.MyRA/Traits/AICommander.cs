@@ -60,7 +60,44 @@ namespace OpenRA.Mods.MyRA.Traits
 		}
 	}
 
-	public class AICommanderOptions { }
+	// Says at the start of the game whether the AI Commander is running, and if not, why.
+	public class AICommanderOptions : ITick
+	{
+		bool told;
+
+		void ITick.Tick(Actor self)
+		{
+			var w = self.World;
+			if (told || w.WorldTick < 75 || w.Type != WorldType.Regular)
+				return;
+
+			told = true;
+			if (w.LocalPlayer == null && !Game.IsHost)
+				return;
+
+			if (!w.Players.Any(p => p.IsBot && p.Playable))
+				return;
+
+			const string Label = "AI Commander";
+			if (!w.LobbyInfo.GlobalSettings.OptionOrDefault("aicommander", false))
+			{
+				TextNotificationsManager.AddSystemLine(Label, "OFF - tick \"AI Commander\" in the lobby options to let the language model run the computer players.");
+				return;
+			}
+
+			if (!Game.IsHost)
+			{
+				TextNotificationsManager.AddSystemLine(Label, "ON - it runs on the host's computer, using the host's API key.");
+				return;
+			}
+
+			var settings = AICommanderLink.Load(out var error);
+			if (error != null || settings == null)
+				TextNotificationsManager.AddSystemLine(Label, $"ON but can't run: {error}");
+			else
+				TextNotificationsManager.AddSystemLine(Label, $"ON - model {settings.Model}, consulted about {settings.CallsPerMinute:0.#} time(s) a minute.");
+		}
+	}
 
 	// The model connection, shared by every AI player on this computer (so the call limit is global).
 	static class AICommanderLink
@@ -78,7 +115,39 @@ namespace OpenRA.Mods.MyRA.Traits
 			public bool ShowTaunts { get; set; } = true;
 			public string Personality { get; set; } = "";
 			public string ReasoningEffort { get; set; } = "low";
+			public double SkyNetCallsPerMinute { get; set; } = 2;
+
+			// Backup models, tried in order when the one before has used up its daily allowance. Leave Endpoint/ApiKey
+			// empty to use the main ones. If not set and the main endpoint is Groq, Groq's other free models are used.
+			public List<Backup> Fallbacks { get; set; }
 		}
+
+		public sealed class Backup
+		{
+			public string Model { get; set; } = "";
+			public string Endpoint { get; set; } = "";
+			public string ApiKey { get; set; } = "";
+			public string ApiKeyEnvironmentVariable { get; set; } = "";
+		}
+
+		// One model we can call: its own endpoint/key, and when it may be used again after hitting a limit.
+		sealed class ModelSlot
+		{
+			public string Model, Endpoint, ApiKey;
+			public DateTime BlockedUntil = DateTime.MinValue;
+			public bool Dead;
+		}
+
+		static List<ModelSlot> slots;
+
+		/// <summary>The model answering right now (for chat announcements).</summary>
+		public static string ActiveModel { get; private set; }
+
+		/// <summary>Set when every model is out of its daily allowance: when the first one comes back.</summary>
+		public static DateTime AllBlockedUntil { get; private set; } = DateTime.MinValue;
+
+		/// <summary>Set when the last call hit a per-minute limit: wait this long, it isn't a failure.</summary>
+		public static TimeSpan RetryAfter { get; private set; }
 
 		static readonly object Sync = new();
 
@@ -135,6 +204,23 @@ namespace OpenRA.Mods.MyRA.Traits
 						settingsError = $"no API key - put your key in {SettingsPath}";
 
 					http = new HttpClient { Timeout = TimeSpan.FromSeconds(Math.Max(5, settings.TimeoutSeconds)) };
+
+					// The main model first, then the backups.
+					var backups = settings.Fallbacks;
+					if (backups == null && settings.Endpoint.Contains("groq.com", StringComparison.OrdinalIgnoreCase))
+						backups = [new Backup { Model = "qwen/qwen3.8-27b" }, new Backup { Model = "openai/gpt-oss-20b" }];
+					slots = [new ModelSlot { Model = settings.Model, Endpoint = settings.Endpoint, ApiKey = settings.ApiKey }];
+					foreach (var b in backups ?? [])
+					{
+						if (string.IsNullOrWhiteSpace(b.Model) || slots.Any(x => x.Model == b.Model && x.Endpoint == (string.IsNullOrWhiteSpace(b.Endpoint) ? settings.Endpoint : b.Endpoint)))
+							continue;
+						var key = !string.IsNullOrWhiteSpace(b.ApiKey) ? b.ApiKey
+							: !string.IsNullOrWhiteSpace(b.ApiKeyEnvironmentVariable) ? Environment.GetEnvironmentVariable(b.ApiKeyEnvironmentVariable) ?? ""
+							: string.IsNullOrWhiteSpace(b.Endpoint) ? settings.ApiKey : "";
+						slots.Add(new ModelSlot { Model = b.Model.Trim(), Endpoint = string.IsNullOrWhiteSpace(b.Endpoint) ? settings.Endpoint : b.Endpoint.Trim(), ApiKey = key });
+					}
+
+					ActiveModel = settings.Model;
 				}
 				catch (Exception e)
 				{
@@ -325,67 +411,130 @@ namespace OpenRA.Mods.MyRA.Traits
 				+ "do so for that directive even though they normally act alone. " + (settings?.Personality ?? "");
 		}
 
+		// "Please try again in 9m25.92s" / "7.5s" / "585ms" -> how long to wait.
+		static TimeSpan ParseWait(string body)
+		{
+			var m = System.Text.RegularExpressions.Regex.Match(body ?? "", @"try again in (?:(\d+)h)?(?:(\d+)m(?!s))?(?:([\d.]+)(ms|s))?");
+			if (!m.Success)
+				return TimeSpan.FromSeconds(10);
+			double secs = 0;
+			if (m.Groups[1].Success) secs += int.Parse(m.Groups[1].Value) * 3600;
+			if (m.Groups[2].Success) secs += int.Parse(m.Groups[2].Value) * 60;
+			if (m.Groups[3].Success)
+			{
+				var v = double.Parse(m.Groups[3].Value, System.Globalization.CultureInfo.InvariantCulture);
+				secs += m.Groups[4].Value == "ms" ? v / 1000 : v;
+			}
+
+			return TimeSpan.FromSeconds(Math.Max(1, secs));
+		}
+
+		/// <summary>
+		/// Ask the model. Uses the main model while it has allowance left; when it runs out for the day, moves on to the
+		/// next backup. A per-minute limit just sets RetryAfter (try again shortly, same model) and returns null.
+		/// </summary>
 		public static async Task<string> Ask(string system, string user, int maxTokens = 1200)
 		{
-			try
+			RetryAfter = TimeSpan.Zero;
+			var s = settings;
+			if (s == null || slots == null)
+				return null;
+
+			for (var attempt = 0; attempt < slots.Count; attempt++)
 			{
-				var s = settings;
-				var body = new Dictionary<string, object>
+				var now = DateTime.UtcNow;
+				var slot = slots.FirstOrDefault(x => !x.Dead && x.BlockedUntil <= now);
+				if (slot == null)
 				{
-					["model"] = s.Model,
-					["temperature"] = 0.5,
-					["max_tokens"] = maxTokens,
-					["messages"] = new object[]
-					{
-						new Dictionary<string, string> { ["role"] = "system", ["content"] = system },
-						new Dictionary<string, string> { ["role"] = "user", ["content"] = user },
-					},
-				};
-
-				if (s.JsonMode)
-					body["response_format"] = new Dictionary<string, string> { ["type"] = "json_object" };
-
-				// Reasoning models (gpt-oss) think before answering: keep that short so it stays quick and cheap.
-				if (!string.IsNullOrWhiteSpace(s.ReasoningEffort) && s.Model.Contains("gpt-oss", StringComparison.OrdinalIgnoreCase))
-					body["reasoning_effort"] = s.ReasoningEffort;
-
-				var reply = await Post(s, body);
-				if (reply.Status == 400 && s.JsonMode)
-				{
-					// Some providers don't support JSON mode: ask again without it.
-					body.Remove("response_format");
-					reply = await Post(s, body);
-				}
-
-				if (reply.Status != 200)
-				{
-					WriteLog($"HTTP {reply.Status}: {Trim(reply.Body, 400)}");
-
-					// Wrong model name, bad key, no access: retrying won't help, so stop calling for this session.
-					if (reply.Status is 400 or 401 or 403 or 404)
-						lock (Sync)
-							settingsError = reply.Status switch
-							{
-								401 or 403 => $"the API key was refused (HTTP {reply.Status}) - check ApiKey in {SettingsPath}",
-								404 => $"model \"{s.Model}\" not found (HTTP 404) - pick a current model in {SettingsPath}",
-								_ => $"the request was rejected (HTTP 400) - see Logs/ai-commander.log",
-							};
-
+					var next = slots.Where(x => !x.Dead).Select(x => x.BlockedUntil).DefaultIfEmpty(now.AddMinutes(10)).Min();
+					AllBlockedUntil = next;
 					return null;
 				}
 
-				using var doc = JsonDocument.Parse(reply.Body);
-				return doc.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
-			}
-			catch (Exception e)
-			{
-				WriteLog("call failed: " + e.Message);
-				return null;
+				AllBlockedUntil = DateTime.MinValue;
+				try
+				{
+					var body = new Dictionary<string, object>
+					{
+						["model"] = slot.Model,
+						["temperature"] = 0.5,
+						["max_tokens"] = maxTokens,
+						["messages"] = new object[]
+						{
+							new Dictionary<string, string> { ["role"] = "system", ["content"] = system },
+							new Dictionary<string, string> { ["role"] = "user", ["content"] = user },
+						},
+					};
+
+					if (s.JsonMode)
+						body["response_format"] = new Dictionary<string, string> { ["type"] = "json_object" };
+
+					// Reasoning models (gpt-oss) think before answering: keep that short so it stays quick and cheap.
+					if (!string.IsNullOrWhiteSpace(s.ReasoningEffort) && slot.Model.Contains("gpt-oss", StringComparison.OrdinalIgnoreCase))
+						body["reasoning_effort"] = s.ReasoningEffort;
+
+					var reply = await Post(slot, body);
+					if (reply.Status == 400 && s.JsonMode)
+					{
+						// Some providers don't support JSON mode: ask again without it.
+						body.Remove("response_format");
+						reply = await Post(slot, body);
+					}
+
+					if (reply.Status == 429)
+					{
+						var wait = ParseWait(reply.Body);
+						var daily = reply.Body.Contains("per day", StringComparison.OrdinalIgnoreCase) || reply.Body.Contains("(TPD)") || reply.Body.Contains("(RPD)")
+							|| wait > TimeSpan.FromMinutes(2);
+						WriteLog($"HTTP 429 ({slot.Model}, {(daily ? "daily" : "per-minute")} limit, wait {wait.TotalSeconds:0}s)");
+						if (!daily)
+						{
+							RetryAfter = wait;
+							return null;
+						}
+
+						// Out of allowance for today: rest this model and try the next one now.
+						slot.BlockedUntil = DateTime.UtcNow + wait;
+						continue;
+					}
+
+					if (reply.Status != 200)
+					{
+						WriteLog($"HTTP {reply.Status} ({slot.Model}): {Trim(reply.Body, 400)}");
+
+						// Wrong model name, bad key, no access: retrying won't help.
+						if (reply.Status is 400 or 401 or 403 or 404)
+						{
+							if (slot == slots[0] && slots.Count(x => !x.Dead) == 1)
+								lock (Sync)
+									settingsError = reply.Status switch
+									{
+										401 or 403 => $"the API key was refused (HTTP {reply.Status}) - check ApiKey in {SettingsPath}",
+										404 => $"model \"{slot.Model}\" not found (HTTP 404) - pick a current model in {SettingsPath}",
+										_ => $"the request was rejected (HTTP 400) - see Logs/ai-commander.log",
+									};
+							slot.Dead = true;
+							continue;
+						}
+
+						return null;
+					}
+
+					ActiveModel = slot.Model;
+					using var doc = JsonDocument.Parse(reply.Body);
+					return doc.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
+				}
+				catch (Exception e)
+				{
+					WriteLog($"call failed ({slot.Model}): " + e.Message);
+					return null;
+				}
 			}
 
+			return null;
 		}
 
-		static async Task<(int Status, string Body)> Post(Settings s, Dictionary<string, object> body)
+		static async Task<(int Status, string Body)> Post(ModelSlot s, Dictionary<string, object> body)
 		{
 			using var request = new HttpRequestMessage(HttpMethod.Post, s.Endpoint)
 			{
@@ -432,6 +581,16 @@ namespace OpenRA.Mods.MyRA.Traits
   ""ApiKeyEnvironmentVariable"": ""AI_COMMANDER_API_KEY"",
   // Consultations per minute. Each one covers ALL computer players in a single request.
   ""CallsPerMinute"": 1,
+  // How often SkyNet (the one lobby slot played by the model) is consulted, per minute.
+  ""SkyNetCallsPerMinute"": 2,
+  // Backup models, used in order when the one before runs out of its daily allowance. With Groq and no list here,
+  // Groq's other free models are used automatically (qwen/qwen3.8-27b, then openai/gpt-oss-20b).
+  // Example adding Google Gemini as a last resort (free key from aistudio.google.com):
+  // ""Fallbacks"": [
+  //   { ""Model"": ""qwen/qwen3.8-27b"" },
+  //   { ""Model"": ""openai/gpt-oss-20b"" },
+  //   { ""Model"": ""gemini-flash-latest"", ""Endpoint"": ""https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"", ""ApiKey"": ""PASTE-GEMINI-KEY"" }
+  // ],
   ""JsonMode"": true,
   ""TimeoutSeconds"": 20,
   // For reasoning models (gpt-oss): how hard to think before answering - low, medium or high.
@@ -499,7 +658,7 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		/// <summary>The AI Commander module of a player whose orders are in force, if any.</summary>
 		public static AICommanderBotModule For(Player p) =>
-			p.PlayerActor.TraitsImplementing<AICommanderBotModule>().FirstOrDefault(m => m.enabled && m.ActiveStance != null);
+			p.PlayerActor.TraitsImplementing<AICommanderBotModule>().FirstOrDefault(m => (m.enabled || m.DrivenBySkyNet) && m.ActiveStance != null);
 		int ticks, lastReport = -100000, waveSent;
 		Plan plan;
 		TruceManager truces;
@@ -528,9 +687,29 @@ namespace OpenRA.Mods.MyRA.Traits
 		bool Rival(Player p) => p != null && p.Playable && !p.NonCombatant && p != player && p.WinState == WinState.Undefined
 			&& (player.RelationshipWith(p) == PlayerRelationship.Enemy || (truces != null && truces.InTruce(player, p)));
 
+		/// <summary>SkyNet is giving this player's orders (instead of the shared AI Commander consultation).</summary>
+		public bool DrivenBySkyNet { get; set; }
+
+		/// <summary>Orders from SkyNet, in the same JSON format the AI Commander uses.</summary>
+		public void Feed(string json) => replies.Enqueue(json);
+
 		void IBotTick.BotTick(IBot bot)
 		{
-			if (!enabled || ++ticks < Info.Interval)
+			if (DrivenBySkyNet)
+			{
+				if (++ticks < Info.Interval)
+					return;
+				ticks = 0;
+				while (replies.TryDequeue(out var t))
+					Apply(bot, t);
+				if (plan != null)
+					Carry(bot);
+				return;
+			}
+
+			// With SkyNet in the match, the AI Commander option defers to it: the other computer players play on
+			// their own built-in commanders.
+			if (!enabled || SkyNetBotModule.ActiveIn(world) || ++ticks < Info.Interval)
 				return;
 
 			ticks = 0;
@@ -575,7 +754,7 @@ namespace OpenRA.Mods.MyRA.Traits
 		// The situation report.
 		// Each army's playbook: what its side is good at and which units and strategies to lean on all game.
 		// Only the army's own playbook goes into its section (nothing about the other armies).
-		static string FactionHint(FactionInfo f)
+		internal static string FactionHint(FactionInfo f)
 		{
 			const string Allied = "ALLIED side: fast and flexible. Light and Medium Tanks, Rangers, artillery for sieges, Rocket Soldiers against armour, "
 				+ "Mobile Gap Generators to hide forces, spies and thieves, Tanya for raids. Strongest navy: Destroyers, Cruisers, the Aircraft Carrier. "
@@ -622,7 +801,7 @@ namespace OpenRA.Mods.MyRA.Traits
 			return "vehicles";
 		}
 
-		string Report()
+		internal string Report()
 		{
 			var sb = new StringBuilder();
 			var sec = world.WorldTick / TicksPerSecond(world);
@@ -697,7 +876,7 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		// Other players are shown to the model only as "Player 1", "Player 2"... (by lobby slot), never by name, so
 		// it can't tell humans from computer players and has no reason to treat the other AIs as friends.
-		static string Label(Player p) => $"Player {p.World.Players.Where(x => x.Playable).ToList().IndexOf(p) + 1}";
+		internal static string Label(Player p) => $"Player {p.World.Players.Where(x => x.Playable).ToList().IndexOf(p) + 1}";
 
 		static string Name(ActorInfo ai) => ai.TraitInfoOrDefault<TooltipInfo>() is TooltipInfo t ? FluentProvider.GetMessage(t.Name) : ai.Name;
 
@@ -961,7 +1140,7 @@ namespace OpenRA.Mods.MyRA.Traits
 			var exclude = squads?.Info.ExcludeFromSquadsTypes;
 			return world.Actors.Where(a => a.Owner == player && Alive(a)
 					&& a.Info.HasTraitInfo<MobileInfo>() && a.Info.HasTraitInfo<AttackBaseInfo>() && !a.Info.HasTraitInfo<AircraftInfo>()
-					&& !a.Info.HasTraitInfo<HarvesterInfo>() && (exclude == null || !exclude.Contains(a.Info.Name))
+					&& !a.Info.HasTraitInfo<HarvesterInfo>() && (exclude == null || !exclude.Contains(a.Info.Name)) && AIGeneral.Free(a)
 					&& (wave.Contains(a) || squads == null || !squads.IsClaimed(a)))
 				.ToList();
 		}

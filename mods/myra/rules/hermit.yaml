@@ -104,7 +104,7 @@ PROTESTER.HERMIT:
 	MilitiaUprising:
 		Actor: suicidebomber
 		Delay: 1000
-		Chance: 10
+		Chance: 50
 	RenderSprites:
 		Image: protester
 

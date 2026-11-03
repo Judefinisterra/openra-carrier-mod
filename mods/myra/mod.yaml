@@ -137,6 +137,9 @@ Rules:
 	myra|rules/nyc-units.yaml
 	myra|rules/nyc-city.yaml
 	myra|rules/batch3.yaml
+	myra|rules/skydefense.yaml
+	myra|rules/vibranium.yaml
+	myra|rules/presidente.yaml
 	myra|rules/meganuke.yaml
 	myra|rules/ukraine-nuke.yaml
 	myra|rules/dozer.yaml
@@ -146,6 +149,8 @@ Rules:
 	myra|rules/irondome.yaml
 	myra|rules/moses.yaml
 	myra|rules/ai-shipyards.yaml
+	myra|rules/ai-general.yaml
+	myra|rules/pricing.yaml
 
 Sequences:
 	ra|sequences/ships.yaml
@@ -177,6 +182,8 @@ Sequences:
 	myra|sequences/nyc-units.yaml
 	myra|sequences/nyc-city.yaml
 	myra|sequences/batch3.yaml
+	myra|sequences/vibranium.yaml
+	myra|sequences/presidente.yaml
 	myra|sequences/meganuke.yaml
 	myra|sequences/dozer.yaml
 	myra|sequences/irondome.yaml
@@ -285,6 +292,7 @@ Weapons:
 	myra|weapons/land.yaml
 	myra|weapons/nyc.yaml
 	myra|weapons/batch3.yaml
+	myra|weapons/presidente.yaml
 	myra|weapons/meganuke.yaml
 	myra|weapons/pager.yaml
 	myra|weapons/zombie.yaml

@@ -87,7 +87,7 @@ namespace OpenRA.Mods.MyRA.Traits
 		// Projectiles some battery has already fired at, so two batteries don't waste interceptors on one round.
 		static readonly ConditionalWeakTable<World, HashSet<IEffect>> Claimed = [];
 
-		readonly List<Interceptor> inFlight = [];
+		readonly List<IronDomeInterceptor> inFlight = [];
 		int cooldown;
 
 		public IronDome(IronDomeInfo info)
@@ -131,7 +131,7 @@ namespace OpenRA.Mods.MyRA.Traits
 
 			claimed.Add(best.Effect);
 			var kill = !best.IsNuke || self.World.SharedRandom.Next(100) < Info.NukeKillChance;
-			var interceptor = new Interceptor(self.World, self.Owner, Info, home + Info.LaunchOffset, best, kill, self.World.SharedRandom.Next(1024));
+			var interceptor = new IronDomeInterceptor(self.World, self.Owner, Info, home + Info.LaunchOffset, best, kill, self.World.SharedRandom.Next(1024));
 			inFlight.Add(interceptor);
 			self.World.AddFrameEndTask(w => w.Add(interceptor));
 			Game.Sound.Play(SoundType.World, Info.LaunchSound, home);
@@ -193,7 +193,7 @@ namespace OpenRA.Mods.MyRA.Traits
 
 	// One interceptor missile. Its flight is worked out in the simulation (straight up out of the tube, then
 	// homing at increasing speed); the weaving you see is drawn on top of that path and doesn't affect the hit.
-	public class Interceptor : IEffect
+	public class IronDomeInterceptor : IEffect
 	{
 		const int BoostTicks = 5;
 		const int TrailLength = 28;
@@ -212,7 +212,7 @@ namespace OpenRA.Mods.MyRA.Traits
 		int speed;
 		int linger = -1;
 
-		public Interceptor(World world, Player owner, IronDomeInfo info, WPos launch, Threat target, bool kill, int phase)
+		public IronDomeInterceptor(World world, Player owner, IronDomeInfo info, WPos launch, Threat target, bool kill, int phase)
 		{
 			this.owner = owner;
 			this.info = info;

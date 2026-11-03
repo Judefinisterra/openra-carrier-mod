@@ -203,7 +203,13 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			notifyPositionsUpdated = self.Owner.PlayerActor.TraitsImplementing<IBotPositionsUpdated>().ToArray();
 			notifyIdleBaseUnits = self.Owner.PlayerActor.TraitsImplementing<IBotNotifyIdleBaseUnits>().ToArray();
+			rosters = self.Owner.PlayerActor.TraitsImplementing<IBotUnitRoster>().ToArray();
 		}
+
+		// (MyRA) Reserved units stay out of squads; new attacks wait while the roster says so.
+		IBotUnitRoster[] rosters = [];
+		bool Reserved(Actor a) => rosters.Any(r => r.IsReserved(a));
+		bool AttacksAllowed => rosters.All(r => r.AllowNewAttacks);
 
 		protected override void TraitEnabled(Actor self)
 		{
@@ -465,7 +471,7 @@ namespace OpenRA.Mods.Common.Traits
 			var newUnits = World.ActorsHavingTrait<IPositionable>()
 				.Where(a => a.Owner == Player &&
 					!Info.ExcludeFromSquadsTypes.Contains(a.Info.Name) &&
-					!activeUnits.Contains(a) && !claimedUnits.Contains(a));
+					!activeUnits.Contains(a) && !claimedUnits.Contains(a) && !Reserved(a));
 
 			foreach (var a in newUnits)
 			{
@@ -499,6 +505,9 @@ namespace OpenRA.Mods.Common.Traits
 			// Create an attack force when we have enough units around our base.
 			// (don't bother leaving any behind for defense)
 			var randomizedSquadSize = Info.SquadSize + World.LocalRandom.Next(Info.SquadSizeRandomBonus);
+			unitsHangingAroundTheBase.RemoveAll(Reserved);
+			if (!AttacksAllowed)
+				return;
 
 			if (unitsHangingAroundTheBase.Count >= randomizedSquadSize)
 			{
@@ -514,6 +523,10 @@ namespace OpenRA.Mods.Common.Traits
 
 		void TryToRushAttack(IBot bot)
 		{
+			unitsHangingAroundTheBase.RemoveAll(Reserved);
+			if (!AttacksAllowed)
+				return;
+
 			var groundTroopNum = unitsHangingAroundTheBase.Count;
 
 			foreach (var s in Squads)

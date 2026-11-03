@@ -42,6 +42,9 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		public readonly int Interval = 250;
 
+		[Desc("Power plants to add when power runs short, best first.")]
+		public readonly string[] PowerTypes = ["apwr", "powr"];
+
 		public override object Create(ActorInitializer init) { return new RichSpenderBotModule(init.Self, this); }
 	}
 
@@ -63,6 +66,10 @@ namespace OpenRA.Mods.MyRA.Traits
 			if (IsTraitDisabled || ++ticks % Info.Interval != 0)
 				return;
 
+			// SkyNet decides how its money is spent.
+			if (player.PlayerActor.TraitsImplementing<AICommanderBotModule>().Any(m => m.DrivenBySkyNet))
+				return;
+
 			var cash = player.PlayerActor.Trait<PlayerResources>().GetCashAndResources();
 			if (cash < Info.RichCash)
 				return;
@@ -73,6 +80,15 @@ namespace OpenRA.Mods.MyRA.Traits
 			var queues = BotHelpers.Queues(player);
 			var owned = world.Actors.Where(a => a.Owner == player && !a.IsDead && a.IsInWorld).GroupBy(a => a.Info.Name).ToDictionary(g => g.Key, g => g.Count());
 			var added = new List<string>();
+
+			// 0. Short on power? Build a power plant first (slow power cripples every factory and defense).
+			var pm = player.PlayerActor.TraitOrDefault<PowerManager>();
+			if (pm != null && pm.ExcessPower < 50 && !Info.PowerTypes.Any(t => BotHelpers.Queued(player, t) > 0))
+			{
+				var plant = Info.PowerTypes.FirstOrDefault(t => BotHelpers.CanBuild(player, t));
+				if (plant != null && BotHelpers.Queue(bot, player, plant))
+					added.Add(plant);
+			}
 
 			// 1. One more factory at a time, if none is being built already.
 			if (!Info.FactoryTypes.Any(t => BotHelpers.Queued(player, t) > 0))

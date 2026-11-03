@@ -1,0 +1,75 @@
+# El Presidente game mode (OpenRA.Mods.MyRA/Traits/Presidente.cs). Lobby checkbox, off by default.
+World:
+	PresidenteManager:
+
+Player:
+	PresidenteBotModule:
+
+# Presidential limousine: an APC (speed, machine gun, carries 5) with heavy-tank armour. Not buildable.
+LIMO:
+	Inherits: APC
+	-Buildable:
+	-ProducibleWithLevel:
+	-WithProductionIconOverlay:
+	-WithMuzzleOverlay:
+	Valued:
+		Cost: 2000
+	Tooltip:
+		Name: actor-limo.name
+	Health:
+		HP: 60000
+	Armor:
+		Type: Heavy
+	AutoTarget:
+		InitialStanceAI: Defend
+	-Armament:
+	Armament@LIMO:
+		Weapon: M60mg
+		LocalOffset: 85,0,171
+	RenderSprites:
+		Image: limo
+	MapEditorData:
+		Categories: System
+
+# El Presidente: bright orange suit, unarmed. If he dies, his owner loses.
+PRESIDENTE:
+	Inherits: ^Infantry
+	Valued:
+		Cost: 5000
+	Tooltip:
+		Name: actor-presidente.name
+	Health:
+		HP: 6000
+	Passenger:
+		CustomPipType: yellow
+	Voiced:
+		VoiceSet: CivilianMaleVoice
+	WithInfantryBody:
+		IdleSequences: idle1
+	Presidente:
+	RenderSprites:
+		Image: presidente
+	MapEditorData:
+		Categories: System
+
+# Bodyguard: black suit and shades, submachine gun. Follows El Presidente when idle.
+BODYGUARD:
+	Inherits: E1
+	-Buildable:
+	Valued:
+		Cost: 400
+	Tooltip:
+		Name: actor-bodyguard.name
+	Health:
+		HP: 7500
+	Armament@PRIMARY:
+		Weapon: BodyguardSMG
+	Armament@GARRISONED:
+		Weapon: BodyguardSMG
+	Bodyguard:
+	AutoTarget:
+		InitialStanceAI: Defend
+	RenderSprites:
+		Image: bodyguard
+	MapEditorData:
+		Categories: System

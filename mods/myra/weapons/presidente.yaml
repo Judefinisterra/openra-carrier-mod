@@ -1,0 +1,8 @@
+# Bodyguard submachine gun: a quick 3-round burst.
+BodyguardSMG:
+	Inherits: M1Carbine
+	Burst: 3
+	BurstDelays: 3
+	ReloadDelay: 30
+	Range: 5c512
+	Report: gun13.aud
