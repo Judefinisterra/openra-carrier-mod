@@ -3,6 +3,11 @@ hwasong:
 		Filename: hwasong.png
 		Facings: 32
 		Offset: 0,-6
+	empty:
+		Filename: hwasong.png
+		Start: 32
+		Facings: 32
+		Offset: 0,-6
 	icon:
 		Filename: hwasong-icon.png
 

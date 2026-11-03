@@ -823,9 +823,10 @@ bot-skynet =
 actor-hwasong =
     .name = Hwasong ICBM Launcher
     .description =
-    Mobile launcher with a ridiculously large missile. Its nuke
-    charges for 10 minutes (red pip), then Ctrl+click a spot to
-    fire - the same blast as the Typhoon's. Range 40 cells.
+    Mobile launcher with a ridiculously large missile. SINGLE
+    USE: the nuke charges for 10 minutes (red pip), then
+    Ctrl+click a spot to fire - the same blast as the Typhoon's.
+    Range 40 cells. Afterwards the truck is empty for good.
       Requires a Tech Center
 
 actor-artsite =

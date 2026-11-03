@@ -139,8 +139,8 @@ Player:
 		RequiresCondition: demoralized
 
 # --- Hwasong mobile ICBM launcher ------------------------------------------------------------------
-# A truck carrying a ridiculously big missile. Its nuke works exactly like the Typhoon's: it charges for
-# 10 minutes (red pip), then Ctrl+click a spot to fire. Never fails.
+# A truck carrying a ridiculously big missile. SINGLE USE: it charges for 10 minutes (red pip), then Ctrl+click a
+# spot to fire - the Typhoon's blast. Once the missile is gone the truck is empty for good (no reload).
 HWASONG:
 	Inherits: ^Vehicle
 	Buildable:
@@ -180,8 +180,20 @@ HWASONG:
 	ReloadAmmoPool@NUKE:
 		AmmoPool: nuke
 		Delay: 15000
+		RequiresCondition: !launched
+	# Fired once: the missile is gone and never comes back.
+	GrantConditionOnAttack@launched:
+		Condition: launched
+		ArmamentNames: nuke
+		RevokeDelay: 2000000000
 	StopAttackAfterFiring:
 		Armaments: nuke
+	WithFacingSpriteBody:
+		RequiresCondition: !launched
+	WithFacingSpriteBody@empty:
+		Name: empty
+		Sequence: empty
+		RequiresCondition: launched
 	WithAmmoPipsDecoration@NUKE:
 		AmmoPools: nuke
 		PipCount: 1
