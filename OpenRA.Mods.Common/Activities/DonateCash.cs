@@ -31,7 +31,9 @@ namespace OpenRA.Mods.Common.Activities
 		protected override void OnEnterComplete(Actor self, Actor targetActor)
 		{
 			var targetOwner = targetActor.Owner;
-			var donated = targetOwner.PlayerActor.Trait<PlayerResources>().ChangeCash(payload);
+			int donated;
+			using (MoneyLedger.Source("donations"))
+				donated = targetOwner.PlayerActor.Trait<PlayerResources>().ChangeCash(payload);
 
 			var exp = self.Owner.PlayerActor.TraitOrDefault<PlayerExperience>();
 			if (exp != null && targetOwner != self.Owner)

@@ -133,6 +133,7 @@ namespace OpenRA.Mods.Common.Traits
 
 		public void GiveResources(int num, bool isRefund = false)
 		{
+			var before = Resources;
 			Resources += num;
 
 			if (!isRefund)
@@ -149,6 +150,9 @@ namespace OpenRA.Mods.Common.Traits
 
 				Resources = ResourceCapacity;
 			}
+
+			if (!isRefund)
+				MoneyLedger.Income(owner, Resources - before);
 		}
 
 		public void RefundResources(int num)
@@ -167,6 +171,9 @@ namespace OpenRA.Mods.Common.Traits
 
 		public void GiveCash(int num, bool isRefund = false)
 		{
+			if (!isRefund)
+				MoneyLedger.Income(owner, num);
+
 			if (Cash < int.MaxValue)
 			{
 				try

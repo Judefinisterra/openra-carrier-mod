@@ -60,6 +60,10 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		public override void Activate(Actor self, Order order, SupportPowerManager manager)
 		{
+			// Needs somewhere to aim (an order sent without a target would crash the game).
+			if (order.Target.Type == TargetType.Invalid)
+				return;
+
 			base.Activate(self, order, manager);
 			PlayLaunchSounds();
 

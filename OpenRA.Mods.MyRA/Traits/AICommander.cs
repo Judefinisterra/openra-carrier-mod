@@ -921,6 +921,11 @@ namespace OpenRA.Mods.MyRA.Traits
 			sb.AppendLine($"Game time {sec / 60}m{sec % 60:00}s. You are {Label(player)} ({player.Faction.InternalName}).");
 			sb.AppendLine($"Cash {res.Cash + res.Resources}, power {(power != null ? power.ExcessPower.ToString() : "?")}, {buildings.Count} buildings, "
 				+ $"army value {units.Sum(u => BotHelpers.Cost(u.Info))}.");
+			var econ = player.PlayerActor.TraitOrDefault<EconomyManager>();
+			if (econ != null && econ.Active)
+				sb.AppendLine($"ECONOMY ({EconomyMode.LevelOf(world)}): money is scarce. Storage cap ${econ.Capacity} - income above it is WASTED; "
+					+ "each silo adds $3000 (protect them: a destroyed silo loses the money above the new cap). "
+					+ $"Upkeep ${econ.UpkeepPerMinute}/min on your armed units and defences - don't keep units you don't need. Epic weapons cost more.");
 			sb.AppendLine("Your units: " + string.Join(", ", units.GroupBy(u => u.Info.Name).OrderByDescending(g => g.Count()).Take(12)
 				.Select(g => $"{g.Count()} {Name(g.First().Info)}")));
 			sb.AppendLine("Your army by type: " + string.Join(", ", units.GroupBy(u => Category(u.Info)).Select(g => $"{g.Key} {g.Count()}")));

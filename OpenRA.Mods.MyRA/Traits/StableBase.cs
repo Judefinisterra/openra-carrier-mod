@@ -316,7 +316,7 @@ namespace OpenRA.Mods.MyRA.Traits
 				{
 					if (!w.CanPlaceBuilding(cell, ai, bi, null))
 					{
-						res.GiveCash(cost);
+						res.GiveCash(cost, true);
 						return;
 					}
 

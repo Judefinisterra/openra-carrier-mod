@@ -148,11 +148,15 @@ Rules:
 	myra|rules/coup.yaml
 	myra|rules/irondome.yaml
 	myra|rules/moses.yaml
+	myra|rules/sausagefingers.yaml
+	myra|rules/oppositeday.yaml
+	myra|rules/maskirovka.yaml
 	myra|rules/ai-shipyards.yaml
 	myra|rules/ai-general.yaml
 	myra|rules/pricing.yaml
 	myra|rules/northkorea.yaml
 	myra|rules/airbase.yaml
+	myra|rules/economy.yaml
 	myra|rules/mothball.yaml
 
 Sequences:
@@ -191,6 +195,7 @@ Sequences:
 	myra|sequences/dozer.yaml
 	myra|sequences/irondome.yaml
 	myra|sequences/moses.yaml
+	myra|sequences/sausagefingers.yaml
 	myra|sequences/northkorea.yaml
 
 TileSets:

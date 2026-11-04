@@ -196,6 +196,19 @@ namespace OpenRA.Mods.MyRA.Traits
 					+ $"power {power?.PowerProvided ?? 0}/{power?.PowerDrained ?? 0}, army value {stats?.ArmyValue ?? 0}, "
 					+ $"kills {stats?.UnitsKilled ?? 0} units/{stats?.BuildingsKilled ?? 0} bldgs, lost {stats?.UnitsDead ?? 0} units/{stats?.BuildingsDead ?? 0} bldgs");
 
+				// Money: where it came from and where it went (besides normal spending).
+				var book = OpenRA.Mods.Common.MoneyLedger.Of(p);
+				if (book.Count > 0)
+				{
+					var inc = book.Where(kv => !kv.Key.StartsWith('-')).OrderByDescending(kv => kv.Value).Select(kv => $"{kv.Key} ${kv.Value}");
+					var outs = book.Where(kv => kv.Key.StartsWith('-')).OrderByDescending(kv => kv.Value).Select(kv => $"{kv.Key[1..]} ${kv.Value}");
+					buffer.AppendLine("    income: " + string.Join(", ", inc) + (outs.Any() ? "  |  lost/paid: " + string.Join(", ", outs) : ""));
+				}
+
+				var em = p.PlayerActor.TraitOrDefault<EconomyManager>();
+				if (em != null && em.Active)
+					buffer.AppendLine($"    economy: storage cap ${em.Capacity}, upkeep ${em.UpkeepPerMinute}/min");
+
 				foreach (var g in mine.GroupBy(Kind).OrderBy(g => g.Key))
 					buffer.AppendLine($"    {g.Key} {g.Count()}: " + string.Join(", ", g.GroupBy(a => a.Info.Name).OrderByDescending(x => x.Count()).Select(x => $"{x.Key} {x.Count()}")));
 

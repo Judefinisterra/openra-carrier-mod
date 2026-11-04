@@ -108,7 +108,8 @@ namespace OpenRA.Mods.MyRA.Traits
 			var theirs = victim.PlayerActor.Trait<PlayerResources>();
 			var amount = exploit == 1 ? (theirs.Cash + theirs.Resources) * info.StealPercent / 100 : 0;
 			if (amount > 0 && theirs.TakeCash(amount))
-				attacker.PlayerActor.Trait<PlayerResources>().GiveCash(amount);
+				using (OpenRA.Mods.Common.MoneyLedger.Source("cyber attacks"))
+					attacker.PlayerActor.Trait<PlayerResources>().GiveCash(amount);
 
 			// ...steal their technology: from now on we can build their faction's buildings and units.
 			var faction = victim.Faction.InternalName;

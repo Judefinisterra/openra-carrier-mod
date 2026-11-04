@@ -1,0 +1,22 @@
+# Maskirovka (Russia only): appears whenever an enemy has Sausage Fingers charged. Use it and every Russian unit
+# disappears from that enemy's view (not drawn, not on radar, can't be targeted) until they fire Sausage Fingers.
+# Buildings stay visible. (Maskirovka.cs)
+World:
+	MaskirovkaManager:
+
+Player:
+	MaskirovkaPower:
+		OrderName: Maskirovka
+		RequiresCondition: maskirovka-available
+		Icon: maskirovka
+		ChargeInterval: 25
+		Name: maskirovka.name
+		Description: maskirovka.description
+		LaunchSound: subshow1.aud
+		EndChargeTextNotification: notification-maskirovka-ready
+		DisplayTimerRelationships: None
+		SupportPowerPaletteOrder: 73
+	MaskirovkaBotModule:
+
+^ExistsInWorld:
+	MaskirovkaHidden:

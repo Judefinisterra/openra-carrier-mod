@@ -296,7 +296,8 @@ namespace OpenRA.Mods.MyRA.Traits
 				{
 					var amount = self.Info.TraitInfo<CheatCodeOrdersInfo>().Cash;
 					foreach (var p in self.World.Players.Where(p => p.Playable && p.WinState == WinState.Undefined))
-						p.PlayerActor.Trait<PlayerResources>().GiveCash(amount);
+						using (OpenRA.Mods.Common.MoneyLedger.Source("cheats"))
+							p.PlayerActor.Trait<PlayerResources>().GiveCash(amount);
 
 					if (self.World.LocalPlayer != null)
 						TextNotificationsManager.AddSystemLine("Cheat", $"JUBILEE! {self.Owner.ResolvedPlayerName} gave every player +${amount:N0}.");
@@ -343,7 +344,8 @@ namespace OpenRA.Mods.MyRA.Traits
 		static void GiveCash(Actor self)
 		{
 			var info = self.Info.TraitInfo<CheatCodeOrdersInfo>();
-			self.Trait<PlayerResources>().GiveCash(info.Cash);
+			using (OpenRA.Mods.Common.MoneyLedger.Source("cheats"))
+				self.Trait<PlayerResources>().GiveCash(info.Cash);
 			Say(self, $"+${info.Cash:N0}");
 		}
 

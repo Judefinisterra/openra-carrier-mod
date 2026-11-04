@@ -216,9 +216,10 @@ namespace OpenRA.Mods.MyRA.Traits
 			if (++timer >= info.UnloadTicks)
 			{
 				timer = 0;
-				var amount = cargo;
+				var amount = EconomyMode.Scale(self.World, cargo, oil: true);
 				cargo = 0;
-				self.Owner.PlayerActor.Trait<PlayerResources>().GiveCash(amount);
+				using (OpenRA.Mods.Common.MoneyLedger.Source("oil tankers"))
+					self.Owner.PlayerActor.Trait<PlayerResources>().GiveCash(amount);
 
 				var pos = dock.CenterPosition;
 				var color = self.Owner.Color;
