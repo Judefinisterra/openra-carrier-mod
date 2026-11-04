@@ -743,6 +743,31 @@ actor-zlab =
 notification-zombies-charging = Zombie Apocalypse charging.
 notification-zombies-ready = Zombie Apocalypse ready.
 
+## Opposite Day
+actor-opposite =
+    .name = Opposite Day
+    .description = For one minute, the target player's army does the opposite of every order.
+     Moves go the other way, attacks hit their own side, building sells a building
+     and their support powers land on their own base.
+
+notification-opposite-ready = Opposite Day ready.
+
+## Sausage Fingers
+actor-slapshrine =
+    .name = Slap Shrine
+    .description =
+    Superweapon (Israel). When charged, a giant hand with long
+    sausage fingers slaps the target base flat: every building
+    under it is destroyed and nearby units are sent flying.
+    Requires power.
+      Unique: only one at a time
+    .power-name = Sausage Fingers
+    .power-description = A hand bigger than a whole base slaps the target flat.
+     Buildings under it are destroyed; units nearby go flying.
+
+notification-slap-charging = Sausage Fingers charging.
+notification-slap-ready = Sausage Fingers ready.
+
 ## Pirate Ship
 actor-pirate =
     .name = Pirate Ship

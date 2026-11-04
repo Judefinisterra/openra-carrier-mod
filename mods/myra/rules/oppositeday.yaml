@@ -1,0 +1,29 @@
+# Opposite Day: a support power on the Tech Center (every side). When ready, click near an enemy's base: for one
+# minute everything that player orders happens backwards. Moves go the other way, attacks turn on their own units and
+# buildings, building something sells an old building, and support powers (nukes included) land on their own base.
+# Recharges every 10 minutes. (OppositeDay.cs)
+World:
+	OppositeDayManager:
+
+^OppositeDayPower:
+	OppositeDayPower@opposite:
+		OrderName: OppositeDay
+		Icon: opposite
+		ChargeInterval: 15000
+		Duration: 1500
+		Name: actor-opposite.name
+		Description: actor-opposite.description
+		LaunchSound: oppositeday.wav
+		IncomingSound: oppositeday.wav
+		SelectTargetSpeechNotification: SelectTarget
+		SelectTargetTextNotification: notification-select-target
+		EndChargeTextNotification: notification-opposite-ready
+		Cursor: ability
+		DisplayRadarPing: true
+		SupportPowerPaletteOrder: 61
+
+ATEK:
+	Inherits@OPPOSITE: ^OppositeDayPower
+
+STEK:
+	Inherits@OPPOSITE: ^OppositeDayPower

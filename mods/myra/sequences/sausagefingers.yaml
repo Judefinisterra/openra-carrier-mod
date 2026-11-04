@@ -1,0 +1,14 @@
+# Sausage Fingers: the Slap Shrine borrows the Iron Curtain's building, and the giant hand, its shadow and the
+# comic-book lettering.
+slapshrine:
+	Inherits: iron
+	icon:
+		Filename: slapshrine-icon.png
+
+slaphand:
+	idle:
+		Filename: slaphand.png
+	shadow:
+		Filename: slaphand-shadow.png
+	text:
+		Filename: slaptext.png

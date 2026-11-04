@@ -1,0 +1,55 @@
+# Sausage Fingers (Israel only): a superweapon on the Slap Shrine (Defense tab, needs an Allied Tech Center, one per
+# player). When charged, click a base: a giant hand with long sausage fingers swoops in and slaps it flat. Every
+# building under it is destroyed and every unit nearby is flung off to the east and lands hurt. (SausageFingers.cs)
+SLAPSHRINE:
+	Inherits: ^ScienceBuilding
+	Inherits@IDISABLE: ^DisableOnLowPowerOrPowerDown
+	Inherits@shape: ^2x2Shape
+	Selectable:
+		Bounds: 2048, 2048
+	Valued:
+		Cost: 3000
+	Tooltip:
+		Name: actor-slapshrine.name
+	Buildable:
+		Queue: Defense
+		BuildPaletteOrder: 142
+		Prerequisites: atek, structures.israel, ~techlevel.unrestricted
+		BuildLimit: 1
+		Description: actor-slapshrine.description
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+	Health:
+		HP: 100000
+	Armor:
+		Type: Wood
+	RevealsShroud:
+		Range: 5c0
+	RenderSprites:
+		Image: slapshrine
+	SausageFingersPower:
+		OrderName: SausageFingers
+		PauseOnCondition: disabled
+		Icon: slap
+		LaunchSound: whoosh.wav
+		IncomingSound: whoosh.wav
+		ChargeInterval: 15000
+		Name: actor-slapshrine.power-name
+		Description: actor-slapshrine.power-description
+		SelectTargetSpeechNotification: SelectTarget
+		SelectTargetTextNotification: notification-select-target
+		BeginChargeTextNotification: notification-slap-charging
+		EndChargeTextNotification: notification-slap-ready
+		DisplayTimerRelationships: Ally, Neutral, Enemy
+		DisplayRadarPing: True
+		Cursor: nuke
+		SupportPowerPaletteOrder: 72
+	SupportPowerChargeBar:
+	InfiltrateForSupportPowerReset:
+		Types: SpyInfiltrate
+		PlayerExperience: 10
+	Targetable:
+		TargetTypes: GroundActor, C4, DetonateAttack, Structure, SpyInfiltrate
+	Power:
+		Amount: -200

@@ -13,3 +13,7 @@ icon:
 		Filename: zombies-icon.png
 	coup:
 		Filename: coup-icon.png
+	slap:
+		Filename: slap-icon.png
+	opposite:
+		Filename: opposite-icon.png
