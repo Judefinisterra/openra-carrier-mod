@@ -13,4 +13,5 @@ nukepuff:
 nukecrater:
 	idle:
 		Filename: nukecrater.png
+		Scale: 0.6
 		ZOffset: -2047

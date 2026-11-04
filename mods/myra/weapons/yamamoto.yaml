@@ -1,0 +1,43 @@
+# The Yamamoto's 46cm guns: three shells per turret per salvo, a long way, and each lands like a bomb.
+YamamotoGun:
+	Inherits: 8Inch
+	Range: 26c0
+	ReloadDelay: 220
+	Burst: 3
+	BurstDelays: 4
+	Report: turret1.aud
+	Projectile: Bullet
+		Inaccuracy: 1c512
+		ContrailLength: 40
+		ContrailStartWidth: 96
+	Warhead@1Dam: SpreadDamage
+		Spread: 512
+		Damage: 9000
+		Versus:
+			None: 70
+			Wood: 80
+			Light: 90
+			Heavy: 70
+			Concrete: 100
+	Warhead@3Eff: CreateEffect
+		Explosions: yamamoto_blast
+		ImpactSounds: kaboom25.aud
+	Warhead@4EffWater: CreateEffect
+		Explosions: yamamoto_splash
+	Warhead@5Shake: ShakeScreen
+		Duration: 4
+		Intensity: 2
+		Multiplier: 1,1
+
+# The Yamamoto's secondary 15.5cm guns: quicker, shorter-ranged triple turrets for boats and the shoreline.
+YamamotoSecondary:
+	Inherits: 8Inch
+	Range: 12c0
+	ReloadDelay: 70
+	Burst: 3
+	BurstDelays: 3
+	Projectile: Bullet
+		Inaccuracy: 512
+	Warhead@1Dam: SpreadDamage
+		Spread: 256
+		Damage: 3500

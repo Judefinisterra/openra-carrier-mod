@@ -1,0 +1,15 @@
+World:
+	TintPostProcessEffect:
+		Red: 1.1
+		Green: 0.92
+		Blue: 1.051
+		Ambient: 0.9
+	LuaScript:
+		Scripts: demo.lua
+Player:
+	Shroud:
+		FogCheckboxEnabled: False
+		ExploredMapCheckboxEnabled: True
+IDOME:
+	IronDome:
+		NukeKillChance: 100

@@ -1,0 +1,11 @@
+# Ground Station (the Radar Dome building) and the geostationary satellite (the Skyview satellite, bigger).
+gstation:
+	Inherits: dome
+	icon:
+		Filename: gstation-icon.png
+
+geosat:
+	idle:
+		Filename: satellite.png
+		ZOffset: 2047
+		Scale: 1.6

@@ -1,0 +1,688 @@
+# The nuclear program (NuclearProgram.cs, Uranium.cs). Nukes are hard to get:
+#   1. Nuclear Reactor (needs a Radar Dome).  2. Nuclear Lab (needs the reactor).
+#   3. Develop Nuclear Tech: needs the lab and a Tech Center; 10 minutes with one of each, faster with more.
+#      A spy who gets into a lab or Tech Center of a player who has it, and makes it home, steals it.
+#   4. Each Nuclear Lab then enriches uranium by itself (1 unit a minute), in plain sight. If the lab is lost its
+#      uranium lies in the rubble for anyone to grab; its owner's next lab takes it back in.
+#   5. Nukes are built from enriched uranium (EU): test 1, tactical 3, medium 10, hydrogen 20. Set off a test nuke
+#      first (any vehicle; deploy) to unlock the rest.
+#   6. ICBMs are bought for the Missile Silo (1, 3 or 5 warheads, all conventional); swap nukes in by selecting a
+#      drum and right-clicking the silo. Chaff halves the chance of interception.
+# All of this is listed under the Vehicle tab (it works there even without a War Factory).
+
+NREACT:
+	Inherits: APWR
+	Buildable:
+		BuildPaletteOrder: 135
+		Prerequisites: dome, ~techlevel.high
+		Description: actor-nreact.description
+	Valued:
+		Cost: 2000
+	Tooltip:
+		Name: actor-nreact.name
+	Power:
+		Amount: 300
+	ProvidesPrerequisite@nreactor:
+		Prerequisite: nreactor
+	RenderSprites:
+		Image: nreact
+
+NLAB:
+	Inherits: ^ScienceBuilding
+	Inherits@IDISABLE: ^DisableOnLowPowerOrPowerDown
+	Inherits@shape: ^2x2Shape
+	Selectable:
+		Bounds: 2048, 2048
+	Buildable:
+		Queue: Defense
+		BuildPaletteOrder: 136
+		Prerequisites: nreactor, ~techlevel.high
+		Description: actor-nlab.description
+	Valued:
+		Cost: 3000
+	Tooltip:
+		Name: actor-nlab.name
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+	Health:
+		HP: 120000
+	Armor:
+		Type: Heavy
+	RevealsShroud:
+		Range: 6c0
+	Power:
+		Amount: -150
+	Targetable:
+		TargetTypes: GroundActor, C4, DetonateAttack, Structure, SpyInfiltrate
+	# Counts as a Vehicle producer so the Vehicle tab (where its work is listed) works even without a War Factory;
+	# it turns down everything that isn't nuclear, so tanks still come from the War Factory.
+	NuclearLabProduction:
+		Produces: Vehicle, Nuclear, NuclearResearch
+		PauseOnCondition: disabled
+	UraniumEnricher:
+		PauseOnCondition: disabled
+	NuclearSecrets:
+	ProvidesPrerequisite@nlab:
+		Prerequisite: nlab
+	ProvidesPrerequisite@eu1:
+		Prerequisite: eu1
+		RequiresCondition: eu-1
+	ProvidesPrerequisite@eu3:
+		Prerequisite: eu3
+		RequiresCondition: eu-3
+	ProvidesPrerequisite@eu10:
+		Prerequisite: eu10
+		RequiresCondition: eu-10
+	ProvidesPrerequisite@eu20:
+		Prerequisite: eu20
+		RequiresCondition: eu-20
+	RenderSprites:
+		Image: nlab
+
+# Tech Centers help develop Nuclear Tech (each one speeds it up) and can have it stolen from them.
+ATEK:
+	Production@nuclear:
+		Produces: NuclearResearch
+	NuclearSecrets:
+
+STEK:
+	Production@nuclear:
+		Produces: NuclearResearch
+	NuclearSecrets:
+
+# Progress markers: invisible, they only unlock the next step.
+^NukeMarker:
+	NukeMarker:
+	Interactable:
+
+# Researched at the lab and the Tech Centers together. The production queue speeds things up with more producers
+# (86% with two), so 17440 ticks is 10 minutes with one lab and one Tech Center.
+NUCTECH:
+	Inherits: ^NukeMarker
+	Buildable:
+		Queue: Vehicle
+		BuildAtProductionType: NuclearResearch
+		BuildPaletteOrder: 899
+		Prerequisites: nlab, techcenter
+		BuildLimit: 1
+		BuildDuration: 17440
+		BuildDurationModifier: 100
+		Description: actor-nuctech.description
+	Valued:
+		Cost: 5000
+	Tooltip:
+		Name: actor-nuctech.name
+	ProvidesPrerequisite:
+		Prerequisite: nuctech
+	RenderSprites:
+		Image: nuctech
+
+NUKETESTED:
+	Inherits: ^NukeMarker
+	ProvidesPrerequisite:
+		Prerequisite: nuketested
+
+# Enriched uranium left behind by a lost lab. Any side's unit that reaches it takes it.
+URANIUMCACHE:
+	Inherits@1: ^SpriteActor
+	Interactable:
+	HiddenUnderFog:
+		Type: CenterPosition
+	Immobile:
+		OccupiesSpace: false
+	WithSpriteBody:
+	UraniumCache:
+	Tooltip:
+		Name: actor-uraniumcache.name
+	RenderSprites:
+		Image: uraniumcache
+	MapEditorData:
+		Categories: System
+
+# Warhead drums: set down beside the lab. Fragile: a few shots destroy one (it doesn't go off).
+^NukeDrum:
+	Inherits@1: ^SpriteActor
+	Selectable:
+		Bounds: 1024, 1024
+	HiddenUnderFog:
+		Type: CenterPosition
+	Immobile:
+		OccupiesSpace: false
+	WithSpriteBody:
+	Health:
+		HP: 6000
+	Armor:
+		Type: Light
+	HitShape:
+	Targetable:
+		TargetTypes: GroundActor, NoAutoTarget
+	Buildable:
+		Queue: Vehicle
+		BuildAtProductionType: Nuclear
+	MapEditorData:
+		Categories: System
+
+TESTNUKE:
+	Inherits: ^NukeDrum
+	Buildable:
+		BuildPaletteOrder: 901
+		Prerequisites: nuctech, eu1
+		BuildLimit: 1
+		BuildDuration: 750
+		BuildDurationModifier: 100
+		Description: actor-testnuke.description
+	Valued:
+		Cost: 1000
+	Tooltip:
+		Name: actor-testnuke.name
+	NukePackage:
+		Weapon: TestNuke
+		Delivery: Vehicle
+		IsTest: true
+		Name: test nuke
+		Uranium: 1
+	RenderSprites:
+		Image: nuketest
+
+TACNUKE:
+	Inherits: ^NukeDrum
+	Buildable:
+		BuildPaletteOrder: 902
+		Prerequisites: nuketested, eu3
+		BuildDuration: 1500
+		BuildDurationModifier: 100
+		Description: actor-tacnuke.description
+	Valued:
+		Cost: 3000
+	Tooltip:
+		Name: actor-tacnuke.name
+	NukePackage:
+		Weapon: TacticalNuke
+		ShellWeapon: TacticalNukeShell
+		Delivery: Vehicle, Aircraft, Cannon, Icbm
+		Name: tactical nuke
+		Uranium: 3
+	RenderSprites:
+		Image: nuketactical
+
+MEDNUKE:
+	Inherits: ^NukeDrum
+	Buildable:
+		BuildPaletteOrder: 903
+		Prerequisites: nuketested, eu10
+		BuildDuration: 3000
+		BuildDurationModifier: 100
+		Description: actor-mednuke.description
+	Valued:
+		Cost: 10000
+	Tooltip:
+		Name: actor-mednuke.name
+	NukePackage:
+		Weapon: MediumNuke
+		Delivery: Vehicle, Aircraft, Icbm
+		Name: medium nuke
+		Uranium: 10
+	RenderSprites:
+		Image: nukemedium
+
+HBOMB:
+	Inherits: ^NukeDrum
+	Buildable:
+		BuildPaletteOrder: 904
+		Prerequisites: nuketested, eu20
+		BuildDuration: 4500
+		BuildDurationModifier: 100
+		Description: actor-hbomb.description
+	Valued:
+		Cost: 25000
+	Tooltip:
+		Name: actor-hbomb.name
+	NukePackage:
+		Weapon: HydrogenBomb
+		Delivery: HeavyBomber, Icbm
+		Name: hydrogen bomb
+		Uranium: 20
+	RenderSprites:
+		Image: nukehydrogen
+
+# Carriers: one warhead each, with a radiation sign over them while armed.
+^NukeCarrierPip:
+	WithDecoration@NUKE:
+		Image: nukepip
+		Sequence: idle
+		Palette: effect
+		Position: TopRight
+		RequiresCondition: nuke-armed
+
+^Vehicle:
+	Inherits@NUKE: ^NukeCarrierPip
+	NukeCarrier:
+		Classes: Vehicle
+
+^Plane:
+	Inherits@NUKE: ^NukeCarrierPip
+	NukeCarrier:
+		Classes: Aircraft
+
+ARTY:
+	NukeCarrier:
+		Classes: Vehicle, Cannon
+
+B52:
+	NukeCarrier:
+		Classes: Aircraft, HeavyBomber
+
+# Spies come back out of buildings they get into, so they can carry stolen nuclear secrets home.
+SPY:
+	Infiltrates:
+		EnterBehaviour: Exit
+	SecretCarrier:
+
+COUPSPY:
+	Infiltrates:
+		EnterBehaviour: Exit
+	SecretCarrier:
+
+# The Missile Silo is now the ICBM silo (build as many as you like): it doesn't make its own nuke. Buy a missile for
+# it (Vehicle tab); it can be fired as soon as it's in. Only nuclear-armed ICBMs sound the nuclear siren. Firing asks for a target for each warhead; they come down like lightning,
+# and enemy Iron Domes and Nike sites near each impact have a 1 in 20 chance to stop one (1 in 40 with chaff).
+MSLO:
+	# Its old self-charging nuke is switched off (kept, not removed, because some campaign maps adjust it).
+	NukePower:
+		Prerequisites: ~disabled
+	Buildable:
+		BuildLimit: 0
+	IcbmSilo:
+	ProvidesPrerequisite@mslo:
+		Prerequisite: mslo
+	IcbmSiloProduction:
+		Produces: Vehicle, Icbm
+		PauseOnCondition: disabled
+	ProvidesPrerequisite@empty:
+		Prerequisite: icbm-empty
+		RequiresCondition: icbm-empty
+	ProvidesPrerequisite@nochaff:
+		Prerequisite: icbm-nochaff
+		RequiresCondition: icbm-nochaff
+	# One launch button per missile load, each with its own icon (the missile and its warheads: radiation symbols
+	# nuclear, grey conventional). Silos holding the same load share a button.
+	ProvidesPrerequisite@load10:
+		Prerequisite: icbm-1-0
+		RequiresCondition: icbm-1-0
+	IcbmPower@load10:
+		OrderName: IcbmLaunch-1-0
+		Warheads: 1
+		Nukes: 0
+		Prerequisites: icbm-1-0
+		PauseOnCondition: disabled
+		Cursor: nuke
+		Icon: icbm-1-0
+		ChargeInterval: 1
+		StartFullyCharged: true
+		Name: actor-icbm.name
+		Description: actor-icbm.description
+		SelectTargetSpeechNotification: SelectTarget
+		SelectTargetTextNotification: notification-select-target
+		LaunchSound: missile1.aud
+		DisplayTimerRelationships: Ally, Neutral, Enemy
+		DisplayRadarPing: True
+		SupportPowerPaletteOrder: 20
+	ProvidesPrerequisite@load11:
+		Prerequisite: icbm-1-1
+		RequiresCondition: icbm-1-1
+	IcbmPower@load11:
+		OrderName: IcbmLaunch-1-1
+		Warheads: 1
+		Nukes: 1
+		Prerequisites: icbm-1-1
+		PauseOnCondition: disabled
+		Cursor: nuke
+		Icon: icbm-1-1
+		ChargeInterval: 1
+		StartFullyCharged: true
+		Name: actor-icbm.name
+		Description: actor-icbm.description
+		SelectTargetSpeechNotification: SelectTarget
+		IncomingSpeechNotification: AbombLaunchDetected
+		SelectTargetTextNotification: notification-select-target
+		IncomingTextNotification: notification-abomb-launch-detected
+		LaunchSound: nukesiren.wav
+		IncomingSound: nukesiren.wav
+		DisplayTimerRelationships: Ally, Neutral, Enemy
+		DisplayRadarPing: True
+		SupportPowerPaletteOrder: 21
+	ProvidesPrerequisite@load30:
+		Prerequisite: icbm-3-0
+		RequiresCondition: icbm-3-0
+	IcbmPower@load30:
+		OrderName: IcbmLaunch-3-0
+		Warheads: 3
+		Nukes: 0
+		Prerequisites: icbm-3-0
+		PauseOnCondition: disabled
+		Cursor: nuke
+		Icon: icbm-3-0
+		ChargeInterval: 1
+		StartFullyCharged: true
+		Name: actor-icbm.name
+		Description: actor-icbm.description
+		SelectTargetSpeechNotification: SelectTarget
+		SelectTargetTextNotification: notification-select-target
+		LaunchSound: missile1.aud
+		DisplayTimerRelationships: Ally, Neutral, Enemy
+		DisplayRadarPing: True
+		SupportPowerPaletteOrder: 40
+	ProvidesPrerequisite@load31:
+		Prerequisite: icbm-3-1
+		RequiresCondition: icbm-3-1
+	IcbmPower@load31:
+		OrderName: IcbmLaunch-3-1
+		Warheads: 3
+		Nukes: 1
+		Prerequisites: icbm-3-1
+		PauseOnCondition: disabled
+		Cursor: nuke
+		Icon: icbm-3-1
+		ChargeInterval: 1
+		StartFullyCharged: true
+		Name: actor-icbm.name
+		Description: actor-icbm.description
+		SelectTargetSpeechNotification: SelectTarget
+		IncomingSpeechNotification: AbombLaunchDetected
+		SelectTargetTextNotification: notification-select-target
+		IncomingTextNotification: notification-abomb-launch-detected
+		LaunchSound: nukesiren.wav
+		IncomingSound: nukesiren.wav
+		DisplayTimerRelationships: Ally, Neutral, Enemy
+		DisplayRadarPing: True
+		SupportPowerPaletteOrder: 41
+	ProvidesPrerequisite@load32:
+		Prerequisite: icbm-3-2
+		RequiresCondition: icbm-3-2
+	IcbmPower@load32:
+		OrderName: IcbmLaunch-3-2
+		Warheads: 3
+		Nukes: 2
+		Prerequisites: icbm-3-2
+		PauseOnCondition: disabled
+		Cursor: nuke
+		Icon: icbm-3-2
+		ChargeInterval: 1
+		StartFullyCharged: true
+		Name: actor-icbm.name
+		Description: actor-icbm.description
+		SelectTargetSpeechNotification: SelectTarget
+		IncomingSpeechNotification: AbombLaunchDetected
+		SelectTargetTextNotification: notification-select-target
+		IncomingTextNotification: notification-abomb-launch-detected
+		LaunchSound: nukesiren.wav
+		IncomingSound: nukesiren.wav
+		DisplayTimerRelationships: Ally, Neutral, Enemy
+		DisplayRadarPing: True
+		SupportPowerPaletteOrder: 42
+	ProvidesPrerequisite@load33:
+		Prerequisite: icbm-3-3
+		RequiresCondition: icbm-3-3
+	IcbmPower@load33:
+		OrderName: IcbmLaunch-3-3
+		Warheads: 3
+		Nukes: 3
+		Prerequisites: icbm-3-3
+		PauseOnCondition: disabled
+		Cursor: nuke
+		Icon: icbm-3-3
+		ChargeInterval: 1
+		StartFullyCharged: true
+		Name: actor-icbm.name
+		Description: actor-icbm.description
+		SelectTargetSpeechNotification: SelectTarget
+		IncomingSpeechNotification: AbombLaunchDetected
+		SelectTargetTextNotification: notification-select-target
+		IncomingTextNotification: notification-abomb-launch-detected
+		LaunchSound: nukesiren.wav
+		IncomingSound: nukesiren.wav
+		DisplayTimerRelationships: Ally, Neutral, Enemy
+		DisplayRadarPing: True
+		SupportPowerPaletteOrder: 43
+	ProvidesPrerequisite@load50:
+		Prerequisite: icbm-5-0
+		RequiresCondition: icbm-5-0
+	IcbmPower@load50:
+		OrderName: IcbmLaunch-5-0
+		Warheads: 5
+		Nukes: 0
+		Prerequisites: icbm-5-0
+		PauseOnCondition: disabled
+		Cursor: nuke
+		Icon: icbm-5-0
+		ChargeInterval: 1
+		StartFullyCharged: true
+		Name: actor-icbm.name
+		Description: actor-icbm.description
+		SelectTargetSpeechNotification: SelectTarget
+		SelectTargetTextNotification: notification-select-target
+		LaunchSound: missile1.aud
+		DisplayTimerRelationships: Ally, Neutral, Enemy
+		DisplayRadarPing: True
+		SupportPowerPaletteOrder: 60
+	ProvidesPrerequisite@load51:
+		Prerequisite: icbm-5-1
+		RequiresCondition: icbm-5-1
+	IcbmPower@load51:
+		OrderName: IcbmLaunch-5-1
+		Warheads: 5
+		Nukes: 1
+		Prerequisites: icbm-5-1
+		PauseOnCondition: disabled
+		Cursor: nuke
+		Icon: icbm-5-1
+		ChargeInterval: 1
+		StartFullyCharged: true
+		Name: actor-icbm.name
+		Description: actor-icbm.description
+		SelectTargetSpeechNotification: SelectTarget
+		IncomingSpeechNotification: AbombLaunchDetected
+		SelectTargetTextNotification: notification-select-target
+		IncomingTextNotification: notification-abomb-launch-detected
+		LaunchSound: nukesiren.wav
+		IncomingSound: nukesiren.wav
+		DisplayTimerRelationships: Ally, Neutral, Enemy
+		DisplayRadarPing: True
+		SupportPowerPaletteOrder: 61
+	ProvidesPrerequisite@load52:
+		Prerequisite: icbm-5-2
+		RequiresCondition: icbm-5-2
+	IcbmPower@load52:
+		OrderName: IcbmLaunch-5-2
+		Warheads: 5
+		Nukes: 2
+		Prerequisites: icbm-5-2
+		PauseOnCondition: disabled
+		Cursor: nuke
+		Icon: icbm-5-2
+		ChargeInterval: 1
+		StartFullyCharged: true
+		Name: actor-icbm.name
+		Description: actor-icbm.description
+		SelectTargetSpeechNotification: SelectTarget
+		IncomingSpeechNotification: AbombLaunchDetected
+		SelectTargetTextNotification: notification-select-target
+		IncomingTextNotification: notification-abomb-launch-detected
+		LaunchSound: nukesiren.wav
+		IncomingSound: nukesiren.wav
+		DisplayTimerRelationships: Ally, Neutral, Enemy
+		DisplayRadarPing: True
+		SupportPowerPaletteOrder: 62
+	ProvidesPrerequisite@load53:
+		Prerequisite: icbm-5-3
+		RequiresCondition: icbm-5-3
+	IcbmPower@load53:
+		OrderName: IcbmLaunch-5-3
+		Warheads: 5
+		Nukes: 3
+		Prerequisites: icbm-5-3
+		PauseOnCondition: disabled
+		Cursor: nuke
+		Icon: icbm-5-3
+		ChargeInterval: 1
+		StartFullyCharged: true
+		Name: actor-icbm.name
+		Description: actor-icbm.description
+		SelectTargetSpeechNotification: SelectTarget
+		IncomingSpeechNotification: AbombLaunchDetected
+		SelectTargetTextNotification: notification-select-target
+		IncomingTextNotification: notification-abomb-launch-detected
+		LaunchSound: nukesiren.wav
+		IncomingSound: nukesiren.wav
+		DisplayTimerRelationships: Ally, Neutral, Enemy
+		DisplayRadarPing: True
+		SupportPowerPaletteOrder: 63
+	ProvidesPrerequisite@load54:
+		Prerequisite: icbm-5-4
+		RequiresCondition: icbm-5-4
+	IcbmPower@load54:
+		OrderName: IcbmLaunch-5-4
+		Warheads: 5
+		Nukes: 4
+		Prerequisites: icbm-5-4
+		PauseOnCondition: disabled
+		Cursor: nuke
+		Icon: icbm-5-4
+		ChargeInterval: 1
+		StartFullyCharged: true
+		Name: actor-icbm.name
+		Description: actor-icbm.description
+		SelectTargetSpeechNotification: SelectTarget
+		IncomingSpeechNotification: AbombLaunchDetected
+		SelectTargetTextNotification: notification-select-target
+		IncomingTextNotification: notification-abomb-launch-detected
+		LaunchSound: nukesiren.wav
+		IncomingSound: nukesiren.wav
+		DisplayTimerRelationships: Ally, Neutral, Enemy
+		DisplayRadarPing: True
+		SupportPowerPaletteOrder: 64
+	ProvidesPrerequisite@load55:
+		Prerequisite: icbm-5-5
+		RequiresCondition: icbm-5-5
+	IcbmPower@load55:
+		OrderName: IcbmLaunch-5-5
+		Warheads: 5
+		Nukes: 5
+		Prerequisites: icbm-5-5
+		PauseOnCondition: disabled
+		Cursor: nuke
+		Icon: icbm-5-5
+		ChargeInterval: 1
+		StartFullyCharged: true
+		Name: actor-icbm.name
+		Description: actor-icbm.description
+		SelectTargetSpeechNotification: SelectTarget
+		IncomingSpeechNotification: AbombLaunchDetected
+		SelectTargetTextNotification: notification-select-target
+		IncomingTextNotification: notification-abomb-launch-detected
+		LaunchSound: nukesiren.wav
+		IncomingSound: nukesiren.wav
+		DisplayTimerRelationships: Ally, Neutral, Enemy
+		DisplayRadarPing: True
+		SupportPowerPaletteOrder: 65
+
+# Missiles and chaff: each goes into a silo that has room for it (build more silos for more missiles).
+^IcbmItem:
+	Interactable:
+	Buildable:
+		Queue: Vehicle
+		BuildAtProductionType: Icbm
+	RenderSprites:
+
+ICBM1:
+	Inherits: ^IcbmItem
+	Buildable:
+		BuildPaletteOrder: 910
+		Prerequisites: mslo, icbm-empty
+		BuildDuration: 1500
+		BuildDurationModifier: 100
+		Description: actor-icbm1.description
+	Valued:
+		Cost: 3000
+	Tooltip:
+		Name: actor-icbm1.name
+	IcbmMissile:
+		Warheads: 1
+	RenderSprites:
+		Image: icbm1
+
+ICBM3:
+	Inherits: ^IcbmItem
+	Buildable:
+		BuildPaletteOrder: 911
+		Prerequisites: mslo, icbm-empty
+		BuildDuration: 2250
+		BuildDurationModifier: 100
+		Description: actor-icbm3.description
+	Valued:
+		Cost: 8000
+	Tooltip:
+		Name: actor-icbm3.name
+	IcbmMissile:
+		Warheads: 3
+	RenderSprites:
+		Image: icbm3
+
+ICBM5:
+	Inherits: ^IcbmItem
+	Buildable:
+		BuildPaletteOrder: 912
+		Prerequisites: mslo, icbm-empty
+		BuildDuration: 3750
+		BuildDurationModifier: 100
+		Description: actor-icbm5.description
+	Valued:
+		Cost: 16000
+	Tooltip:
+		Name: actor-icbm5.name
+	IcbmMissile:
+		Warheads: 5
+	RenderSprites:
+		Image: icbm5
+
+CHAFF:
+	Inherits: ^IcbmItem
+	Buildable:
+		BuildPaletteOrder: 913
+		Prerequisites: icbm-nochaff
+		BuildDuration: 500
+		BuildDurationModifier: 100
+		Description: actor-chaff.description
+	Valued:
+		Cost: 1500
+	Tooltip:
+		Name: actor-chaff.name
+	IcbmChaff:
+	RenderSprites:
+		Image: chaff
+
+# Craters sized to each warhead (the hydrogen bomb leaves the full-size one).
+nukecrater-test:
+	Inherits: nukecrater
+	RenderSprites:
+		Image: nukecrater-test
+
+nukecrater-tactical:
+	Inherits: nukecrater
+	RenderSprites:
+		Image: nukecrater-tactical
+
+nukecrater-medium:
+	Inherits: nukecrater
+	RenderSprites:
+		Image: nukecrater-medium
+
+# No more starting A-bomb on the Construction Yard: nukes come only from the nuclear program.
+FACT:
+	NukePower@UKRAINE:
+		Prerequisites: ~disabled
+
+# Trees caught by a nuke burn black and smoke for minutes, but stay standing.
+^Tree:
+	Scorchable:

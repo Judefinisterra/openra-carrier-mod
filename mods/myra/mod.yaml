@@ -145,14 +145,19 @@ Rules:
 	myra|rules/dozer.yaml
 	myra|rules/israel.yaml
 	myra|rules/zombies.yaml
-	myra|rules/coup.yaml
 	myra|rules/irondome.yaml
 	myra|rules/moses.yaml
 	myra|rules/sausagefingers.yaml
 	myra|rules/oppositeday.yaml
+	myra|rules/defense.yaml
+	myra|rules/aviation.yaml
+	myra|rules/yamamoto.yaml
+	myra|rules/geosat.yaml
 	myra|rules/ai-shipyards.yaml
 	myra|rules/ai-general.yaml
 	myra|rules/pricing.yaml
+	myra|rules/nuclear.yaml
+	myra|rules/spycenter.yaml
 
 Sequences:
 	ra|sequences/ships.yaml
@@ -191,6 +196,11 @@ Sequences:
 	myra|sequences/irondome.yaml
 	myra|sequences/moses.yaml
 	myra|sequences/sausagefingers.yaml
+	myra|sequences/aviation.yaml
+	myra|sequences/yamamoto.yaml
+	myra|sequences/geosat.yaml
+	myra|sequences/nuclear.yaml
+	myra|sequences/spycenter.yaml
 
 TileSets:
 	ra|tilesets/snow.yaml
@@ -299,6 +309,10 @@ Weapons:
 	myra|weapons/meganuke.yaml
 	myra|weapons/pager.yaml
 	myra|weapons/zombie.yaml
+	myra|weapons/aviation.yaml
+	myra|weapons/yamamoto.yaml
+	myra|weapons/geosat.yaml
+	myra|weapons/nuclear.yaml
 
 Voices:
 	ra|audio/voices.yaml

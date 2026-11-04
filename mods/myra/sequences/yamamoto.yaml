@@ -1,0 +1,24 @@
+# The Yamamoto at full resolution: hull and turret sheets with 32 facings each.
+yamamoto:
+	idle:
+		Filename: yamamoto.png
+		Facings: 32
+	turret-main:
+		Filename: yamamoto-turret-main.png
+		Facings: 32
+	turret-secondary:
+		Filename: yamamoto-turret-secondary.png
+		Facings: 32
+	muzzle:
+		Filename: gunfire2.shp
+		Length: 5
+	icon:
+		Filename: yamamoto-icon.png
+
+explosion:
+	yamamoto_blast:
+		Filename: art-exp1.shp
+		Scale: 2
+	yamamoto_splash:
+		Filename: h2o_exp1.shp
+		Scale: 2

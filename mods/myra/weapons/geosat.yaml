@@ -1,0 +1,14 @@
+# Anti-satellite missile: climbs to orbit and kills a satellite in two or three hits.
+ASATMissile:
+	Inherits: Nike
+	ReloadDelay: 100
+	Range: 40c0
+	ValidTargets: Satellite
+	Projectile: Missile
+		Speed: 600
+		RangeLimit: 50c0
+		HorizontalRateOfTurn: 60
+		ContrailLength: 40
+	Warhead@1Dam: SpreadDamage
+		Damage: 12000
+		ValidTargets: Satellite

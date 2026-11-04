@@ -1,0 +1,115 @@
+# Geostationary satellites and anti-satellite missiles (GeoSatellite.cs).
+#   Ground Station: launches a geostationary satellite at a spot (an enemy base); it parks overhead for good and
+#   shows you everything within 14 cells, until shot down. Recharges every 5 minutes; launch as many as you like.
+#   ASAT Launcher: a long-range missile site that shoots down enemy satellites (these and the Skyview ones).
+
+GSTATION:
+	Inherits: ^Building
+	Inherits@IDISABLE: ^DisableOnLowPowerOrPowerDown
+	Inherits@shape: ^2x2Shape
+	Buildable:
+		Queue: Defense
+		BuildPaletteOrder: 106
+		Prerequisites: techcenter, ~techlevel.high
+		Description: actor-gstation.description
+	Valued:
+		Cost: 4000
+	Tooltip:
+		Name: actor-gstation.name
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+	Selectable:
+		Bounds: 2048, 2048
+	Health:
+		HP: 100000
+	Armor:
+		Type: Wood
+	RevealsShroud:
+		Range: 6c0
+	Power:
+		Amount: -150
+	GeoSatellitePower:
+		OrderName: GeoSatellite
+		PauseOnCondition: disabled
+		Icon: geosat
+		ChargeInterval: 7500
+		Name: actor-gstation.power-name
+		Description: actor-gstation.power-description
+		SelectTargetSpeechNotification: SelectTarget
+		SelectTargetTextNotification: notification-select-target
+		EndChargeTextNotification: notification-geosat-ready
+		Cursor: ability
+		DisplayRadarPing: true
+		SupportPowerPaletteOrder: 62
+	SupportPowerChargeBar:
+	RenderSprites:
+		Image: gstation
+
+GEOSAT:
+	Inherits@1: ^ExistsInWorld
+	Inherits@4: ^SpriteActor
+	-GivesExperience:
+	Interactable:
+	Aircraft:
+		Speed: 140
+		CruiseAltitude: 4096
+		TurnSpeed: 20
+		Repulsable: false
+		CanHover: true
+		IdleBehavior: None
+	GeoStationary:
+	RevealsShroud:
+		Range: 14c0
+		Type: GroundPosition
+	HiddenUnderFog:
+		Type: CenterPosition
+	Health:
+		HP: 30000
+	Armor:
+		Type: Light
+	HitShape:
+	Targetable:
+		TargetTypes: Satellite
+	FireWarheadsOnDeath:
+		Weapon: UnitExplodePlane
+	WithFacingSpriteBody:
+	Tooltip:
+		Name: actor-geosat.name
+	RenderSprites:
+		Image: geosat
+	MapEditorData:
+		Categories: System
+
+# PJ's Skyview satellites can now be shot down too (by ASAT missiles only).
+SATELLITE:
+	Health:
+		HP: 15000
+	Armor:
+		Type: Light
+	HitShape:
+	Targetable:
+		TargetTypes: Satellite
+	FireWarheadsOnDeath:
+		Weapon: UnitExplodePlane
+
+ASAT:
+	Inherits: SAM
+	Buildable:
+		BuildPaletteOrder: 107
+		Prerequisites: techcenter, ~techlevel.high
+		Description: actor-asat.description
+	Valued:
+		Cost: 2000
+	Tooltip:
+		Name: actor-asat.name
+	Armament:
+		Weapon: ASATMissile
+	AutoTargetPriority@DEFAULT:
+		ValidTargets: Satellite
+	WithRangeCircle:
+		Type: ASAT
+		Range: 40c0
+		Color: B050FF
+	RenderSprites:
+		Image: sam

@@ -1,0 +1,149 @@
+# Nuclear program warheads (rules/nuclear.yaml). Each is the big bomb in miniature: the same shockwave ring, fireball,
+# rising mushroom cloud and radiation (the NuclearAftermath warhead), shrunk, and without the orange sky or the
+# map-wide flash. Test: blast about 3 cells, cloud a fifth of full size. Tactical: three times the test. Medium: twice
+# the tactical. Hydrogen: the full MegaNuke. Each has a blinding flash at ground zero (only those looking see it),
+# the shockwave and a small crater sized to its power. Up close everything is vaporized, leaving nuclear
+# shadows on the ground; trees and ore further out burn black and smoke.
+^MiniNuke:
+	ValidTargets: Ground, Water, GroundActor, WaterActor, Trees
+	Projectile: GravityBomb
+		Image: parabomb
+		Velocity: 0, 0, -80
+		Acceleration: 0, 0, -8
+	Warhead@Sound: CreateEffect
+		ImpactSounds: kaboom1.aud
+		ImpactActors: false
+		ValidTargets: Ground, Water, Air
+	Warhead@Aftermath: NuclearAftermath
+		ValidTargets: Ground, Water, Air
+		StartsGrade: false
+		Versus:
+			Concrete: 60
+
+TestNuke:
+	Inherits: ^MiniNuke
+	Warhead@Aftermath: NuclearAftermath
+		VaporizeRadius: 1c512
+		InfantryVaporizeRadius: 3c0
+		FireRadius: 4c0
+		BlastRadius: 3c0
+		ShockwaveDuration: 14
+		PeakDamage: 40000
+		HalfDamageDistance: 1c0
+		HalfBurnDistance: 1c0
+		RadiationRadius: 2c0
+		RadiationDuration: 250
+		RadiationDamage: 120
+		HalfRadiationDistance: 1c0
+		CloudScale: 20
+		LocalFlash: 10
+		LocalFlashRadius: 3c0
+		Crater: nukecrater-test
+		CloudDuration: 900
+		CloudFade: 250
+	Warhead@Shake: ShakeScreen
+		Duration: 15
+		Intensity: 2
+		Multiplier: 1,1
+
+TacticalNuke:
+	Inherits: ^MiniNuke
+	Warhead@Aftermath: NuclearAftermath
+		VaporizeRadius: 3c0
+		InfantryVaporizeRadius: 6c0
+		FireRadius: 8c0
+		BlastRadius: 9c0
+		ShockwaveDuration: 28
+		PeakDamage: 90000
+		HalfDamageDistance: 2c0
+		HalfBurnDistance: 2c512
+		RadiationRadius: 5c0
+		RadiationDuration: 500
+		RadiationDamage: 200
+		HalfRadiationDistance: 2c0
+		CloudScale: 40
+		LocalFlash: 14
+		LocalFlashRadius: 7c0
+		CloudDuration: 1200
+		CloudFade: 300
+		Crater: nukecrater-tactical
+	Warhead@Shake: ShakeScreen
+		Duration: 30
+		Intensity: 5
+		Multiplier: 1,1
+
+TacticalNukeShell:
+	Inherits: TacticalNuke
+	Range: 14c0
+	Report: tank5.aud
+	Projectile: Bullet
+		Image: 120MM
+		Speed: 280
+		LaunchAngle: 62
+		Blockable: false
+		ContrailLength: 30
+
+MediumNuke:
+	Inherits: ^MiniNuke
+	Warhead@Aftermath: NuclearAftermath
+		VaporizeRadius: 6c0
+		InfantryVaporizeRadius: 11c0
+		FireRadius: 14c0
+		BlastRadius: 18c0
+		ShockwaveDuration: 45
+		PeakDamage: 160000
+		HalfDamageDistance: 3c0
+		HalfBurnDistance: 4c0
+		RadiationRadius: 9c0
+		RadiationDuration: 900
+		RadiationDamage: 300
+		HalfRadiationDistance: 3c0
+		CloudScale: 65
+		LocalFlash: 18
+		LocalFlashRadius: 12c0
+		CloudDuration: 1400
+		CloudFade: 350
+		Crater: nukecrater-medium
+	Warhead@Shake: ShakeScreen
+		Duration: 50
+		Intensity: 8
+		Multiplier: 1.5,1.5
+
+HydrogenBomb:
+	Inherits: MegaNuke
+	Projectile: GravityBomb
+		Image: parabomb
+		Velocity: 0, 0, -60
+		Acceleration: 0, 0, -6
+
+# An ICBM's conventional warhead: no nuclear fire, but enough to wreck most buildings where it lands.
+IcbmConventional:
+	ValidTargets: Ground, Water, GroundActor, WaterActor, Trees
+	Warhead@1Dam: SpreadDamage
+		Spread: 1c0
+		Damage: 140000
+		Falloff: 100, 60, 30, 10, 0
+		ValidTargets: GroundActor, WaterActor, Trees
+		Versus:
+			None: 100
+			Wood: 100
+			Light: 100
+			Heavy: 90
+			Concrete: 85
+		DamageTypes: Prone50Percent, TriggerProne, ExplosionDeath
+	Warhead@2Eff: CreateEffect
+		Explosions: large_napalm
+		ImpactSounds: kaboom25.aud, kaboom22.aud
+		ValidTargets: Ground, Water, GroundActor, WaterActor, Trees
+	Warhead@3Eff: CreateEffect
+		Explosions: building
+		Delay: 4
+		ValidTargets: Ground, Water, GroundActor, WaterActor, Trees
+	Warhead@4Smu: LeaveSmudge
+		SmudgeType: Crater
+		Size: 2
+		ValidTargets: Ground, Infantry
+	Warhead@5Shake: ShakeScreen
+		Duration: 15
+		Intensity: 4
+		Multiplier: 1,1

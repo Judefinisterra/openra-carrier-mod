@@ -1,0 +1,100 @@
+# Spy Center and coups (SpyCoup.cs). The Spy Center trains spies who pass for the enemy's own soldiers inside their
+# base. With 3 or more spies inside the same enemy base for 5 minutes in total, the Spy Center can stage a coup:
+# 20% (3 spies) to 50% (10 spies) of that player's armed units and defences go rogue to capture El Presidente.
+# If they take him, a usurper rules: kill him within 5 minutes or lose everything.
+World:
+	CoupManager:
+
+SPYCTR:
+	Inherits: ^Building
+	Inherits@IDISABLE: ^DisableOnLowPowerOrPowerDown
+	Inherits@shape: ^2x2Shape
+	Buildable:
+		Queue: Defense
+		BuildPaletteOrder: 137
+		Prerequisites: techcenter, ~techlevel.high
+		BuildLimit: 1
+		Description: actor-spyctr.description
+	Valued:
+		Cost: 3000
+	Tooltip:
+		Name: actor-spyctr.name
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+	Selectable:
+		Bounds: 2048, 2048
+		DecorationBounds: 2048, 5632, 0, -1792
+	Health:
+		HP: 140000
+	Armor:
+		Type: Heavy
+	RevealsShroud:
+		Range: 9c0
+	Power:
+		Amount: -100
+	Exit@1:
+		SpawnOffset: 0,1c0,0
+		ExitCell: 1,2
+	RallyPoint:
+	Production:
+		Produces: SpyCenter
+		PauseOnCondition: disabled
+	ProvidesPrerequisite@spycenter:
+		Prerequisite: spycenter
+	ExternalCondition@plot:
+		Condition: coup-plotting
+	# Its charge is the plot's 5-minute clock: it shows once a plot starts and only runs while 3+ spies are inside.
+	StageCoupPower:
+		OrderName: StageCoup
+		Prerequisites: coup-ready
+		PauseOnCondition: disabled || !coup-plotting
+		Icon: stagecoup
+		ChargeInterval: 7500
+		DisplayTimerRelationships: Ally
+		EndChargeTextNotification: notification-coup-ready
+		Name: actor-spyctr.power-name
+		Description: actor-spyctr.power-description
+		LaunchSound: coupdrums.wav
+		IncomingSound: coupdrums.wav
+		SelectTargetSpeechNotification: SelectTarget
+		SelectTargetTextNotification: notification-select-target
+		Cursor: ability
+		DisplayRadarPing: true
+		SupportPowerPaletteOrder: 60
+	SupportPowerChargeBar:
+	RenderSprites:
+		Image: spycenter
+
+# Marks that a coup plot has started (shows the Spy Center's coup power).
+COUPREADY:
+	ProvidesPrerequisite:
+		Prerequisite: coup-ready
+
+COUPSPY:
+	Inherits: SPY
+	Buildable:
+		Queue: Infantry
+		BuildAtProductionType: SpyCenter
+		BuildPaletteOrder: 210
+		Prerequisites: spycenter, ~techlevel.high
+		Description: actor-coupspy.description
+	Valued:
+		Cost: 800
+	Tooltip:
+		Name: actor-coupspy.name
+	CoupSpy:
+	RenderSprites:
+		Image: coupspy
+
+# El Presidente can't be hurt while a coup is trying to capture him; his limousine lets him out if it's destroyed.
+PRESIDENTE:
+	ExternalCondition@coup:
+		Condition: coup-target
+	DamageMultiplier@coup:
+		Modifier: 0
+		RequiresCondition: coup-target
+
+LIMO:
+	Cargo:
+		EjectOnDeath: true

@@ -75,6 +75,9 @@ namespace OpenRA.Mods.MyRA.Traits
 	[Desc("Turns orders around for players under Opposite Day. Attach to the world actor.")]
 	public class OppositeDayManagerInfo : TraitInfo
 	{
+		[Desc("Ticks between checks for units that started attacking an enemy on their own.")]
+		public readonly int RecheckInterval = 25;
+
 		[Desc("A player under Opposite Day sells at most one building this often (ticks), however much they try to build.")]
 		public readonly int SellInterval = 75;
 
@@ -99,6 +102,9 @@ namespace OpenRA.Mods.MyRA.Traits
 		public void Start(Player victim, Player attacker, int duration)
 		{
 			until[victim] = world.WorldTick + duration;
+
+			// It starts mid-battle: whatever their units are doing right now turns around too.
+			FlipOngoing(victim, true);
 			var seconds = duration / 25;
 			world.AddFrameEndTask(w =>
 			{
@@ -119,6 +125,10 @@ namespace OpenRA.Mods.MyRA.Traits
 		{
 			foreach (var (p, end) in until.ToList())
 			{
+				// Units that lock onto an enemy by themselves (no order involved) get turned around as well.
+				if ((world.WorldTick - end) % info.RecheckInterval == 0)
+					FlipOngoing(p, false);
+
 				if (world.WorldTick < end)
 					continue;
 
@@ -128,6 +138,43 @@ namespace OpenRA.Mods.MyRA.Traits
 					if (w.LocalPlayer != null)
 						TextNotificationsManager.AddSystemLine("Opposite Day", $"Opposite Day is over for {p.ResolvedPlayerName}.");
 				});
+			}
+		}
+
+		// Turns around what the player's units are doing now: anyone attacking an enemy attacks their own side
+		// instead, and (when moves is set) anyone on the move heads the opposite way.
+		void FlipOngoing(Player p, bool moves)
+		{
+			foreach (var a in world.Actors.Where(a => a.Owner == p && !a.IsDead && a.IsInWorld && a.OccupiesSpace != null
+				&& !a.IsIdle && a.Info.HasTraitInfo<IMoveInfo>()).ToList())
+			{
+				// What it's doing, from the target lines its activities draw: an enemy it is attacking if there is one,
+				// otherwise where it's going.
+				var nodes = a.CurrentActivity.TargetLineNodes(a).Select(n => n.Target).Where(t => t.Type != TargetType.Invalid).ToList();
+				var target = nodes.FirstOrDefault(t => t.Type is TargetType.Actor or TargetType.FrozenActor);
+				if (target.Type == TargetType.Invalid)
+					target = nodes.FirstOrDefault();
+
+				if (target.Type == TargetType.Invalid)
+					continue;
+
+				Order order;
+				if (target.Type is TargetType.Actor or TargetType.FrozenActor)
+				{
+					var owner = target.Type == TargetType.Actor ? target.Actor.Owner : target.FrozenActor.Owner;
+					if (p.RelationshipWith(owner) != PlayerRelationship.Enemy || !a.Info.HasTraitInfo<AttackBaseInfo>())
+						continue;
+
+					order = new Order("Attack", a, target, false);
+				}
+				else if (moves)
+					order = new Order("Move", a, target, false);
+				else
+					continue;
+
+				var flipped = Flip(a, order);
+				if (flipped != null && flipped != order)
+					a.ResolveOrder(flipped);
 			}
 		}
 

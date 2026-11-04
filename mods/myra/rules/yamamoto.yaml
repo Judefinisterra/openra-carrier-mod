@@ -1,0 +1,142 @@
+# The Yamamoto: a super-battleship 7 cells long, bigger than the aircraft carrier. Three triple 46cm main turrets
+# (two forward, one aft) shell a long way inland, and four triple secondary turrets amidships cover the near water and
+# shore. Slow and very hard to sink. Full-resolution art from yamamoto.png and its turret sheets.
+YAMAMOTO:
+	Inherits: CA
+	Buildable:
+		BuildPaletteOrder: 55
+		Prerequisites: ~syrd, atek, ~techlevel.high, ~!tribalkingdom
+		Description: actor-yamamoto.description
+	Valued:
+		Cost: 6000
+	Tooltip:
+		Name: actor-yamamoto.name
+	Health:
+		HP: 400000
+	Mobile:
+		TurnSpeed: 6
+		Speed: 30
+	RevealsShroud:
+		MinRange: 5c0
+		Range: 10c0
+	-Turreted@PRIMARY:
+	-Turreted@SECONDARY:
+	-Armament@PRIMARY:
+	-Armament@SECONDARY:
+	-WithSpriteTurret@PRIMARY:
+	-WithSpriteTurret@SECONDARY:
+	Turreted@MAIN1:
+		Turret: main1
+		Offset: 2475,0,128
+		TurnSpeed: 8
+	Turreted@MAIN2:
+		Turret: main2
+		Offset: 1451,0,192
+		TurnSpeed: 8
+	Turreted@MAIN3:
+		Turret: main3
+		Offset: -2133,0,128
+		TurnSpeed: 8
+		InitialFacing: 512
+	Turreted@SEC1:
+		Turret: sec1
+		Offset: 512,-469,128
+		TurnSpeed: 16
+	Turreted@SEC2:
+		Turret: sec2
+		Offset: 512,469,128
+		TurnSpeed: 16
+	Turreted@SEC3:
+		Turret: sec3
+		Offset: -1280,-469,128
+		TurnSpeed: 16
+	Turreted@SEC4:
+		Turret: sec4
+		Offset: -1280,469,128
+		TurnSpeed: 16
+	Armament@MAIN1:
+		Turret: main1
+		Weapon: YamamotoGun
+		LocalOffset: 1100,-222,60, 1100,0,60, 1100,222,60
+		Recoil: 200
+		RecoilRecovery: 20
+		MuzzleSequence: muzzle
+	Armament@MAIN2:
+		Turret: main2
+		Weapon: YamamotoGun
+		LocalOffset: 1100,-222,60, 1100,0,60, 1100,222,60
+		Recoil: 200
+		RecoilRecovery: 20
+		MuzzleSequence: muzzle
+	Armament@MAIN3:
+		Turret: main3
+		Weapon: YamamotoGun
+		LocalOffset: 1100,-222,60, 1100,0,60, 1100,222,60
+		Recoil: 200
+		RecoilRecovery: 20
+		MuzzleSequence: muzzle
+	Armament@SEC1:
+		Name: secondary
+		Turret: sec1
+		Weapon: YamamotoSecondary
+		LocalOffset: 600,-120,40, 600,0,40, 600,120,40
+		Recoil: 80
+		RecoilRecovery: 20
+		MuzzleSequence: muzzle
+	Armament@SEC2:
+		Name: secondary
+		Turret: sec2
+		Weapon: YamamotoSecondary
+		LocalOffset: 600,-120,40, 600,0,40, 600,120,40
+		Recoil: 80
+		RecoilRecovery: 20
+		MuzzleSequence: muzzle
+	Armament@SEC3:
+		Name: secondary
+		Turret: sec3
+		Weapon: YamamotoSecondary
+		LocalOffset: 600,-120,40, 600,0,40, 600,120,40
+		Recoil: 80
+		RecoilRecovery: 20
+		MuzzleSequence: muzzle
+	Armament@SEC4:
+		Name: secondary
+		Turret: sec4
+		Weapon: YamamotoSecondary
+		LocalOffset: 600,-120,40, 600,0,40, 600,120,40
+		Recoil: 80
+		RecoilRecovery: 20
+		MuzzleSequence: muzzle
+	AttackTurreted:
+		Turrets: main1, main2, main3, sec1, sec2, sec3, sec4
+	WithSpriteTurret@MAIN1:
+		Turret: main1
+		Sequence: turret-main
+	WithSpriteTurret@MAIN2:
+		Turret: main2
+		Sequence: turret-main
+	WithSpriteTurret@MAIN3:
+		Turret: main3
+		Sequence: turret-main
+	WithSpriteTurret@SEC1:
+		Turret: sec1
+		Sequence: turret-secondary
+	WithSpriteTurret@SEC2:
+		Turret: sec2
+		Sequence: turret-secondary
+	WithSpriteTurret@SEC3:
+		Turret: sec3
+		Sequence: turret-secondary
+	WithSpriteTurret@SEC4:
+		Turret: sec4
+		Sequence: turret-secondary
+	HitShape:
+		Type: Capsule
+			PointA: -3200, 0
+			PointB: 3200, 0
+			Radius: 768
+	Selectable:
+		Bounds: 6400, 6400
+		DecorationBounds: 7168, 7168
+	RenderSprites:
+		Image: yamamoto

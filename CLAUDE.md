@@ -21,7 +21,7 @@ out with 503 while the game is paused.
   now under fog (`last_seen_under_fog: true`). Same fields plus `owner`.
 - `production`: each queue, what it can build now (`buildable`, with `cost`)
   and what is in progress (`percent_done`, `done`).
-- `cash`, `power`, `map` size, `tick`, `win_state`.
+- `cash`, `uranium` (enriched units), `power`, `map` size, `tick`, `win_state`.
 
 Only what the player can see is reported. If `enemies` is empty, scout first.
 
@@ -44,13 +44,15 @@ carrier planes are never selected.
 | `attack` | units, `target` (enemy id) | attack one enemy |
 | `attack_ground` | units, `cell` | force-fire at a spot; sends a Drone Swarm (`dswarm`) that way |
 | `part_sea` | units (Moses), `cell` | Moses walks to the shore and parts the water toward the cell |
+| `unload` | units (transports) | drop off passengers; Black Hawks in the air fast-rope commandos down |
+| `order` | units, `order`, optional `target` (id) or `cell` | any order by name: `LoadNuke` (target a drum), `DetonateNuke`, `DropNuke`/`FireNuke` (target or cell), `LoadIcbm` (drum units, target the silo) |
 | `stop` | units | stop |
 | `deploy` | units (MCV) | unpack an MCV into a construction yard |
 | `build` | `type`, `count` | queue production (`type` from `production[].buildable`) |
 | `cancel` | `type`, `count` | cancel queued production |
 | `place` | `type`, optional `cell` | place a finished building; with no cell it picks a spot near the base |
 | `nuke` | `cell` | launch a charged nuke at a cell |
-| `power` | `name`, optional `cell` | fire a charged support power by name (e.g. `PagerAttack`, `CyberAttack` with a cell near the enemy base, `ZombieApocalypse`); with no name it lists your powers and how charged they are |
+| `power` | `name`, optional `cell` | fire a charged support power by name (e.g. `PagerAttack`, `CyberAttack` with a cell near the enemy base, `ZombieApocalypse`); with no name it lists your powers and how charged they are; `cells` ([[x,y],...]) gives one target per ICBM warhead |
 
 Examples:
 

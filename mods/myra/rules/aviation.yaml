@@ -1,0 +1,148 @@
+# Aircraft reworks (AirOps.cs, Batch3.cs GunshipOrbit):
+#   AC-130: circles 10 cells out from wherever it is sent or told to attack, shelling with its side guns.
+#   Black Hawk: flies and lands like a normal helicopter (so troops can board), but circles 7 cells out when told to
+#   attack, door guns firing; carries 6 infantry; Tanya and SEALs fast-rope down from the air.
+#   B-52: a huge bomber; an attack order is a straight carpet-bombing run half the map long through the target.
+
+AC130:
+	GunshipOrbit:
+		Radius: 10c0
+	# A side-door minigun as well as the cannons: the same BZZZZ and single tracer line as the Black Hawk.
+	Armament@MINIGUN:
+		Name: minigun
+		Weapon: SpectreMinigun
+		LocalOffset: 400,-400,-100
+	AttackTurreted:
+		Armaments: primary, minigun
+	FiringSound:
+		Armaments: minigun
+		Sound: minigun.wav
+		Interval: 25
+	AutoTarget:
+		InitialStance: Defend
+		InitialStanceAI: Defend
+
+MH60:
+	Inherits@CARGOPIPS: ^CargoPips
+	-AttackAircraft:
+	Turreted:
+		TurnSpeed: 512
+	Armament:
+		Weapon: BlackhawkGun
+		LocalOffset: 85,0,-85
+	# The minigun sound plays whenever the gun fires, even on a burst picked up part way.
+	FiringSound:
+		Sound: minigun.wav
+		Interval: 25
+	AttackTurreted:
+	GunshipOrbit:
+		Radius: 7c0
+		OrbitWhenIdle: false
+		OrbitOnMove: false
+	AutoTarget:
+		InitialStance: Defend
+		InitialStanceAI: Defend
+	ReloadAmmoPool:
+		Delay: 15
+		Count: 2
+	Cargo:
+		Types: Infantry
+		MaxWeight: 6
+		AfterUnloadDelay: 25
+	FastRope:
+	Tooltip:
+		Name: actor-mh60b.name
+	Buildable:
+		Description: actor-mh60b.description
+
+B52:
+	Inherits: ^NoLandPlane
+	Buildable:
+		Queue: Aircraft
+		BuildAtProductionType: Plane
+		BuildPaletteOrder: 61
+		Prerequisites: ~afld, ~techlevel.high
+		Description: actor-b52.description
+	Valued:
+		Cost: 4500
+	Tooltip:
+		Name: actor-b52.name
+	Health:
+		HP: 60000
+	Armor:
+		Type: Heavy
+	RevealsShroud:
+		Range: 8c0
+		Type: GroundPosition
+	CarpetBomber:
+		Weapon: B52Bomb
+	Aircraft:
+		CruiseAltitude: 3584
+		TurnSpeed: 8
+		Speed: 115
+		RepulsionSpeed: 40
+	-WithAmmoPipsDecoration:
+	Selectable:
+		Bounds: 6144, 4096
+		DecorationBounds: 6656, 4608
+	HitShape:
+		Type: Circle
+			Radius: 1536
+	RenderSprites:
+		Image: b52
+
+# HALO jumps: unload the C-130 in the air and its infantry (SEALs and all) parachute down as it flies on (HaloJump.cs).
+C130:
+	HaloJump:
+
+# Paramotors: built at the Airfield and left on the ground beside it. Any infantry can pick one up; carrying it they
+# can only fly (right-click), not walk or shoot, and on landing they leave it on the ground for the next one
+# (Paramotor.cs).
+PARAMOTOR:
+	Inherits@1: ^SpriteActor
+	Selectable:
+		Bounds: 1024, 1024
+	HiddenUnderFog:
+		Type: CenterPosition
+	Immobile:
+		OccupiesSpace: false
+	WithSpriteBody:
+	Health:
+		HP: 3000
+	Armor:
+		Type: Light
+	HitShape:
+	Targetable:
+		TargetTypes: GroundActor, NoAutoTarget
+	Buildable:
+		Queue: Aircraft
+		BuildAtProductionType: Paramotor
+		BuildPaletteOrder: 5
+		Prerequisites: afld
+		BuildDuration: 250
+		BuildDurationModifier: 100
+		Description: actor-paramotor.description
+	Valued:
+		Cost: 300
+	Tooltip:
+		Name: actor-paramotor.name
+	ParamotorItem:
+	MapEditorData:
+		Categories: System
+
+AFLD:
+	GroundItemProduction@paramotor:
+		Produces: Paramotor
+
+^Infantry:
+	ParamotorPilot:
+
+# The A-10's cannon leaves a trail of gun smoke along its strafing run.
+A10:
+	GunSmoke:
+		Armaments: primary
+		Puffs: 1
+		Spread: 40
+	FiringSound:
+		Sound: brrrt.wav
+		Interval: 32

@@ -13,7 +13,35 @@ icon:
 		Filename: zombies-icon.png
 	coup:
 		Filename: coup-icon.png
+	stagecoup:
+		Filename: stagecoup-icon.png
 	slap:
 		Filename: slap-icon.png
 	opposite:
 		Filename: opposite-icon.png
+	geosat:
+		Filename: geosat-icon.png
+	icbm-1-0:
+		Filename: icbm-1-0-icon.png
+	icbm-1-1:
+		Filename: icbm-1-1-icon.png
+	icbm-3-0:
+		Filename: icbm-3-0-icon.png
+	icbm-3-1:
+		Filename: icbm-3-1-icon.png
+	icbm-3-2:
+		Filename: icbm-3-2-icon.png
+	icbm-3-3:
+		Filename: icbm-3-3-icon.png
+	icbm-5-0:
+		Filename: icbm-5-0-icon.png
+	icbm-5-1:
+		Filename: icbm-5-1-icon.png
+	icbm-5-2:
+		Filename: icbm-5-2-icon.png
+	icbm-5-3:
+		Filename: icbm-5-3-icon.png
+	icbm-5-4:
+		Filename: icbm-5-4-icon.png
+	icbm-5-5:
+		Filename: icbm-5-5-icon.png

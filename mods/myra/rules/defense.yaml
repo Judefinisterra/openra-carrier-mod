@@ -1,0 +1,7 @@
+# Units defend the base on their own: idle armed units go after enemies that come near the base or near them, then
+# walk back. Anything hit calls for help: idle units near it go after the attacker, even one out of sight. (GuardBase.cs)
+Player:
+	GuardBase:
+
+^ExistsInWorld:
+	CallForHelp:

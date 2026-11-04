@@ -122,8 +122,8 @@ F14:
 	RenderSprites:
 		Image: f14
 
-# A-10 Thunderbolt: slow, armoured ground-attack plane. A 30mm cannon that fires 5-shot bursts and a V2
-# rocket under the belly. Built at the Airfield. Patrols a spot it is sent to, like the F-14.
+# A-10 Thunderbolt: slow, heavily armoured ground-attack plane, built around its 30mm cannon (no missiles).
+# Built at the Airfield. Patrols a spot it is sent to, like the F-14.
 A10:
 	Inherits: ^Plane
 	Inherits@AUTOTARGET: ^AutoTargetGroundAssaultMove
@@ -140,7 +140,7 @@ A10:
 	UpdatesPlayerStatistics:
 		AddToArmyValue: true
 	Health:
-		HP: 15000
+		HP: 80000
 	Armor:
 		Type: Heavy
 	RevealsShroud:
@@ -155,16 +155,11 @@ A10:
 		Name: primary
 		Weapon: A10Cannon
 		LocalOffset: 700,0,-40
-	Armament@V2:
-		Name: secondary
-		Weapon: F14V2
-		LocalOffset: 0,0,-120
-		PauseOnCondition: !v2ammo
 	AttackAircraft:
 		FacingTolerance: 80
 		PersistentTargeting: false
 		OpportunityFire: False
-		Armaments: primary, secondary
+		Armaments: primary
 	Aircraft:
 		CruiseAltitude: 2048
 		TurnSpeed: 16
@@ -174,13 +169,6 @@ A10:
 	AutoTarget:
 		InitialStance: Defend
 		InitialStanceAI: AttackAnything
-	AmmoPool@V2:
-		Name: v2
-		Armaments: secondary
-		Ammo: 2
-		AmmoCondition: v2ammo
-	Rearmable:
-		RearmActors: afld, afld.ukraine
 	AirPatrol:
 	-SpawnActorOnDeath:
 	FireWarheadsOnDeath@AIR:
@@ -198,10 +186,6 @@ A10:
 		SpawnAtLastPosition: False
 		Type: CenterPosition
 		RequiresCondition: enable-smoke
-	WithAmmoPipsDecoration:
-		Position: BottomLeft
-		Margin: 4, 3
-		RequiresSelection: true
 	GrantConditionOnDamageState@SmokeTrail:
 		Condition: enable-smoke
 	RenderSprites:

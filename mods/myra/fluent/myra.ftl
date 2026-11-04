@@ -592,9 +592,9 @@ actor-bridgehut =
 actor-a10 =
     .name = A-10 Thunderbolt
     .description =
-    Armoured ground-attack plane. 30mm cannon in
-    5-shot bursts plus a V2 rocket. Send it to a spot
-    and it patrols there.
+    Heavily armoured ground-attack plane built around
+    its 30mm cannon. Send it to a spot and it patrols
+    there.
       Strong vs Tanks, Ships, Buildings
       Can't attack Aircraft
 
@@ -743,6 +743,155 @@ actor-zlab =
 notification-zombies-charging = Zombie Apocalypse charging.
 notification-zombies-ready = Zombie Apocalypse ready.
 
+## Spy Center
+actor-spyctr =
+    .name = Spy Center
+    .description =
+    Trains spies. Spies inside an enemy base pass for their own soldiers.
+    Keep 3 or more inside the same enemy base for 5 minutes and you can
+    stage a coup there.
+      Unique: only one
+    .power-name = Stage Coup
+    .power-description = Click the base where your plot is ready. 20% (3 spies) to 50% (10 spies)
+     of their army and defences go rogue and try to capture El Presidente.
+     If they take him, a usurper rules: they have 5 minutes to kill him or lose everything.
+
+notification-coup-ready = The coup plot is ready. Stage the coup!
+
+actor-coupspy =
+    .name = Spy
+    .description =
+    Disguises itself as the enemy's soldiers once it gets near them,
+    so they don't shoot it. Several inside an enemy base can plot a coup.
+      Unarmed
+
+## Nuclear program
+actor-nreact =
+    .name = Nuclear Reactor
+    .description =
+    A big power plant, and the first step of the nuclear program:
+    it unlocks the Nuclear Lab.
+
+actor-nlab =
+    .name = Nuclear Lab
+    .description =
+    Develops Nuclear Tech (with a Tech Center), then enriches uranium
+    by itself, about a unit a minute, where everyone can see it. Builds
+    nuclear warheads from the uranium (Vehicle tab); they are set down
+    beside the lab as drums. If it's destroyed, its uranium is left
+    in the rubble for anyone to grab.
+
+actor-nuctech =
+    .name = Develop Nuclear Tech
+    .description =
+    Needs a Nuclear Lab and a Tech Center: 10 minutes with one of each,
+    faster with more. Then the lab starts enriching uranium.
+    A spy who gets into a lab or Tech Center of a side that has it, and
+    makes it home, steals it.
+
+actor-uraniumcache =
+    .name = Enriched Uranium
+
+actor-icbm1 =
+    .name = Light ICBM
+    .description =
+    A missile for the silo with one conventional warhead (enough to
+    wreck most buildings). Load a nuke into it instead by selecting the
+    drum and right-clicking the silo.
+
+actor-icbm3 =
+    .name = ICBM
+    .description =
+    A missile for the silo with three conventional warheads, each with
+    its own target. Swap nukes in from drums.
+
+actor-icbm5 =
+    .name = Heavy ICBM
+    .description =
+    A missile for the silo with five conventional warheads, each with
+    its own target. Swap nukes in from drums.
+
+actor-chaff =
+    .name = Chaff
+    .description =
+    Fitted to the ICBM in the silo: halves the chance of its warheads
+    being shot down.
+
+actor-testnuke =
+    .name = Test Nuke
+    .description =
+    Costs 1 enriched uranium. A small device. Pick it up with any
+    vehicle (right-click the drum),
+    then deploy (F) to set it off where it stands, or ctrl+right-click
+    a spot to drive there and set it off. A successful test unlocks
+    tactical nukes.
+
+actor-tacnuke =
+    .name = Tactical Nuke
+    .description =
+    Costs 3 enriched uranium. Three times the test blast. Carry it on
+    any vehicle (deploy to set it off), drop it from any plane, fire it
+    from artillery, or load it into an ICBM.
+
+actor-mednuke =
+    .name = Medium Nuke
+    .description =
+    Costs 10 enriched uranium. Twice the tactical blast. Vehicles,
+    planes or an ICBM.
+
+actor-hbomb =
+    .name = Hydrogen Bomb
+    .description =
+    Costs 20 enriched uranium. The full-size bomb. Only an ICBM or a
+    B-52 can deliver it.
+
+actor-icbm =
+    .name = ICBM Launch
+    .description = Fires the ICBM in the silo. Pick a target for each of its warheads.
+     They come down like lightning; enemy missile defences rarely stop them.
+
+## Geostationary satellites
+actor-gstation =
+    .name = Ground Station
+    .description =
+    Launches geostationary satellites. Each one parks over the spot
+    you pick and shows you everything within 14 cells, for good,
+    until it is shot down. Requires power.
+    .power-name = Geostationary Satellite
+    .power-description = Launch a satellite that parks over the target and watches it.
+     Only ASAT missiles can bring it down.
+
+actor-geosat =
+    .name = Geostationary Satellite
+
+actor-asat =
+    .name = ASAT Launcher
+    .description =
+    Anti-satellite missile site. Shoots down enemy satellites
+    within 40 cells.
+      Strong vs Satellites
+      Can't attack anything else
+
+notification-geosat-ready = Geostationary satellite ready.
+
+## Aircraft reworks
+actor-b52 =
+    .name = B-52 Stratofortress
+    .description =
+    Huge strategic bomber. Give it an attack order and it flies a
+    straight carpet-bombing run half the map long through the target.
+    Reloads for 30 seconds between runs.
+      Strong vs Everything on the ground
+      Weak vs Anti-aircraft
+
+actor-mh60b =
+    .name = Black Hawk
+    .description =
+    Transport helicopter with door guns. Carries 6 infantry. Told to
+    attack, it circles the target and fires from the doors. Tanya and SEALs fast-rope
+    down without it landing.
+      Strong vs Infantry, Light armor
+
 ## Opposite Day
 actor-opposite =
     .name = Opposite Day
@@ -775,15 +924,6 @@ actor-pirate =
     A galleon flying the Jolly Roger. Fires cannon
     broadsides from both sides at once.
       Strong vs Ships, Infantry, Buildings near the shore
-
-## Political Coup
-actor-coup =
-    .name = Political Coup
-    .description = Click near an enemy's base. For five minutes, a third
-     of that player's armed units and half of their turrets and SAM
-     sites switch to your side and attack their old base.
-
-notification-coup-ready = Political Coup ready.
 
 ## Iron Dome
 actor-idome =
@@ -835,3 +975,20 @@ actor-bodyguard =
 
 bot-skynet =
     .name = SkyNet
+
+actor-paramotor =
+    .name = Paramotor
+    .description =
+    A Moster 185 with a wing. Any infantry can pick it
+    up and right-click to fly, over water and walls,
+    screaming all the way. No shooting until they land
+    and leave it on the ground for the next one.
+
+actor-yamamoto =
+    .name = Yamamoto
+    .description =
+    Super-battleship bigger than an aircraft carrier.
+    Three triple 46cm turrets shell far inland; four
+    secondary turrets cover the shore.
+      Strong vs Buildings, Ground units
+      Weak vs Submarines, Aircraft

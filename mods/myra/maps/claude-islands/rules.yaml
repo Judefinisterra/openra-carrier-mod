@@ -1,0 +1,63 @@
+World:
+	CoupManager:
+		UsurperTicks: 9000
+	LuaScript:
+		Scripts: demo.lua
+Player:
+	Shroud:
+		FogCheckboxEnabled: False
+		ExploredMapCheckboxEnabled: True
+DOME:
+	PagerAttackPower@PAGER:
+		ChargeInterval: 250
+ATEK:
+	CyberAttackPower@cyber:
+		ChargeInterval: 250
+ZLAB:
+	ZombieApocalypsePower:
+		ChargeInterval: 250
+SLAPSHRINE:
+	SausageFingersPower:
+		ChargeInterval: 250
+ATEK:
+	OppositeDayPower@opposite:
+		ChargeInterval: 250
+GSTATION:
+	GeoSatellitePower:
+		ChargeInterval: 250
+TESTNUKE:
+	Buildable:
+		BuildDuration: 60
+TACNUKE:
+	Buildable:
+		BuildDuration: 60
+MEDNUKE:
+	Buildable:
+		BuildDuration: 60
+HBOMB:
+	Buildable:
+		BuildDuration: 60
+SPYCTR:
+	StageCoupPower:
+		ChargeInterval: 375
+NUCTECH:
+	Buildable:
+		BuildDuration: 100
+NLAB:
+	UraniumEnricher:
+		TicksPerUnit: 12
+ICBM1:
+	Buildable:
+		BuildDuration: 60
+ICBM3:
+	Buildable:
+		BuildDuration: 60
+ICBM5:
+	Buildable:
+		BuildDuration: 60
+CHAFF:
+	Buildable:
+		BuildDuration: 60
+SEAL:
+	Buildable:
+		Prerequisites: ~barracks

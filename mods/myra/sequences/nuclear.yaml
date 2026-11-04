@@ -1,0 +1,80 @@
+# Nuclear program: the reactor (Advanced Power Plant art) and lab (Chronosphere art), warhead drums, the radiation sign
+# over a carrier, and the sidebar icons.
+nreact:
+	Inherits: apwr
+	icon:
+		Filename: nreact-icon.png
+
+nlab:
+	Inherits: pdox
+	icon:
+		Filename: nlab-icon.png
+
+nuketest:
+	idle:
+		Filename: nukedrum-test.png
+	icon:
+		Filename: nuketest-icon.png
+
+nuketactical:
+	idle:
+		Filename: nukedrum-tactical.png
+	icon:
+		Filename: nuketactical-icon.png
+
+nukemedium:
+	idle:
+		Filename: nukedrum-medium.png
+	icon:
+		Filename: nukemedium-icon.png
+
+nukehydrogen:
+	idle:
+		Filename: nukedrum-hydrogen.png
+	icon:
+		Filename: nukehydrogen-icon.png
+
+nukepip:
+	idle:
+		Filename: nukepip.png
+
+# Smaller craters for the smaller warheads.
+nukecrater-test:
+	Inherits: nukecrater
+	idle:
+		Scale: 0.13
+
+nukecrater-tactical:
+	Inherits: nukecrater
+	idle:
+		Scale: 0.25
+
+nukecrater-medium:
+	Inherits: nukecrater
+	idle:
+		Scale: 0.4
+
+# Nuclear Tech research, ICBMs and chaff (sidebar only), and a uranium cache on the ground.
+nuctech:
+	icon:
+		Filename: nuctech-icon.png
+
+icbm1:
+	icon:
+		Filename: icbm1-icon.png
+
+icbm3:
+	icon:
+		Filename: icbm3-icon.png
+
+icbm5:
+	icon:
+		Filename: icbm5-icon.png
+
+chaff:
+	icon:
+		Filename: chaff-icon.png
+
+uraniumcache:
+	idle:
+		Filename: nukedrum-test.png

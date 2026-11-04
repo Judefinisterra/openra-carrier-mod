@@ -1,0 +1,18 @@
+# Spy Center: a glass skyscraper (frame 0 intact, 1 damaged). The coup spy uses Red Alert's spy with its own icon.
+spycenter:
+	Defaults:
+		Filename: spycenter.png
+		Offset: 0,-42
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Length: 1
+	icon:
+		Filename: spycenter-icon.png
+		Offset: 0,0
+
+coupspy:
+	Inherits: spy
+	icon:
+		Filename: coupspy-icon.png

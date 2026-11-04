@@ -111,12 +111,20 @@ namespace OpenRA.Mods.MyRA.Traits
 	}
 
 	// ================================================================================================
-	// AC-130: on an attack order it circles the target while its side guns fire.
+	// Gunships (AC-130, Black Hawk): they never fly straight at a target. Send one somewhere or tell it to attack and it
+	// circles that spot at Radius with its side guns firing; with nothing to do it keeps circling where it is. The guns
+	// (a turreted attack) fire at whatever is in range, the attack target first.
 	// ================================================================================================
-	[Desc("Gunship: circles the attack target, firing (needs a turreted attack trait).")]
+	[Desc("Gunship: circles the spot it was sent to (or its attack target, or where it is when idle), firing its turreted guns.")]
 	public class GunshipOrbitInfo : TraitInfo, Requires<AircraftInfo>
 	{
 		public readonly WDist Radius = WDist.FromCells(5);
+
+		[Desc("Circle where it is when it has nothing else to do (only while airborne).")]
+		public readonly bool OrbitWhenIdle = true;
+
+		[Desc("Circle the spot it is sent to by a move order (otherwise only attack orders make it circle).")]
+		public readonly bool OrbitOnMove = true;
 
 		public override object Create(ActorInitializer init) { return new GunshipOrbit(this); }
 	}
@@ -125,8 +133,9 @@ namespace OpenRA.Mods.MyRA.Traits
 	{
 		readonly GunshipOrbitInfo info;
 		Target target = Target.Invalid;
-		int leg, timer;
-		Activity legActivity;
+		WPos? centre;
+		WPos? lastTargetPos;
+		int timer;
 		AttackFollow[] attacks = [];
 
 		public GunshipOrbit(GunshipOrbitInfo info) { this.info = info; }
@@ -135,44 +144,90 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		void IResolveOrder.ResolveOrder(Actor self, Order order)
 		{
-			if (order.OrderString is "Attack" or "ForceAttack")
+			switch (order.OrderString)
 			{
-				target = order.Target;
-				legActivity = null;
-				timer = 0;
+				case "Attack":
+				case "ForceAttack":
+					target = order.Target;
+					centre = null;
+					break;
+
+				case "Move":
+				case "AttackMove":
+				case "AssaultMove":
+					if (order.Queued || order.Target.Type == TargetType.Invalid)
+						return;
+
+					target = Target.Invalid;
+					if (!info.OrbitOnMove)
+					{
+						// An ordinary flight: stop circling and let the move happen.
+						centre = null;
+						return;
+					}
+
+					centre = order.Target.CenterPosition;
+					break;
+
+				case "Stop":
+					target = Target.Invalid;
+					centre = self.CenterPosition;
+					break;
+
+				// Going home, landing or unloading: stop circling until the next order.
+				case "ReturnToBase":
+				case "Unload":
+				case "Enter":
+				case "Land":
+					target = Target.Invalid;
+					centre = null;
+					return;
+
+				default:
+					return;
 			}
-			else if (!order.Queued && order.OrderString is "Move" or "Stop" or "ReturnToBase" or "AttackMove" or "Guard")
-				target = Target.Invalid;
+
+			lastTargetPos = null;
+			timer = 0;
 		}
 
 		void ITick.Tick(Actor self)
 		{
-			if (target.Type == TargetType.Invalid || !self.IsInWorld || --timer > 0)
+			if (!self.IsInWorld || --timer > 0)
 				return;
 
 			timer = 5;
-			if (target.Type == TargetType.Actor && (target.Actor.IsDead || !target.Actor.IsInWorld))
+
+			// Target down (or gone): keep circling where it was.
+			if (target.Type == TargetType.Invalid && lastTargetPos != null)
+				centre = lastTargetPos;
+
+			lastTargetPos = target.Type != TargetType.Invalid ? target.CenterPosition : null;
+
+			var airborne = self.World.Map.DistanceAboveTerrain(self.CenterPosition).Length > 0;
+			if (target.Type == TargetType.Invalid && centre == null)
 			{
-				target = Target.Invalid;
-				return;
+				if (!info.OrbitWhenIdle || !airborne || !self.IsIdle)
+					return;
+
+				centre = self.CenterPosition;
 			}
 
-			foreach (var a in attacks)
-				a.SetRequestedTarget(target, true);
+			if (target.Type != TargetType.Invalid)
+				foreach (var a in attacks)
+					a.SetRequestedTarget(target, true);
 
-			var act = self.CurrentActivity;
-			if (act == null || act != legActivity || act.State == ActivityState.Done)
-			{
-				if (act != null && act != legActivity)
-					self.CancelActivity();
+			// Steer at a point a little further round the circle than it is now, re-aimed every few ticks, so it
+			// settles onto the circle instead of cutting corners between fixed waypoints.
+			if (self.CurrentActivity != null)
+				self.CancelActivity();
 
-				leg = (leg + 1) % 8;
-				var t = leg * Math.PI * 2 / 8;
-				var c = target.CenterPosition;
-				var p = new WPos(c.X + (int)(info.Radius.Length * Math.Cos(t)), c.Y + (int)(info.Radius.Length * Math.Sin(t)), 0);
-				legActivity = new Fly(self, Target.FromPos(p), WDist.FromCells(1));
-				self.QueueActivity(act != null, legActivity);
-			}
+			var c = target.Type != TargetType.Invalid ? target.CenterPosition : centre.Value;
+			var off = self.CenterPosition - c;
+			var angle = off.HorizontalLengthSquared > 0 ? Math.Atan2(off.Y, off.X) : 0;
+			var t = angle + Math.PI / 5;
+			var p = new WPos(c.X + (int)(info.Radius.Length * Math.Cos(t)), c.Y + (int)(info.Radius.Length * Math.Sin(t)), 0);
+			self.QueueActivity(new Fly(self, Target.FromPos(p), WDist.FromCells(1)));
 		}
 	}
 

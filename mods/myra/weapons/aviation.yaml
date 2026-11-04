@@ -1,0 +1,182 @@
+# Weapons for the aircraft reworks (rules/aviation.yaml).
+
+# AC-130: three guns that reach the middle of its 10-cell orbit.
+#   25mm Gatling: a stream of tracer rounds that cuts infantry down; does little to armour.
+#   40mm Bofors: a light howitzer, quick medium shells.
+#   105mm howitzer: slow, and devastating where it lands.
+Spectre25mm:
+	Range: 11c512
+	ReloadDelay: 2
+	Burst: 3
+	BurstDelays: 1
+	Projectile: Bullet
+		Speed: 900
+		Inaccuracy: 200
+		Blockable: false
+		ContrailLength: 2
+		ContrailStartWidth: 40
+		ContrailStartColor: FFE070
+		ContrailEndColor: FF7A20
+		ContrailStartColorAlpha: 255
+		ContrailEndColorAlpha: 200
+	Warhead@1Dam: SpreadDamage
+		Spread: 256
+		Damage: 2200
+		Versus:
+			None: 160
+			Wood: 15
+			Light: 30
+			Heavy: 8
+			Concrete: 8
+Spectre40mm:
+	Range: 11c512
+	ReloadDelay: 18
+	Report: tank5.aud
+	Projectile: Bullet
+		Speed: 500
+		Inaccuracy: 512
+		Blockable: false
+	Warhead@1Dam: SpreadDamage
+		Spread: 512
+		Damage: 7000
+		Versus:
+			None: 70
+			Wood: 80
+			Light: 90
+			Heavy: 60
+			Concrete: 50
+	Warhead@2Eff: CreateEffect
+		Explosions: med_explosion
+		ImpactSounds: kaboom12.aud
+		ValidTargets: Ground, GroundActor, WaterActor, Trees
+Spectre105mm:
+	Range: 12c0
+	ReloadDelay: 110
+	Report: turret1.aud
+	Projectile: Bullet
+		Speed: 450
+		Inaccuracy: 768
+		ContrailLength: 30
+	Warhead@1Dam: SpreadDamage
+		Spread: 1c0
+		Damage: 40000
+		Falloff: 100, 60, 25, 0
+		Versus:
+			None: 90
+			Wood: 100
+			Light: 100
+			Heavy: 90
+			Concrete: 80
+	Warhead@3Eff: CreateEffect
+		Explosions: large_napalm
+		ImpactSounds: kaboom25.aud
+		ValidTargets: Ground, GroundActor, WaterActor, Trees
+	Warhead@7Shake: ShakeScreen
+		Duration: 5
+		Intensity: 2
+		Multiplier: 1,1
+
+# Black Hawk door gun: an M134 minigun, one long BZZZZ of tracers in a straight line. Reaches the middle of its 7-cell orbit.
+BlackhawkGun:
+	Inherits: ChainGun
+	Range: 8c0
+	MinRange: 0
+	ReloadDelay: 40
+	Burst: 20
+	BurstDelays: 1
+	-Report:
+	Projectile: Bullet
+		Speed: 1200
+		Inaccuracy: 0
+		Blockable: false
+		ContrailLength: 6
+		ContrailStartWidth: 36
+		ContrailStartColor: FFE070
+		ContrailEndColor: FF7A20
+		ContrailStartColorAlpha: 255
+		ContrailEndColorAlpha: 220
+	Warhead@1Dam: SpreadDamage
+		Spread: 128
+		Damage: 8000
+		Versus:
+			None: 150
+			Wood: 2
+			Light: 2
+			Heavy: 1
+			Concrete: 1
+		DamageTypes: TriggerProne, BulletDeath
+
+# B-52 bombs: big. Each one levels what it lands on and sets the ground around it burning.
+B52Bomb:
+	Inherits: ParaBomb
+	Report: chute1.aud
+	Projectile: GravityBomb
+		OpenSequence:
+		Velocity: 0, 0, -120
+		Acceleration: 0, 0, -10
+		Shadow: True
+	Warhead@1Dam: SpreadDamage
+		Spread: 1c512
+		Damage: 60000
+		Falloff: 100, 70, 40, 15, 0
+		ValidTargets: GroundActor, WaterActor, Trees
+		Versus:
+			None: 100
+			Wood: 100
+			Light: 90
+			Heavy: 70
+			Concrete: 60
+	Warhead@3Eff: CreateEffect
+		Explosions: large_napalm
+		ImpactSounds: kaboom25.aud, kaboom22.aud
+		ValidTargets: Ground, GroundActor, WaterActor, Trees
+	Warhead@5Eff2: CreateEffect
+		Explosions: building
+		Delay: 4
+		ValidTargets: Ground, GroundActor, WaterActor, Trees
+	Warhead@6Scorch: LeaveSmudge
+		SmudgeType: Scorch
+		Size: 2
+		ValidTargets: Ground, Infantry
+	Warhead@7Shake: ShakeScreen
+		Duration: 6
+		Intensity: 2
+		Multiplier: 1,1
+
+# A-10 strafing run, exaggerated: one long BRRRT, a single line of tracer rounds into the target, each one kicking up
+# a big burst of fire and dirt, with gun smoke hanging along the run (GunSmoke on the A-10).
+A10Cannon:
+	ReloadDelay: 90
+	Burst: 24
+	BurstDelays: 1
+	-Report:
+	Projectile: Bullet
+		Speed: 1000
+		Inaccuracy: 0
+		Shadow: false
+		Blockable: false
+		ContrailLength: 6
+		ContrailStartWidth: 48
+		ContrailStartColor: FFE070
+		ContrailEndColor: FF7A20
+		ContrailStartColorAlpha: 255
+		ContrailEndColorAlpha: 180
+	Warhead@1Dam: SpreadDamage
+		Spread: 384
+		Damage: 2200
+		Versus:
+			None: 90
+			Wood: 80
+			Light: 120
+			Heavy: 140
+			Concrete: 60
+	Warhead@2Smu: LeaveSmudge
+		Chance: 25
+	Warhead@3Eff: CreateEffect
+		Explosions: med_explosion, artillery_explosion
+		ImpactSounds: kaboom12.aud, kaboom15.aud
+
+# The AC-130's minigun: the Black Hawk's gun with the reach to fire from the gunship's orbit.
+SpectreMinigun:
+	Inherits: BlackhawkGun
+	Range: 11c512

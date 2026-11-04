@@ -384,6 +384,7 @@ namespace OpenRA.Mods.MyRA.Traits
 				paused = world.Paused,
 				game_over = world.IsGameOver,
 				cash = resources.GetCashAndResources(),
+				uranium = UraniumEnricher.Total(player) / 1000.0,
 				power = power == null ? null : new { provided = power.PowerProvided, drained = power.PowerDrained },
 				map = new { title = world.Map.Title, width = world.Map.MapSize.Width, height = world.Map.MapSize.Height },
 				units = own,
@@ -415,7 +416,7 @@ namespace OpenRA.Mods.MyRA.Traits
 				case "attack":
 				{
 					var target = GetTarget(cmd);
-					var units = SelectUnits(cmd).Where(a => a.Info.HasTraitInfo<AttackBaseInfo>()).ToList();
+					var units = SelectUnits(cmd).Where(a => a.Info.HasTraitInfo<AttackBaseInfo>() || a.Info.HasTraitInfo<CarpetBomberInfo>()).ToList();
 					foreach (var a in units)
 						world.IssueOrder(new Order("Attack", a, target, queued));
 
@@ -426,7 +427,7 @@ namespace OpenRA.Mods.MyRA.Traits
 				{
 					// Force-fire at a spot, e.g. to send a Drone Swarm that way.
 					var target = Target.FromCell(world, GetCell(cmd));
-					var units = SelectUnits(cmd).Where(a => a.Info.HasTraitInfo<AttackBaseInfo>()).ToList();
+					var units = SelectUnits(cmd).Where(a => a.Info.HasTraitInfo<AttackBaseInfo>() || a.Info.HasTraitInfo<CarpetBomberInfo>()).ToList();
 					foreach (var a in units)
 						world.IssueOrder(new Order("ForceAttack", a, target, queued));
 
@@ -459,6 +460,30 @@ namespace OpenRA.Mods.MyRA.Traits
 					var units = SelectUnits(cmd).Where(a => a.Info.HasTraitInfo<TransformsInfo>()).ToList();
 					foreach (var a in units)
 						world.IssueOrder(new Order("DeployTransform", a, queued));
+
+					return Issued(units);
+				}
+
+				case "order":
+				{
+					// Any order by name, for things without their own action (e.g. LoadNuke, DetonateNuke, DropNuke,
+					// FireNuke, LoadIcbm): "target" is an actor id, "cell" a spot, or neither.
+					var name = GetString(cmd, "order") ?? throw new CommandException("missing \"order\" (the order name)");
+					var target = cmd.TryGetProperty("target", out _) ? GetTarget(cmd)
+						: cmd.TryGetProperty("cell", out _) ? Target.FromCell(world, GetCell(cmd)) : Target.Invalid;
+					var units = SelectUnits(cmd).ToList();
+					foreach (var a in units)
+						world.IssueOrder(target.Type == TargetType.Invalid ? new Order(name, a, queued) : new Order(name, a, target, queued));
+
+					return Issued(units);
+				}
+
+				case "unload":
+				{
+					// Transports drop off their passengers (Black Hawks in the air: commandos fast-rope down).
+					var units = SelectUnits(cmd).Where(a => a.Info.HasTraitInfo<CargoInfo>()).ToList();
+					foreach (var a in units)
+						world.IssueOrder(new Order("Unload", a, queued));
 
 					return Issued(units);
 				}
@@ -541,6 +566,11 @@ namespace OpenRA.Mods.MyRA.Traits
 						? new Order(power.Key, player.PlayerActor, Target.FromCell(world, GetCell(cmd)), false)
 						: new Order(power.Key, player.PlayerActor, false);
 					order.SuppressVisualFeedback = true;
+
+					// Several targets (the ICBM takes one per warhead): "cells": [[x, y], ...].
+					if (cmd.TryGetProperty("cells", out var cells) && cells.ValueKind == JsonValueKind.Array)
+						order.TargetString = string.Join(";", cells.EnumerateArray().Select(c => $"{c[0].GetInt32()},{c[1].GetInt32()}"));
+
 					world.IssueOrder(order);
 					return new { ok = true, power = name };
 				}

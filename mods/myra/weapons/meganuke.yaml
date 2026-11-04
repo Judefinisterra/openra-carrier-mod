@@ -18,11 +18,3 @@ MegaNuke:
 		Versus:
 			Wood: 12
 			Concrete: 8
-			Tree: 200
-	Warhead@Res: DestroyResource
-		Size: 10
-	Warhead@Scorch: LeaveSmudge
-		SmudgeType: Scorch
-		ValidTargets: Ground, Infantry
-		Size: 6
-		Delay: 15

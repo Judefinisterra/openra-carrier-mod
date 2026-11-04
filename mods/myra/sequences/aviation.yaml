@@ -1,0 +1,16 @@
+# The B-52 is the Badger bomber drawn two and a half times as big.
+b52:
+	Inherits: badr
+	idle:
+		Scale: 2.5
+	icon:
+		Filename: b52-icon.png
+
+paramotor:
+	idle:
+		Filename: paramotor.png
+	wing:
+		Filename: paramotor-wing.png
+		ZOffset: 2047
+	icon:
+		Filename: paramotor-icon.png
