@@ -85,3 +85,22 @@ trashballoon:
 	idle:
 		Filename: trashballoon.png
 		ZOffset: 1023
+
+vipbunker:
+	Defaults:
+		Filename: vipbunker.png
+		Offset: 0,-10
+	idle:
+	damaged-idle:
+		Start: 1
+	make:
+		Start: 2
+		Length: 12
+		Tick: 80
+	closed:
+		Start: 14
+	damaged-closed:
+		Start: 15
+	icon:
+		Filename: vipbunker-icon.png
+		Offset: 0,0

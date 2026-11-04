@@ -65,6 +65,10 @@ namespace OpenRA.Mods.Common.Traits
 				os != "PlacePlug")
 				return;
 
+			// MyRA: production is frozen (e.g. El Presidente is in his bunker).
+			if (self.World.WorldActor.TraitsImplementing<IPlayerLockdown>().Any(l => l.BlocksProduction(self.Owner)))
+				return;
+
 			self.World.AddFrameEndTask(w =>
 			{
 				var prevItems = GetNumBuildables(self.Owner);

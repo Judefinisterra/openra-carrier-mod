@@ -48,6 +48,9 @@ namespace OpenRA.Mods.Common.Traits
 		[Desc("MyRA: damage (percent of their max HP) that passengers take when they are ejected on death.")]
 		public readonly int EjectDamagePercent = 0;
 
+		[Desc("MyRA: only these actor types may board (empty = anyone of the right Types).")]
+		public readonly FrozenSet<string> AllowedPassengers = [];
+
 		[Desc("Terrain types that this actor is allowed to eject actors onto. Leave empty for all terrain types.")]
 		public readonly FrozenSet<string> UnloadTerrainTypes = [];
 
@@ -106,6 +109,7 @@ namespace OpenRA.Mods.Common.Traits
 		INotifyCreated, INotifyKilled, ITransformActorInitModifier
 	{
 		readonly Actor self;
+		IPlayerLockdown[] lockdowns;
 		readonly List<Actor> cargo = [];
 		readonly HashSet<Actor> reserves = [];
 		readonly Dictionary<string, Stack<int>> passengerTokens = [];
@@ -265,6 +269,13 @@ namespace OpenRA.Mods.Common.Traits
 
 		public bool CanLoad(Actor a)
 		{
+			// MyRA: only listed passenger types, and nothing while the owner is locked down.
+			if (Info.AllowedPassengers.Count > 0 && !Info.AllowedPassengers.Contains(a.Info.Name))
+				return false;
+			lockdowns ??= self.World.WorldActor.TraitsImplementing<IPlayerLockdown>().ToArray();
+			foreach (var l in lockdowns)
+				if (l.BlocksLoading(self, a))
+					return false;
 			return !IsTraitDisabled && (reserves.Contains(a) || HasSpace(GetWeight(a)));
 		}
 

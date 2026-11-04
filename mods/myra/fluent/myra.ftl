@@ -431,12 +431,12 @@ actor-badrkamikaze =
 ## Cyber Attack
 actor-cyber =
     .name = Cyber Attack
-    .description = Hack an enemy: click near their base. Half of their
-      money is wired to you, their radar goes dark for a minute,
-      and false "base under attack" alarms go off. Their power
-      grid shuts down, their defences turn on their own side for
-      30 seconds, and their ore trucks drive off to the far
-      corners of the map. Recharges every 10 minutes.
+    .description = Hack an enemy: click near their base, then type an
+      exploit in the hacking terminal - steal half their money,
+      black out their radar, kill their power grid, turn their
+      defences on them, scatter their ore trucks, steal their
+      blueprints, or blow up their oil rigs. Recharges every
+      10 minutes.
 
 ## North Korea (internal id: hermit)
 faction-hermit =
@@ -879,3 +879,13 @@ actor-trashballoon =
     .description = A flight of balloons drifts from your Radar Dome to the
       target and drops its junk: light damage, and refineries
       under it are clogged for 30 seconds.
+
+actor-vipbunker =
+    .name = VIP Bunker
+    .description =
+    El Presidente games only. A fortified mountain with a blast door:
+    El Presidente and his bodyguards can shelter inside, and it
+    survives a nuke. But while he's in there your
+    side can't build anything and no units can board transports.
+    Select it and unload to bring him back out.
+      Maximum 1 can be built.

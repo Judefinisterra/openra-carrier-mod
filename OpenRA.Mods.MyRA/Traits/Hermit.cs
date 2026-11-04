@@ -65,6 +65,24 @@ namespace OpenRA.Mods.MyRA.Traits
 		public CyberAttackPower(Actor self, CyberAttackPowerInfo info)
 			: base(self, info) { }
 
+		// A human picks the target, then types the exploit in the hacking terminal (CyberTerminal.cs).
+		public override void SelectTarget(Actor self, string order, SupportPowerManager manager)
+		{
+			self.World.OrderGenerator = new SelectCyberTarget(order, manager, Info);
+		}
+
+		// Computer players (no terminal) pick the exploit that hurts most right now.
+		static int AiPick(World w, Player victim)
+		{
+			var res = victim.PlayerActor.Trait<PlayerResources>();
+			if (res.Cash + res.Resources > 3000)
+				return 1;
+			if (w.Actors.Count(a => a.Owner == victim && !a.IsDead && a.Info.Name.StartsWith("oilplatform", StringComparison.Ordinal)) >= 3)
+				return 7;
+			var defences = w.Actors.Count(a => a.Owner == victim && !a.IsDead && a.IsInWorld && a.Info.HasTraitInfo<BuildingInfo>() && a.Info.HasTraitInfo<AttackBaseInfo>());
+			return defences >= 4 ? 4 : 3;
+		}
+
 		public override void Activate(Actor self, Order order, SupportPowerManager manager)
 		{
 			base.Activate(self, order, manager);
@@ -83,8 +101,12 @@ namespace OpenRA.Mods.MyRA.Traits
 				return;
 
 			var victim = nearest.Owner;
+			// One exploit per attack: 1 wire_transfer, 2 radar_blackout, 3 grid_kill, 4 turret_hijack,
+			// 5 harvester_scatter, 6 tech_theft, 7 rig_blowout. Orders without one (computer players) get the AI's pick.
+			var exploit = order.ExtraData >= 1 && order.ExtraData <= CyberExploits.All.Length ? (int)order.ExtraData : AiPick(self.World, victim);
+			GameRecorder.Note(attacker, $"CYBER ATTACK on {victim.ResolvedPlayerName.Trim()}: {CyberExploits.All[exploit - 1].Command}");
 			var theirs = victim.PlayerActor.Trait<PlayerResources>();
-			var amount = (theirs.Cash + theirs.Resources) * info.StealPercent / 100;
+			var amount = exploit == 1 ? (theirs.Cash + theirs.Resources) * info.StealPercent / 100 : 0;
 			if (amount > 0 && theirs.TakeCash(amount))
 				attacker.PlayerActor.Trait<PlayerResources>().GiveCash(amount);
 
@@ -95,7 +117,7 @@ namespace OpenRA.Mods.MyRA.Traits
 				.Where(i => i.Prerequisite != null && i.Factions.Contains(faction))
 				.Select(i => i.Prerequisite).Distinct().ToList();
 			var tree = attacker.PlayerActor.TraitOrDefault<TechTree>();
-			if (tree != null && stolen.Count > 0 && stolen.Any(x => !tree.Borrowed.Contains(x)))
+			if (exploit == 6 && tree != null && stolen.Count > 0 && stolen.Any(x => !tree.Borrowed.Contains(x)))
 			{
 				tree.Borrow(stolen);
 				if (self.World.LocalPlayer == attacker)
@@ -104,37 +126,43 @@ namespace OpenRA.Mods.MyRA.Traits
 			}
 
 			// Knock out their radar for a minute...
-			foreach (var a in self.World.Actors.Where(a => a.Owner == victim && !a.IsDead && a.IsInWorld).ToList())
+			foreach (var a in self.World.Actors.Where(a => exploit == 2 && a.Owner == victim && !a.IsDead && a.IsInWorld).ToList())
 				foreach (var ec in a.TraitsImplementing<ExternalCondition>())
 					if (ec.Info.Condition == info.JamCondition && ec.CanGrantCondition(this))
 						ec.GrantCondition(a, this, info.JamTicks);
 
 			// ...and set off false 'base under attack' alarms while it's down.
-			for (var i = 0; i < info.FakeAlarms; i++)
+			for (var i = 0; exploit == 2 && i < info.FakeAlarms; i++)
 				alarms.Add((self.World.WorldTick + 5 + i * info.JamTicks / Math.Max(1, info.FakeAlarms), victim));
 
-			if (info.PowerOutageTicks > 0)
+			if (exploit == 3 && info.PowerOutageTicks > 0)
 				victim.PlayerActor.TraitOrDefault<PowerManager>()?.TriggerPowerOutage(info.PowerOutageTicks);
 
-			var hijackedCount = info.HijackTicks > 0 ? Hijack(self, info, attacker, victim) : 0;
-			var scattered = info.ScatterHarvesters ? ScatterHarvesters(self, victim) : 0;
+			var hijackedCount = exploit == 4 && info.HijackTicks > 0 ? Hijack(self, info, attacker, victim) : 0;
+			var scattered = exploit == 5 && info.ScatterHarvesters ? ScatterHarvesters(self, victim) : 0;
+			var (rigsBlown, rigsHit) = exploit == 7 ? BlowRigs(self, victim, attacker) : (0, 0);
 
 			var w = self.World;
 			var at = nearest.CenterPosition;
 			w.AddFrameEndTask(_ =>
 			{
+				var v = victim.ResolvedPlayerName;
+				var aName = attacker.ResolvedPlayerName;
+				var (mine, theirsMsg) = exploit switch
+				{
+					1 => ($"wire_transfer: you stole ${amount} from {v}'s bank!", $"{aName} hacked your bank and stole ${amount}!"),
+					2 => ($"radar_blackout: {v}'s radar is down and their alarms are going off.", $"{aName} hacked your radar - it's down and the alarms are lying!"),
+					3 => ($"grid_kill: {v}'s power grid is down.", $"{aName} hacked your power grid - it's down!"),
+					4 => ($"turret_hijack: {hijackedCount} of {v}'s defences now fire on them.", $"{aName} hijacked {hijackedCount} of your defences - they're firing on you!"),
+					5 => ($"harvester_scatter: {scattered} of {v}'s ore trucks are driving away.", $"{aName} hacked your ore trucks - they're driving away!"),
+					6 => ($"tech_theft: {v}'s blueprints are yours.", $"{aName} stole your blueprints!"),
+					_ => ($"rig_blowout: {rigsBlown} of {v}'s oil platforms exploded, {rigsHit} more are burning.",
+						$"{aName} hacked your oil platforms: {rigsBlown} exploded, {rigsHit} are badly damaged!"),
+				};
 				if (w.LocalPlayer == attacker)
-				{
-					TextNotificationsManager.AddSystemLine("Cyber Attack", $"Hacked {victim.ResolvedPlayerName}'s bank: you stole ${amount}!");
-					TextNotificationsManager.AddSystemLine("Cyber Attack",
-						$"Their power grid is down, {hijackedCount} defences turned on them and {scattered} ore trucks sent away.");
-				}
+					TextNotificationsManager.AddSystemLine("Cyber Attack", mine);
 				else if (w.LocalPlayer == victim)
-				{
-					TextNotificationsManager.AddSystemLine("Cyber Attack", $"{attacker.ResolvedPlayerName} hacked your bank and stole ${amount}!");
-					TextNotificationsManager.AddSystemLine("Cyber Attack",
-						$"Your power grid is down, {hijackedCount} of your defences are firing on you and your ore trucks are driving away!");
-				}
+					TextNotificationsManager.AddSystemLine("Cyber Attack", theirsMsg);
 
 				if (amount > 0 && (w.LocalPlayer == attacker || w.LocalPlayer == victim))
 					w.Add(new FloatingText(at, Color.Red, "-" + FloatingText.FormatCashTick(amount)[1..], 60));
@@ -169,6 +197,31 @@ namespace OpenRA.Mods.MyRA.Traits
 			}
 
 			return structures.Count;
+		}
+
+		// Offshore oil platforms: 30% (rounded up) blow up, the rest are left at half their health or less.
+		static (int Blown, int Hit) BlowRigs(Actor self, Player victim, Player attacker)
+		{
+			var w = self.World;
+			var rigs = w.Actors.Where(a => a.Owner == victim && !a.IsDead && a.IsInWorld && a.Info.Name.StartsWith("oilplatform", StringComparison.Ordinal))
+				.OrderBy(a => a.ActorID).ToList();
+			var blow = (rigs.Count * 30 + 99) / 100;
+			var order = rigs.OrderBy(_ => w.SharedRandom.Next()).ToList();
+			for (var i = 0; i < order.Count; i++)
+			{
+				var rig = order[i];
+				var h = rig.TraitOrDefault<IHealth>();
+				if (h == null)
+					continue;
+				if (i < blow)
+					rig.Kill(attacker.PlayerActor);
+				else if (h.HP > h.MaxHP / 2)
+					rig.InflictDamage(attacker.PlayerActor, new Damage(h.HP - h.MaxHP / 2 + h.MaxHP / 10));
+				else
+					rig.InflictDamage(attacker.PlayerActor, new Damage(h.MaxHP / 10));
+			}
+
+			return (Math.Min(blow, order.Count), Math.Max(0, order.Count - blow));
 		}
 
 		// Sends each ore truck to the map corner farthest from it.

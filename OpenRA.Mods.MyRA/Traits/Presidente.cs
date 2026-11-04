@@ -261,7 +261,8 @@ namespace OpenRA.Mods.MyRA.Traits
 		static readonly HashSet<string> NotFighters = ["harv", "mcv", "mcv.tribal", "e6", "spy", "medi", "mech", "truk", "oiltruck", "supplytruck", "oilhauler", "dog"];
 
 		readonly Player player;
-		int ticks, lastHp = -1, lastAlarm = -10000, lastHunt = -10000;
+		int ticks, lastHp = -1, lastAlarm = -10000, lastHunt = -10000, lastThreat = -100000;
+		Actor lastHolder;
 
 		public PresidenteBotModule(Actor self, PresidenteBotModuleInfo info)
 			: base(info)
@@ -295,12 +296,48 @@ namespace OpenRA.Mods.MyRA.Traits
 			var safe = SafeSpot(w, enemies);
 
 			// Threats: enemy fighters we can see near him, or him getting hurt.
-			var hp = (carrier ?? pres).TraitOrDefault<IHealth>()?.HP ?? 0;
-			var hurt = lastHp >= 0 && hp < lastHp;
+			// (Only compare against the same vehicle/building: getting out of a big one isn't "getting hurt".)
+			var holder = carrier ?? pres;
+			var hp = holder.TraitOrDefault<IHealth>()?.HP ?? 0;
+			var hurt = lastHp >= 0 && holder == lastHolder && hp < lastHp;
 			lastHp = hp;
+			lastHolder = holder;
 			var threats = w.FindActorsInCircle(vip.CenterPosition, Info.ThreatRadius)
 				.Where(a => !a.IsDead && a.IsInWorld && enemies.Contains(a.Owner) && Fighter(a) && a.CanBeViewedByPlayer(player))
 				.ToList();
+
+			// The VIP Bunker: under attack, he shelters there (production freezes); once it's quiet for a minute he comes out.
+			var bunker = w.Actors.FirstOrDefault(a => a.Owner == player && !a.IsDead && a.IsInWorld && a.Info.HasTraitInfo<VipBunkerInfo>());
+			var inBunker = carrier != null && carrier.Info.HasTraitInfo<VipBunkerInfo>();
+			if (threats.Count > 0 || hurt)
+				lastThreat = w.WorldTick;
+			if (inBunker)
+			{
+				if (w.WorldTick - lastThreat > 1500)
+					bot.QueueOrder(new Order("Unload", carrier, false));
+				return;
+			}
+
+			if ((threats.Count > 0 || hurt) && bunker != null)
+			{
+				if (carrier != null && carrier.Info.HasTraitInfo<IMoveInfo>())
+				{
+					// Drive to the bunker, then get out next to it.
+					if ((carrier.Location - bunker.Location).LengthSquared <= 9)
+						bot.QueueOrder(new Order("Unload", carrier, false));
+					else
+						bot.QueueOrder(new Order("Move", carrier, Target.FromActor(bunker), false));
+				}
+				else if (carrier == null)
+				{
+					bot.QueueOrder(new Order("EnterTransport", pres, Target.FromActor(bunker), false));
+					foreach (var g in w.Actors.Where(a => a.Owner == player && a.IsInWorld && !a.IsDead && a.Info.HasTraitInfo<BodyguardInfo>()
+						&& (a.Location - pres.Location).LengthSquared <= 15 * 15))
+						bot.QueueOrder(new Order("EnterTransport", g, Target.FromActor(bunker), true));
+				}
+
+				return;
+			}
 
 			if (threats.Count > 0 || hurt)
 			{

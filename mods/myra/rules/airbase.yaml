@@ -32,3 +32,8 @@ LCS:
 		Spots: -700,0,0
 		DeckHeight: 220
 		InitialAircraft: mh60
+
+# Abandoned fortifications (Island Hopper): neutral walls and guns placed by a map can be claimed by building a base
+# inside them (OpenRA.Mods.MyRA/Traits/AbandonedForts.cs).
+World:
+	AbandonedForts:

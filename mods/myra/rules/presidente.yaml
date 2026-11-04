@@ -73,3 +73,71 @@ BODYGUARD:
 		Image: bodyguard
 	MapEditorData:
 		Categories: System
+
+World:
+	VipLockdown:
+
+Player:
+	PresidenteModePrerequisite:
+
+# VIP Bunker (El Presidente games only): a fortified mountain (4x4 cells) with a tunnel and a blast door. El Presidente
+# and his bodyguards can shelter inside - the door slams shut behind him. It shrugs off a nuke, but while he's in there
+# his side can't build anything and can't load any transports. Select it and unload to bring him back out.
+VIPBUNKER:
+	Inherits: ^Building
+	Buildable:
+		Queue: Defense
+		BuildPaletteOrder: 98
+		Prerequisites: presidentemode, ~techlevel.infonly
+		BuildLimit: 1
+		Description: actor-vipbunker.description
+	Valued:
+		Cost: 2500
+	Tooltip:
+		Name: actor-vipbunker.name
+	Building:
+		Footprint: xxxx xxxx xxxx xxxx
+		Dimensions: 4,4
+	HitShape:
+		Type: Rectangle
+			TopLeft: -2048, -2048
+			BottomRight: 2048, 2048
+	-GivesBuildableArea:
+	Health:
+		HP: 300000
+	Armor:
+		Type: Concrete
+	# Built to take a nuclear blast: 95% of all damage is soaked up.
+	DamageMultiplier@bunker:
+		Modifier: 5
+	RevealsShroud:
+		Range: 6c0
+	Cargo:
+		Types: Infantry
+		MaxWeight: 5
+		AllowedPassengers: presidente, bodyguard
+		EjectOnSell: true
+		EjectOnDeath: true
+		EjectSearchRadius: 3
+		LoadingCondition: loading
+		PassengerConditions:
+			presidente: vipinside
+	WithCargoPipsDecoration:
+		PipCount: 5
+		RequiresSelection: true
+	# The blast door: open, or shut while El Presidente is inside.
+	WithSpriteBody:
+		RequiresCondition: !vipinside
+	WithSpriteBody@closed:
+		Name: closed
+		Sequence: closed
+		RequiresCondition: vipinside
+	WithMakeAnimation:
+		BodyNames: body, closed
+	VipBunker:
+	-MustBeDestroyed:
+	Selectable:
+		Bounds: 4096, 4096
+		DecorationBounds: 4096, 4608, 0, -512
+	RenderSprites:
+		Image: vipbunker

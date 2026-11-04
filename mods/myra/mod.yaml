@@ -340,6 +340,14 @@ ChromeMetrics:
 	myra|metrics.yaml
 
 Fonts:
+	Terminal:
+		Font: myra|bits/FreeMonoBold.ttf
+		Size: 15
+		Ascender: 11
+	TerminalSmall:
+		Font: myra|bits/FreeMonoBold.ttf
+		Size: 12
+		Ascender: 9
 	Tiny:
 		Font: common|FreeSans.ttf
 		Size: 10

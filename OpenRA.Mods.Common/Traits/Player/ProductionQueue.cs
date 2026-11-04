@@ -340,6 +340,21 @@ namespace OpenRA.Mods.Common.Traits
 			Tick(self);
 		}
 
+		IPlayerLockdown[] lockdowns;
+
+		/// <summary>MyRA: production is frozen for this player (e.g. El Presidente is in his bunker).</summary>
+		public bool LockedDown
+		{
+			get
+			{
+				lockdowns ??= Actor.World.WorldActor.TraitsImplementing<IPlayerLockdown>().ToArray();
+				foreach (var l in lockdowns)
+					if (l.BlocksProduction(Actor.Owner))
+						return true;
+				return false;
+			}
+		}
+
 		protected virtual void Tick(Actor self)
 		{
 			// PERF: Avoid LINQ when checking whether all production traits are disabled/paused
@@ -757,6 +772,10 @@ namespace OpenRA.Mods.Common.Traits
 
 		public void Tick(PlayerResources pr)
 		{
+			// MyRA: frozen (e.g. El Presidente is in his bunker).
+			if (Queue.LockedDown)
+				return;
+
 			if (!Started)
 			{
 				var time = Queue.GetBuildTime(ai, bi);
