@@ -212,7 +212,7 @@ namespace OpenRA.Mods.MyRA.Traits
 			return false;
 		}
 
-		static string Name(Actor a) => a.Info.TraitInfoOrDefault<TooltipInfo>() is TooltipInfo t ? FluentProvider.GetMessage(t.Name) : a.Info.Name;
+		static string Name(Actor a) => a.Info.TraitInfos<TooltipInfo>().FirstOrDefault() is TooltipInfo t ? FluentProvider.GetMessage(t.Name) : a.Info.Name;
 
 		/// <summary>Plain-text intel report (for SkyNet), all from this player's own eyes.</summary>
 		public string IntelReport(Func<Player, string> label)

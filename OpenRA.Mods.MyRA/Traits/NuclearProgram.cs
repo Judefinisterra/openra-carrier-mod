@@ -498,7 +498,7 @@ namespace OpenRA.Mods.MyRA.Traits
 					pickup.Dispose();
 					pickup = null;
 					if (self.World.LocalPlayer == self.Owner)
-						TextNotificationsManager.AddSystemLine("Nuclear", $"{(self.Info.TraitInfoOrDefault<TooltipInfo>() is TooltipInfo t ? FluentProvider.GetMessage(t.Name) : self.Info.Name)} is carrying a {warhead.Name}.");
+						TextNotificationsManager.AddSystemLine("Nuclear", $"{(self.Info.TraitInfos<TooltipInfo>().FirstOrDefault() is TooltipInfo t ? FluentProvider.GetMessage(t.Name) : self.Info.Name)} is carrying a {warhead.Name}.");
 				}
 			}
 
@@ -759,7 +759,7 @@ namespace OpenRA.Mods.MyRA.Traits
 
 			var missile = producee.TraitInfoOrDefault<IcbmMissileInfo>();
 			if (missile != null)
-				return silo.Arm(self, missile.Warheads, producee.TraitInfoOrDefault<TooltipInfo>()?.Name);
+				return silo.Arm(self, missile.Warheads, producee.TraitInfos<TooltipInfo>().FirstOrDefault()?.Name);
 
 			if (producee.HasTraitInfo<IcbmChaffInfo>())
 				return silo.AddChaff(self);

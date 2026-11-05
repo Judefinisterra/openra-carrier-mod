@@ -81,7 +81,8 @@ COUPSPY:
 		Description: actor-coupspy.description
 	Valued:
 		Cost: 800
-	Tooltip:
+	# One tooltip only: the spy's DisguiseTooltip already is one, a second Tooltip crashed SkyNet's catalogue.
+	DisguiseTooltip:
 		Name: actor-coupspy.name
 	CoupSpy:
 	RenderSprites:

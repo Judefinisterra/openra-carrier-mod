@@ -989,7 +989,7 @@ namespace OpenRA.Mods.MyRA.Traits
 		// it can't tell humans from computer players and has no reason to treat the other AIs as friends.
 		internal static string Label(Player p) => $"Player {p.World.Players.Where(x => x.Playable).ToList().IndexOf(p) + 1}";
 
-		static string Name(ActorInfo ai) => ai.TraitInfoOrDefault<TooltipInfo>() is TooltipInfo t ? FluentProvider.GetMessage(t.Name) : ai.Name;
+		static string Name(ActorInfo ai) => ai.TraitInfos<TooltipInfo>().FirstOrDefault() is TooltipInfo t ? FluentProvider.GetMessage(t.Name) : ai.Name;
 
 		// --------------------------------------------------------------------------------------------
 		// Reading the answer.
