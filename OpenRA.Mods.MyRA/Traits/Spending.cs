@@ -9,6 +9,7 @@
  */
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenRA.Mods.Common.Traits;
@@ -71,7 +72,11 @@ namespace OpenRA.Mods.MyRA.Traits
 				return;
 
 			var cash = player.PlayerActor.Trait<PlayerResources>().GetCashAndResources();
-			if (cash < Info.RichCash)
+
+			// Scarce/Brutal economy: "rich" means close to the storage cap (money above it would be wasted).
+			var em = player.PlayerActor.TraitOrDefault<EconomyManager>();
+			var rich = em != null && em.Active && em.Capacity > 0 ? Math.Min(Info.RichCash, em.Capacity * 85 / 100) : Info.RichCash;
+			if (cash < rich)
 				return;
 
 			var builder = player.PlayerActor.TraitsImplementing<UnitBuilderBotModule>().FirstOrDefault(m => !m.IsTraitDisabled);

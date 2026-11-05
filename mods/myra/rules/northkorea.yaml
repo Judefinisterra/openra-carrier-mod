@@ -1,0 +1,477 @@
+# ---------------------------------------------------------------------------
+# North Korea - the faction formerly shown as the Hermit Nation (internal id "hermit" is unchanged, so maps,
+# AI settings and saved lobbies keep working). Keeps Cyber Command, cheap spies, Suicide Bombers, Kamikaze
+# Badgers, Truck Bombs and the Psy-Op, and adds:
+#   Hwasong mobile ICBM launcher (a truck; its nuke works exactly like the Typhoon's), Hardened Artillery Site,
+#   Infiltration Tunnel, People's Army conscripts (two per training), An-2 biplane, Trash Balloons, the
+#   Juche Statue, and the "Military First" bonus: army units 15% cheaper, economy buildings 15% dearer,
+#   and power plants that sometimes black out.
+# Traits: OpenRA.Mods.MyRA/Traits/NorthKorea.cs
+# ---------------------------------------------------------------------------
+
+# --- Military First -------------------------------------------------------------------------------
+^Infantry:
+	ProductionCostMultiplier@songun:
+		Multiplier: 85
+		Prerequisites: hermitnation
+^Vehicle:
+	ProductionCostMultiplier@songun:
+		Multiplier: 85
+		Prerequisites: hermitnation
+^Ship:
+	ProductionCostMultiplier@songun:
+		Multiplier: 85
+		Prerequisites: hermitnation
+^Plane:
+	ProductionCostMultiplier@songun:
+		Multiplier: 85
+		Prerequisites: hermitnation
+^Helicopter:
+	ProductionCostMultiplier@songun:
+		Multiplier: 85
+		Prerequisites: hermitnation
+
+PROC:
+	ProductionCostMultiplier@songun:
+		Multiplier: 115
+		Prerequisites: hermitnation
+	# Trash Balloons clog a refinery for a while: ore trucks can't unload there.
+	ExternalCondition@clogged:
+		Condition: clogged
+	DockHost:
+		RequiresCondition: !clogged
+HARV:
+	ProductionCostMultiplier@songun:
+		Multiplier: 115
+		Prerequisites: hermitnation
+SILO:
+	ProductionCostMultiplier@songun:
+		Multiplier: 115
+		Prerequisites: hermitnation
+POWR:
+	ProductionCostMultiplier@songun:
+		Multiplier: 115
+		Prerequisites: hermitnation
+	ExternalCondition@blackout:
+		Condition: blackout
+	PowerMultiplier@blackout:
+		Modifier: 0
+		RequiresCondition: blackout
+APWR:
+	ProductionCostMultiplier@songun:
+		Multiplier: 115
+		Prerequisites: hermitnation
+	ExternalCondition@blackout:
+		Condition: blackout
+	PowerMultiplier@blackout:
+		Modifier: 0
+		RequiresCondition: blackout
+NPP:
+	ProductionCostMultiplier@songun:
+		Multiplier: 115
+		Prerequisites: hermitnation
+	ExternalCondition@blackout:
+		Condition: blackout
+	PowerMultiplier@blackout:
+		Modifier: 0
+		RequiresCondition: blackout
+
+Player:
+	PowerBlackouts:
+		Factions: hermit
+		MinInterval: 3750
+		MaxInterval: 7500
+		Duration: 500
+
+# --- Morale (Juche Statue) and low-flyer spotting --------------------------------------------------
+^Infantry:
+	ExternalCondition@juche:
+		Condition: juche
+	ExternalCondition@demoralized:
+		Condition: demoralized
+	FirepowerMultiplier@juche:
+		Modifier: 125
+		RequiresCondition: juche && !demoralized
+	FirepowerMultiplier@demoralized:
+		Modifier: 70
+		RequiresCondition: demoralized
+	SpeedMultiplier@demoralized:
+		Modifier: 85
+		RequiresCondition: demoralized
+	DetectCloaked@LOWFLYER:
+		DetectionTypes: LowFlyer
+		Range: 3c0
+^Vehicle:
+	ExternalCondition@juche:
+		Condition: juche
+	ExternalCondition@demoralized:
+		Condition: demoralized
+	FirepowerMultiplier@juche:
+		Modifier: 125
+		RequiresCondition: juche && !demoralized
+	FirepowerMultiplier@demoralized:
+		Modifier: 70
+		RequiresCondition: demoralized
+	SpeedMultiplier@demoralized:
+		Modifier: 85
+		RequiresCondition: demoralized
+	DetectCloaked@LOWFLYER:
+		DetectionTypes: LowFlyer
+		Range: 3c0
+^Ship:
+	DetectCloaked@LOWFLYER:
+		DetectionTypes: LowFlyer
+		Range: 3c0
+^Building:
+	DetectCloaked@LOWFLYER:
+		DetectionTypes: LowFlyer
+		Range: 3c0
+^Defense:
+	ExternalCondition@juche:
+		Condition: juche
+	ExternalCondition@demoralized:
+		Condition: demoralized
+	FirepowerMultiplier@juche:
+		Modifier: 125
+		RequiresCondition: juche && !demoralized
+	FirepowerMultiplier@demoralized:
+		Modifier: 70
+		RequiresCondition: demoralized
+
+# --- Hwasong mobile ICBM launcher ------------------------------------------------------------------
+# A truck carrying a ridiculously big missile. SINGLE USE: it charges for 10 minutes (red pip), then Ctrl+click a
+# spot to fire - the Typhoon's blast. Once the missile is gone the truck is empty for good (no reload).
+HWASONG:
+	Inherits: ^Vehicle
+	Buildable:
+		Queue: Vehicle
+		BuildPaletteOrder: 250
+		Prerequisites: ~vehicles.soviet, ~hermitnation, techcenter, ~techlevel.high
+		Description: actor-hwasong.description
+	Valued:
+		Cost: 3000
+	Tooltip:
+		Name: actor-hwasong.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 40000
+	Armor:
+		Type: Light
+	Mobile:
+		Speed: 56
+		TurnSpeed: 8
+	RevealsShroud:
+		Range: 6c0
+	Armament@NUKE:
+		Name: nuke
+		Weapon: HwasongNuke
+		LocalOffset: 0,0,400
+	AttackFrontal:
+		Armaments: nuke
+		FacingTolerance: 512
+		ForceFireIgnoresActors: True
+		TargetFrozenActors: True
+	AmmoPool@NUKE:
+		Name: nuke
+		Armaments: nuke
+		Ammo: 1
+		InitialAmmo: 0
+	ReloadAmmoPool@NUKE:
+		AmmoPool: nuke
+		Delay: 15000
+		RequiresCondition: !launched
+	# Fired once: the missile is gone and never comes back.
+	GrantConditionOnAttack@launched:
+		Condition: launched
+		ArmamentNames: nuke
+		RevokeDelay: 2000000000
+	StopAttackAfterFiring:
+		Armaments: nuke
+	WithFacingSpriteBody:
+		RequiresCondition: !launched
+	WithFacingSpriteBody@empty:
+		Name: empty
+		Sequence: empty
+		RequiresCondition: launched
+	WithAmmoPipsDecoration@NUKE:
+		AmmoPools: nuke
+		PipCount: 1
+		FullSequence: pip-red
+		Position: TopLeft
+		Margin: 4, 3
+		RequiresSelection: false
+	FireWarheadsOnDeath:
+		Weapon: V2Explode
+		EmptyWeapon: V2Explode
+	Selectable:
+		Bounds: 1536, 1536
+		DecorationBounds: 2048, 2048
+	RenderSprites:
+		Image: hwasong
+
+# --- Hardened Artillery Site ---------------------------------------------------------------------------
+# A long-range 170mm gun dug into a hill. Invisible to the enemy until it fires; goes dark again 8 seconds later.
+ARTSITE:
+	Inherits: ^Defense
+	Inherits@AUTOTARGET: ^AutoTargetGround
+	Inherits@shape: ^2x2Shape
+	Inherits@IDISABLE: ^DisableOnLowPowerOrPowerDown
+	Buildable:
+		Queue: Defense
+		BuildPaletteOrder: 141
+		Prerequisites: dome, ~hermitnation, ~techlevel.medium
+		Description: actor-artsite.description
+	Valued:
+		Cost: 2000
+	Tooltip:
+		Name: actor-artsite.name
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+	Health:
+		HP: 120000
+	Armor:
+		Type: Concrete
+	RevealsShroud:
+		Range: 8c0
+	Power:
+		Amount: -50
+	Armament:
+		Weapon: Koksan170
+		LocalOffset: 900,400,200
+		PauseOnCondition: disabled
+	Turreted:
+		TurnSpeed: 512
+		InitialFacing: 384
+	AttackTurreted:
+		PauseOnCondition: disabled
+	Cloak:
+		InitialDelay: 0
+		CloakDelay: 200
+		UncloakOn: Attack, Damage
+		CloakSound: subshow1.aud
+		UncloakSound: subshow1.aud
+	-MustBeDestroyed:
+	Selectable:
+		Bounds: 2048, 2048
+	RenderSprites:
+		Image: artsite
+
+# --- Infiltration Tunnel ----------------------------------------------------------------------------
+# Select it and right-click the ground anywhere to dig a tunnel there (20s + about half a second per cell). Then send
+# infantry into the entrance: they come out at the far end. A new dig replaces the old tunnel.
+NKTUNNEL:
+	Inherits: ^Building
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 140
+		Prerequisites: ~barracks, ~hermitnation, ~techlevel.medium
+		BuildLimit: 2
+		Description: actor-nktunnel.description
+	Valued:
+		Cost: 1500
+	Tooltip:
+		Name: actor-nktunnel.name
+	Building:
+		Footprint: x
+		Dimensions: 1,1
+	-GivesBuildableArea:
+	Health:
+		HP: 60000
+	Armor:
+		Type: Concrete
+	RevealsShroud:
+		Range: 4c0
+	Cargo:
+		Types: Infantry
+		MaxWeight: 30
+		LoadingCondition: loading
+	InfiltrationTunnel:
+		ExitActor: tunnelexit
+		DigTicks: 500
+		TicksPerCell: 12
+	WithCargoPipsDecoration:
+		PipCount: 6
+		RequiresSelection: true
+	-MustBeDestroyed:
+	Selectable:
+		Bounds: 1024, 1024
+	RenderSprites:
+		Image: nktunnel
+
+TUNNELEXIT:
+	Inherits: ^Building
+	Tooltip:
+		Name: actor-tunnelexit.name
+	Building:
+		Footprint: x
+		Dimensions: 1,1
+	-GivesBuildableArea:
+	-MustBeDestroyed:
+	Health:
+		HP: 15000
+	Armor:
+		Type: Concrete
+	RevealsShroud:
+		Range: 4c0
+	Selectable:
+		Bounds: 1024, 1024
+	RenderSprites:
+		Image: tunnelexit
+	MapEditorData:
+		Categories: System
+
+# --- People's Army conscripts --------------------------------------------------------------------------
+CONSCRIPT:
+	Inherits: E1
+	Buildable:
+		BuildPaletteOrder: 4
+		Prerequisites: ~barracks, ~hermitnation
+		Description: actor-conscript.description
+	Valued:
+		Cost: 80
+	Tooltip:
+		Name: actor-conscript.name
+	Health:
+		HP: 3500
+	SpawnTwin:
+		Actor: conscript.twin
+	RenderSprites:
+		Image: e1
+
+CONSCRIPT.TWIN:
+	Inherits: CONSCRIPT
+	-Buildable:
+	-SpawnTwin:
+	Valued:
+		Cost: 40
+
+# --- An-2 biplane + special forces ---------------------------------------------------------------------
+# Slow wooden biplane flying very low: not on radar and invisible to the enemy until something is within 3 cells
+# of it, so SAM sites rarely get a shot. Comes loaded with 6 special forces: right-click anywhere and they jump.
+AN2:
+	Inherits: ^Plane
+	Inherits@CARGOPIPS: ^CargoPips
+	Buildable:
+		Queue: Aircraft
+		BuildAtProductionType: Plane
+		BuildPaletteOrder: 24
+		Prerequisites: ~afld, ~hermitnation, ~techlevel.medium
+		Description: actor-an2.description
+	Valued:
+		Cost: 1400
+	Tooltip:
+		Name: actor-an2.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 9000
+	Armor:
+		Type: Light
+	RevealsShroud:
+		Range: 6c0
+		Type: GroundPosition
+	Aircraft:
+		CruiseAltitude: 900
+		TurnSpeed: 16
+		Speed: 120
+		RepulsionSpeed: 40
+		IdleBehavior: ReturnToBase
+	-AppearsOnRadar:
+	-SpawnActorOnDeath:
+	FireWarheadsOnDeath@AIR:
+		Weapon: UnitExplodePlane
+		RequiresCondition: airborne
+	Cloak@LOWFLYER:
+		DetectionTypes: LowFlyer
+		InitialDelay: 0
+		CloakDelay: 50
+		UncloakOn: Unload, Dock
+	Cargo:
+		Types: Infantry
+		MaxWeight: 6
+		InitialUnits: nksf, nksf, nksf, nksf, nksf, nksf
+	ParaDrop:
+		DropRange: 3c0
+		ChuteSound: chute1.aud
+	ParaDropOnOrder:
+	Rearmable:
+		RearmActors: afld, afld.ukraine
+	Selectable:
+		DecorationBounds: 1536, 1536
+	RenderSprites:
+		Image: an2
+
+NKSF:
+	Inherits: E1
+	-Buildable:
+	Tooltip:
+		Name: actor-nksf.name
+	Valued:
+		Cost: 200
+	Health:
+		HP: 8000
+	Armament@PRIMARY:
+		Weapon: BodyguardSMG
+	Armament@GARRISONED:
+		Weapon: BodyguardSMG
+	RenderSprites:
+		Image: e1
+
+# --- Juche Statue -------------------------------------------------------------------------------------------
+# Troops near it (12 cells) fight 25% harder. If it is destroyed, ALL of its owner's units lose heart for a minute:
+# 30% weaker and 15% slower.
+JUCHE:
+	Inherits: ^Building
+	Inherits@shape: ^2x2Shape
+	Buildable:
+		Queue: Defense
+		BuildPaletteOrder: 142
+		Prerequisites: dome, ~hermitnation
+		BuildLimit: 1
+		Description: actor-juche.description
+	Valued:
+		Cost: 2000
+	Tooltip:
+		Name: actor-juche.name
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+	-GivesBuildableArea:
+	Health:
+		HP: 100000
+	Armor:
+		Type: Concrete
+	RevealsShroud:
+		Range: 6c0
+	ProximityExternalCondition@juche:
+		Condition: juche
+		Range: 12c0
+	WithRangeCircle:
+		Type: Juche
+		Range: 12c0
+		Color: C02020
+	DemoralizeOnDeath:
+		Condition: demoralized
+		Duration: 1500
+	Selectable:
+		Bounds: 2048, 2560, 0, -256
+	RenderSprites:
+		Image: juche
+
+# --- Trash Balloons (support power on the Radar Dome, North Korea only) ---------------------------------------
+DOME:
+	TrashBalloonPower@nk:
+		OrderName: TrashBalloons
+		Prerequisites: hermitnation
+		Icon: trashballoon
+		ChargeInterval: 6000
+		Balloons: 8
+		Name: actor-trashballoon.name
+		Description: actor-trashballoon.description
+		SelectTargetSpeechNotification: SelectTarget
+		SelectTargetTextNotification: notification-select-target
+		Cursor: ability
+		DisplayRadarPing: true
+		SupportPowerPaletteOrder: 61

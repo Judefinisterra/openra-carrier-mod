@@ -61,7 +61,7 @@ SUICIDEBOMBER:
 		Queue: Infantry
 		BuildAtProductionType: Soldier
 		BuildPaletteOrder: 92
-		Prerequisites: ~barracks, ~hermitnation
+		Prerequisites: ~barracks, ~suicidebombers
 		Description: actor-suicidebomber.description
 	-MilitiaUprising:
 	Valued:

@@ -15,6 +15,8 @@ icon:
 		Filename: coup-icon.png
 	stagecoup:
 		Filename: stagecoup-icon.png
+	trashballoon:
+		Filename: trashballoon-icon.png
 	slap:
 		Filename: slap-icon.png
 	opposite:
@@ -45,3 +47,5 @@ icon:
 		Filename: icbm-5-4-icon.png
 	icbm-5-5:
 		Filename: icbm-5-5-icon.png
+	maskirovka:
+		Filename: maskirovka-icon.png

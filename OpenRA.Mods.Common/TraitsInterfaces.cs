@@ -49,6 +49,13 @@ namespace OpenRA.Mods.Common.Traits
 		IEnumerable<IRenderable> RenderAnnotations(WorldRenderer wr, World w, ActorInfo ai, WPos centerPosition);
 	}
 
+	// MyRA: a World trait that can freeze a player's production / transport loading (e.g. El Presidente in his bunker).
+	public interface IPlayerLockdown
+	{
+		bool BlocksProduction(Player player);
+		bool BlocksLoading(Actor transport, Actor passenger);
+	}
+
 	[RequireExplicitImplementation]
 	public interface IBlocksProjectiles
 	{

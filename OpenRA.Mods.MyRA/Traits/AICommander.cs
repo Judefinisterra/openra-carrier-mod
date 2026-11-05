@@ -117,6 +117,14 @@ namespace OpenRA.Mods.MyRA.Traits
 			public string ReasoningEffort { get; set; } = "low";
 			public double SkyNetCallsPerMinute { get; set; } = 2;
 
+			// Each model's free daily token allowance (Groq free plan: 200,000 a day per model). SkyNet paces itself
+			// so this lasts the whole game instead of going offline halfway through.
+			public long DailyTokensPerModel { get; set; } = 200000;
+
+			// A model that hits its daily limit rests at least this long before it's tried again (so the backups are
+			// used in solid stretches instead of flip-flopping every few minutes).
+			public int DailyLimitRestMinutes { get; set; } = 30;
+
 			// Backup models, tried in order when the one before has used up its daily allowance. Leave Endpoint/ApiKey
 			// empty to use the main ones. If not set and the main endpoint is Groq, Groq's other free models are used.
 			public List<Backup> Fallbacks { get; set; }
@@ -140,11 +148,106 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		static List<ModelSlot> slots;
 
+		// Tokens used per model over the last 24 hours, kept in support/ai-usage.json so it carries across games.
+		static class Usage
+		{
+			static readonly object Lock = new();
+			static Dictionary<string, List<long[]>> data;
+			static readonly List<long> Recent = [];
+
+			static string FilePath => Path.Combine(Platform.SupportDir, "ai-usage.json");
+
+			static void Ensure()
+			{
+				if (data != null)
+					return;
+				try
+				{
+					data = File.Exists(FilePath) ? JsonSerializer.Deserialize<Dictionary<string, List<long[]>>>(File.ReadAllText(FilePath)) : null;
+				}
+				catch
+				{
+					data = null;
+				}
+
+				data ??= [];
+			}
+
+			static long Now => DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+			static void Prune()
+			{
+				var cutoff = Now - 86400;
+				foreach (var l in data.Values)
+					l.RemoveAll(e => e[0] < cutoff);
+			}
+
+			static void Save()
+			{
+				try
+				{
+					File.WriteAllText(FilePath, JsonSerializer.Serialize(data));
+				}
+				catch
+				{
+					// Usage tracking must never break the game.
+				}
+			}
+
+			public static void Record(string model, long tokens)
+			{
+				lock (Lock)
+				{
+					Ensure();
+					Prune();
+					if (!data.TryGetValue(model, out var l))
+						data[model] = l = [];
+					l.Add([Now, tokens]);
+					Recent.Add(tokens);
+					if (Recent.Count > 20)
+						Recent.RemoveAt(0);
+					Save();
+				}
+			}
+
+			public static long Last24h(string model)
+			{
+				lock (Lock)
+				{
+					Ensure();
+					var cutoff = Now - 86400;
+					return data.TryGetValue(model, out var l) ? l.Where(e => e[0] >= cutoff).Sum(e => e[1]) : 0;
+				}
+			}
+
+			public static long Average()
+			{
+				lock (Lock)
+					return Recent.Count == 0 ? 2500 : (long)Recent.Average();
+			}
+		}
+
 		/// <summary>The model answering right now (for chat announcements).</summary>
 		public static string ActiveModel { get; private set; }
 
 		/// <summary>Set when every model is out of its daily allowance: when the first one comes back.</summary>
 		public static DateTime AllBlockedUntil { get; private set; } = DateTime.MinValue;
+
+		/// <summary>
+		/// Roughly how many tokens are left today across every model that can still be used (own count of the last
+		/// 24 hours, as the provider's daily limit is a rolling window). Null when unknown (no settings yet).
+		/// </summary>
+		public static long? TokensLeftToday()
+		{
+			var s = settings;
+			if (s == null || slots == null || s.DailyTokensPerModel <= 0)
+				return null;
+			var now = DateTime.UtcNow;
+			return slots.Where(x => !x.Dead).Sum(x => x.BlockedUntil > now ? 0 : Math.Max(0, s.DailyTokensPerModel - Usage.Last24h(x.Model)));
+		}
+
+		/// <summary>Average tokens per call (recent calls), for pacing.</summary>
+		public static long AverageCallTokens => Usage.Average();
 
 		/// <summary>Set when the last call hit a per-minute limit: wait this long, it isn't a failure.</summary>
 		public static TimeSpan RetryAfter { get; private set; }
@@ -493,8 +596,9 @@ namespace OpenRA.Mods.MyRA.Traits
 							return null;
 						}
 
-						// Out of allowance for today: rest this model and try the next one now.
-						slot.BlockedUntil = DateTime.UtcNow + wait;
+						// Out of allowance for today: rest this model (at least DailyLimitRestMinutes) and try the next one now.
+						var rest = TimeSpan.FromMinutes(Math.Max(1, s.DailyLimitRestMinutes));
+						slot.BlockedUntil = DateTime.UtcNow + (wait > rest ? wait : rest);
 						continue;
 					}
 
@@ -522,6 +626,8 @@ namespace OpenRA.Mods.MyRA.Traits
 
 					ActiveModel = slot.Model;
 					using var doc = JsonDocument.Parse(reply.Body);
+					if (doc.RootElement.TryGetProperty("usage", out var usage) && usage.TryGetProperty("total_tokens", out var tt) && tt.TryGetInt64(out var tokens))
+						Usage.Record(slot.Model, tokens);
 					return doc.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
 				}
 				catch (Exception e)
@@ -777,7 +883,7 @@ namespace OpenRA.Mods.MyRA.Traits
 				"iran" => "IRAN (Soviet-based): asymmetric war. Shahed drone swarms and Shahed Launch Trucks against power and refineries, "
 					+ "Missile City volleys on bases, cheap Technicals and rocket technicals for raids, decoy tanks to soak fire, tunnel networks "
 					+ "to move infantry unseen, fast attack boats in swarms, oil fires and militias. Bleed the enemy with constant raids and missiles.",
-				"hermit" => "HERMIT NATION (Soviet-based): fights dirty. Spies to steal money, Cyber Command to hack the richest rival and fake alarms, "
+				"hermit" => "NORTH KOREA (Soviet-based, Military First: army 15% cheaper, economy 15% dearer, power plants black out at times): fights dirty. Hwasong mobile ICBM truck (SINGLE USE nuke: charges 10 min, then force-fire; empty afterwards), Hardened Artillery Site (hidden 24-cell gun), Infiltration Tunnel (dig to a spot near the enemy, infantry pop out there), cheap People's Army conscripts (two per training), An-2 biplanes hidden from SAMs that paradrop special forces, Trash Balloons that clog refineries, Juche Statue (nearby troops fight harder; protect it). Also Spies to steal money, Cyber Command to hack the richest rival and fake alarms, "
 					+ "Psy-Op crowds that turn into suicide bombers, packs of suicide bombers against defences and harvesters, Truck Bombs into "
 					+ "key buildings, kamikaze Badgers that flatten a building. Offer truces, move into position during the peace, then break the "
 					+ "truce with a surprise strike; ask for a truce and pull back when losing.",
@@ -815,6 +921,11 @@ namespace OpenRA.Mods.MyRA.Traits
 			sb.AppendLine($"Game time {sec / 60}m{sec % 60:00}s. You are {Label(player)} ({player.Faction.InternalName}).");
 			sb.AppendLine($"Cash {res.Cash + res.Resources}, power {(power != null ? power.ExcessPower.ToString() : "?")}, {buildings.Count} buildings, "
 				+ $"army value {units.Sum(u => BotHelpers.Cost(u.Info))}.");
+			var econ = player.PlayerActor.TraitOrDefault<EconomyManager>();
+			if (econ != null && econ.Active)
+				sb.AppendLine($"ECONOMY ({EconomyMode.LevelOf(world)}): money is scarce. Storage cap ${econ.Capacity} - income above it is WASTED; "
+					+ "each silo adds $3000 (protect them: a destroyed silo loses the money above the new cap). "
+					+ $"Upkeep ${econ.UpkeepPerMinute}/min on your armed units and defences - don't keep units you don't need. Epic weapons cost more.");
 			sb.AppendLine("Your units: " + string.Join(", ", units.GroupBy(u => u.Info.Name).OrderByDescending(g => g.Count()).Take(12)
 				.Select(g => $"{g.Count()} {Name(g.First().Info)}")));
 			sb.AppendLine("Your army by type: " + string.Join(", ", units.GroupBy(u => Category(u.Info)).Select(g => $"{g.Key} {g.Count()}")));
@@ -993,6 +1104,43 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		// Things done once per answer: diplomacy, production, support powers, trash talk.
 		static readonly HashSet<string> SingleTypes = ["syrd", "spen", "tribaldock", "seaport"];
+
+		/// <summary>
+		/// The most of this item the commander will keep (shipyard/seaport: one; transports, container ships and oil
+		/// platforms: their module's cap), or -1 when there's no cap. Used by SkyNet so it knows - and doesn't fight - the caps.
+		/// </summary>
+		public int CapFor(string item)
+		{
+			if (SingleTypes.Contains(item))
+				return 1;
+			var amphib = player.PlayerActor.TraitsImplementing<AmphibiousAssaultBotModule>().FirstOrDefault(m => !m.IsTraitDisabled);
+			if (amphib != null && amphib.TransportTypes.Contains(item))
+				return amphib.Info.MaxTransports;
+			var merchant = player.PlayerActor.TraitsImplementing<MerchantBotModule>().FirstOrDefault(m => !m.IsTraitDisabled);
+			if (merchant != null && item == merchant.Info.ShipType)
+				return merchant.Info.MaxShips;
+			if (merchant != null && item == merchant.Info.PlatformType)
+				return merchant.Info.MaxPlatforms;
+			return -1;
+		}
+
+		public bool IsTransport(string item) =>
+			player.PlayerActor.TraitsImplementing<AmphibiousAssaultBotModule>().Any(m => !m.IsTraitDisabled && m.TransportTypes.Contains(item));
+
+		/// <summary>Why the commander won't build another of this item right now (a cap is reached), or null.</summary>
+		public string CapReason(string item)
+		{
+			var cap = CapFor(item);
+			if (cap < 0)
+				return null;
+			int have;
+			if (SingleTypes.Contains(item))
+				have = world.Actors.Count(a => a.Owner == player && Alive(a) && SingleTypes.Contains(a.Info.Name) && ShipyardKind(a.Info.Name) == ShipyardKind(item))
+					+ SingleTypes.Where(t => ShipyardKind(t) == ShipyardKind(item)).Sum(t => BotHelpers.Queued(player, t));
+			else
+				have = world.Actors.Count(a => a.Owner == player && Alive(a) && a.Info.Name == item) + BotHelpers.Queued(player, item);
+			return have >= cap ? $"you already have the most allowed ({cap}{(SingleTypes.Contains(item) ? " shipyard of that kind" : "")})" : null;
+		}
 
 		static string ShipyardKind(string type) => type == "seaport" ? "seaport" : "yard";
 

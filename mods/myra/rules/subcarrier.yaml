@@ -94,10 +94,10 @@ SUBCARRIER:
 		ForceFireIgnoresActors: True
 		TargetFrozenActors: True
 	CarrierParent:
-		Actors: SUBCARRIER.HELI, SUBCARRIER.HELI, SUBCARRIER.HELI, SUBCARRIER.HELI
+		Actors: SUBCARRIER.HELI, SUBCARRIER.HELI, SUBCARRIER.HELI
 		LaunchOffset: -600,0,0
 		RearmDelay: 100
-		# Lost helicopters are not replaced for free: build Sub-Carrier Hinds in the
+		# Lost helicopters are not replaced for free: build Sub-Carrier Apaches in the
 		# Aircraft tab and they fly to the nearest sub with an empty slot.
 		Respawns: false
 	ProvidesPrerequisite@SUB:
@@ -147,9 +147,9 @@ SUBCARRIER:
 		Bounds: 1792, 1792
 		DecorationBounds: 2048, 2048
 
-# Hind attack helicopter that lives on the Typhoon Sub-Carrier.
+# Apache attack helicopter that lives on the Typhoon Sub-Carrier (3 per sub).
 SUBCARRIER.HELI:
-	Inherits: HIND
+	Inherits: APACHE
 	# Built at an Airfield or Helipad while you own a Sub-Carrier; flies off to join one.
 	# If every sub is full it waits on the Airfield/Helipad until a slot opens.
 	Buildable:
@@ -158,25 +158,22 @@ SUBCARRIER.HELI:
 		BuildPaletteOrder: 25
 		Prerequisites: subcarrier
 		Description: actor-subcarrier-heli.description
-	# Spare Hinds (no sub with room) land and rearm at an Airfield or Helipad.
+	# Spare Apaches (no sub with room) land and rearm at an Airfield or Helipad.
 	Rearmable:
 		RearmActors: hpad, afld, afld.ukraine
 	-Repairable:
 	-Huntable:
-	-MustBeDestroyed:
 	-EjectOnDeath:
 	-ProducibleWithLevel:
 	-WithProductionIconOverlay:
 	-ActorLostNotification:
 	Valued:
-		Cost: 300
+		Cost: 1500
 	Tooltip:
 		Name: actor-subcarrier-heli.name
 	UpdatesPlayerStatistics:
 		AddToArmyValue: true
-	AmmoPool:
-		Ammo: 12
 	CarrierChild:
 		DockDistance: 1024
 	RenderSprites:
-		Image: hind
+		Image: apache

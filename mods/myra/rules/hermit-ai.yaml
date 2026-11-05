@@ -20,11 +20,11 @@ Player:
 		InititalMinimumRefineryCount: 1
 		AdditionalMinimumRefineryCount: 1
 		PowerTypes: powr,apwr
-		TechTypes: dome, cybercommand, stek, afld, fix
+		TechTypes: dome, cybercommand, stek, afld, fix, juche
 		ProductionTypes: barr,weap,afld
 		NavalProductionTypes: spen
 		NewProductionCashThreshold: 2500
-		DefenseTypes: ftur, tsla
+		DefenseTypes: ftur, tsla, artsite
 		PlaceDefenseTowardsEnemyChance: 70
 		BuildingLimits:
 			barr: 3
@@ -34,6 +34,8 @@ Player:
 			stek: 1
 			fix: 1
 			cybercommand: 1
+			juche: 1
+			artsite: 3
 		BuildingFractions:
 			powr: 12
 			proc: 10
@@ -46,6 +48,8 @@ Player:
 			stek: 3
 			ftur: 6
 			tsla: 4
+			juche: 2
+			artsite: 3
 		BuildingDelays:
 			dome: 2000
 			cybercommand: 1800
@@ -53,6 +57,8 @@ Player:
 			stek: 3000
 			ftur: 2500
 			tsla: 5000
+			juche: 4000
+			artsite: 4500
 	McvExpansionManagerBotModule@hermit:
 		RequiresCondition: enable-hermit-ai
 		McvTypes: mcv
@@ -71,18 +77,19 @@ Player:
 		PreferredTargetTypes: harv, proc, powr, apwr, npp, weap, barr, tent, fact
 		PreferredTargetRadius: 18
 		DefendedTargetPenalty: 2
-		ExcludeFromSquadsTypes: protester, protester.hermit, shahed, harv, mcv, e6, spy.hermit, suicidebomber, badr.kamikaze, badr.troop, lst, oiltruck, oiltanker, containership, supplytruck, u2, badr.bomber, oilhauler, truckbomb
+		ExcludeFromSquadsTypes: protester, protester.hermit, shahed, harv, mcv, e6, spy.hermit, suicidebomber, badr.kamikaze, badr.troop, lst, oiltruck, oiltanker, containership, supplytruck, u2, badr.bomber, oilhauler, truckbomb, an2, hwasong
 		ConstructionYardTypes: fact
 		AirUnitsTypes: mig, yak, heli, hind, mh60
 		AircraftTargetType: AirborneActor
-		ProtectionTypes: harv, mcv, fact, proc, powr, apwr, barr, weap, dome, afld, stek, fix, cybercommand, silo, ftur, tsla
+		ProtectionTypes: harv, mcv, fact, proc, powr, apwr, barr, weap, dome, afld, stek, fix, cybercommand, silo, ftur, tsla, juche, artsite
 		IgnoredEnemyTargetTypes: AirborneActor
 		ProtectUnitScanRadius: 16
 		ProtectionScanRadius: 14
 	UnitBuilderBotModule@hermit:
 		RequiresCondition: enable-hermit-ai
 		UnitsToBuild:
-			e1: 18
+			e1: 8
+			conscript: 20
 			e3: 12
 			suicidebomber: 40
 			spy.hermit: 10
@@ -94,10 +101,12 @@ Player:
 			truckbomb: 12
 			ss: 4
 			dd: 3
+			an2: 3
 		UnitLimits:
 			truckbomb: 6
 			spy.hermit: 4
 			badr.kamikaze: 6
+			an2: 2
 			suicidebomber: 24
 			harv: 8
 	AdaptiveProductionBotModule@hermit:

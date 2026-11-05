@@ -1,0 +1,11 @@
+# MOTHBALLED content: kept in the mod files but switched off. To bring something back, delete its lines here.
+#
+# Tribal Kingdom (mothballed Nov 2026): hidden from the lobby faction list and its "Tribal Warlord AI" bot type is
+# removed, so neither humans, the AI nor SkyNet can pick it. Everything else (units, buildings, Vibranium Dome,
+# tribal AI modules, art, sounds) is still in the files, untouched. Delete this whole block to switch it back on.
+^BaseWorld:
+	Faction@tribal:
+		Selectable: False
+
+Player:
+	-ModularBot@TribalAI:

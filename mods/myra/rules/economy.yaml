@@ -1,0 +1,118 @@
+# Economy lobby option: Classic (exactly as before) / Scarce / Brutal (OpenRA.Mods.MyRA/Traits/Economy.cs).
+# Scarce/Brutal: less income, slow ore regrowth, upkeep on armed units and defences, a storage cap (Construction
+# Yard, refineries and silos - lose a silo and you lose the money above the new cap), and pricier epic stuff.
+
+World:
+	EconomyMode:
+		ScarceIncome: 60
+		BrutalIncome: 40
+		ScarceOil: 40
+		BrutalOil: 25
+
+Player:
+	EconomyPrerequisite:
+	EconomyManager:
+		BaseStorage: 3000
+	EconomyBotModule:
+
+# --- Income ------------------------------------------------------------------------------------------------------
+PROC:
+	GrantConditionOnEconomy:
+	ResourceValueMultiplier@scarce:
+		Modifier: 60
+		RequiresCondition: economy-scarce
+	ResourceValueMultiplier@brutal:
+		Modifier: 40
+		RequiresCondition: economy-brutal
+
+OILB:
+	GrantConditionOnEconomy:
+	CashTricklerMultiplier@scarce:
+		Modifier: 60
+		RequiresCondition: economy-scarce
+	CashTricklerMultiplier@brutal:
+		Modifier: 40
+		RequiresCondition: economy-brutal
+
+# The player-built derrick has no trickle of its own (its Oil Hauler carries oil to a Refinery, scaled in code).
+OILB.PLAYER:
+	-CashTricklerMultiplier@scarce:
+	-CashTricklerMultiplier@brutal:
+
+GOVBUILDING:
+	GrantConditionOnEconomy:
+	CashTricklerMultiplier@scarce:
+		Modifier: 60
+		RequiresCondition: economy-scarce
+	CashTricklerMultiplier@brutal:
+		Modifier: 40
+		RequiresCondition: economy-brutal
+
+# --- Ore regrows slowly (3x slower on Scarce, 5x on Brutal) -------------------------------------------------------
+MINE:
+	GrantConditionOnEconomy:
+	SeedsResource:
+		RequiresCondition: !economy-harsh
+	SeedsResource@scarce:
+		Interval: 225
+		RequiresCondition: economy-scarce
+	SeedsResource@brutal:
+		Interval: 375
+		RequiresCondition: economy-brutal
+
+GMINE:
+	GrantConditionOnEconomy:
+	SeedsResource:
+		RequiresCondition: !economy-harsh
+	SeedsResource@scarce:
+		ResourceType: Gems
+		Interval: 225
+		RequiresCondition: economy-scarce
+	SeedsResource@brutal:
+		ResourceType: Gems
+		Interval: 375
+		RequiresCondition: economy-brutal
+
+# --- The epic stuff costs more (+50% Scarce, +100% Brutal) ---------------------------------------------------------
+^EpicPrice:
+	ProductionCostMultiplier@scarce:
+		Multiplier: 150
+		Prerequisites: economy.scarce
+	ProductionCostMultiplier@brutal:
+		Multiplier: 200
+		Prerequisites: economy.brutal
+
+MSLO:
+	Inherits@EPIC: ^EpicPrice
+IRON:
+	Inherits@EPIC: ^EpicPrice
+PDOX:
+	Inherits@EPIC: ^EpicPrice
+VIBDOME:
+	Inherits@EPIC: ^EpicPrice
+IDOME:
+	Inherits@EPIC: ^EpicPrice
+NIKE:
+	Inherits@EPIC: ^EpicPrice
+HWASONG:
+	Inherits@EPIC: ^EpicPrice
+MISSILECITY:
+	Inherits@EPIC: ^EpicPrice
+CYBERCOMMAND:
+	Inherits@EPIC: ^EpicPrice
+SPIRE:
+	Inherits@EPIC: ^EpicPrice
+CARRIER:
+	Inherits@EPIC: ^EpicPrice
+SUBCARRIER:
+	Inherits@EPIC: ^EpicPrice
+MSUB:
+	Inherits@EPIC: ^EpicPrice
+4TNK:
+	Inherits@EPIC: ^EpicPrice
+DOZER:
+	Inherits@EPIC: ^EpicPrice
+B2:
+	Inherits@EPIC: ^EpicPrice
+AC130:
+	Inherits@EPIC: ^EpicPrice

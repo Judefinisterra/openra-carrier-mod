@@ -178,11 +178,13 @@ namespace OpenRA.Mods.MyRA.Traits
 			// Delivered: pay whoever owns this port, then sail the other way.
 			timer = 0;
 			var receiver = port.Owner;
-			receiver.PlayerActor.Trait<PlayerResources>().GiveCash(info.Payment);
+			var pay = EconomyMode.Scale(self.World, info.Payment);
+			using (OpenRA.Mods.Common.MoneyLedger.Source("trade ships"))
+				receiver.PlayerActor.Trait<PlayerResources>().GiveCash(pay);
 			var pos = port.CenterPosition;
 			var color = receiver.Color;
 			if (self.World.RenderPlayer == null || receiver.IsAlliedWith(self.World.RenderPlayer) || self.Owner.IsAlliedWith(self.World.RenderPlayer))
-				self.World.AddFrameEndTask(w => w.Add(new FloatingText(pos, color, FloatingText.FormatCashTick(info.Payment), 30)));
+				self.World.AddFrameEndTask(w => w.Add(new FloatingText(pos, color, FloatingText.FormatCashTick(pay), 30)));
 
 			outbound = !outbound;
 			port = null;

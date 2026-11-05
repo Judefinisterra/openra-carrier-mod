@@ -38,7 +38,9 @@ namespace OpenRA.Mods.Common.Traits
 		{
 			collector.World.AddFrameEndTask(w =>
 			{
-				var amount = collector.Owner.PlayerActor.Trait<PlayerResources>().ChangeCash(info.Amount);
+				int amount;
+				using (MoneyLedger.Source("crates"))
+					amount = collector.Owner.PlayerActor.Trait<PlayerResources>().ChangeCash(info.Amount);
 
 				if (info.UseCashTick)
 					w.Add(new FloatingText(collector.CenterPosition, collector.OwnerColor(), FloatingText.FormatCashTick(amount), 30));

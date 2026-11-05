@@ -6,3 +6,8 @@ BodyguardSMG:
 	ReloadDelay: 30
 	Range: 5c512
 	Report: gun13.aud
+
+# Bodyguard pistol: Tanya's Colt .45 - one shot drops an infantryman - fired about once a second.
+BodyguardColt:
+	Inherits: Colt45
+	ReloadDelay: 25

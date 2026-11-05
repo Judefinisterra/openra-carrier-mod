@@ -15,10 +15,14 @@ Player:
 	ProvidesPrerequisite@hermitnation:
 		Factions: hermit
 		Prerequisite: hermitnation
-	# Kamikaze Badgers: the Hermit Nation, plus the Hermit AI whatever faction it plays.
+	# Kamikaze Badgers: North Korea and Iran, plus the Hermit AI whatever faction it plays.
 	ProvidesPrerequisite@hermitkamikaze:
-		Factions: hermit
+		Factions: hermit, iran
 		Prerequisite: hermitkamikaze
+	# Suicide Bombers: North Korea (hermit), Iran and Israel.
+	ProvidesPrerequisite@suicidebombers:
+		Factions: hermit, iran, israel
+		Prerequisite: suicidebombers
 	ProvidesPrerequisite@hermitkamikazeai:
 		RequiresCondition: enable-hermit-ai
 		Prerequisite: hermitkamikaze

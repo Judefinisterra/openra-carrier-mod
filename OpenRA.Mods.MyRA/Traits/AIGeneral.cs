@@ -168,7 +168,8 @@ namespace OpenRA.Mods.MyRA.Traits
 			var now = world.WorldTick;
 			foreach (var a in world.Actors)
 			{
-				if (!Alive(a) || !Enemy(a.Owner) || !a.Info.HasTraitInfo<IMoveInfo>() || !a.CanBeViewedByPlayer(player))
+				// Satellites can't be targeted or shot: not worth reporting.
+				if (!Alive(a) || !Enemy(a.Owner) || !a.Info.HasTraitInfo<IMoveInfo>() || a.Info.HasTraitInfo<SatelliteOrbitInfo>() || !a.CanBeViewedByPlayer(player))
 					continue;
 				sightings[a] = (a.CenterPosition, now, a.Info.Name, a.Owner);
 			}

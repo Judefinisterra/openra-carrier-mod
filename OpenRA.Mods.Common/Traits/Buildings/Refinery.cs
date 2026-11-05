@@ -71,10 +71,12 @@ namespace OpenRA.Mods.Common.Traits
 				else
 					value = Math.Min(value, playerResources.ResourceCapacity - playerResources.Resources);
 
-				playerResources.GiveResources(value);
+				using (MoneyLedger.Source(resourceType.ToLowerInvariant()))
+					playerResources.GiveResources(value);
 			}
 			else
-				value = playerResources.ChangeCash(value);
+				using (MoneyLedger.Source(resourceType.ToLowerInvariant()))
+					value = playerResources.ChangeCash(value);
 
 			foreach (var notify in self.World.ActorsWithTrait<INotifyResourceAccepted>())
 			{

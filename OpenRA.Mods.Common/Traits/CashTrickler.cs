@@ -100,7 +100,8 @@ namespace OpenRA.Mods.Common.Traits
 				amount = resources.Resources - initialAmount;
 			}
 			else
-				amount = resources.ChangeCash(amount);
+				using (MoneyLedger.Source(self.Info.Name))
+					amount = resources.ChangeCash(amount);
 
 			if (cloaks.Length != 0 && !cloaks.Any(c => c.IsVisible(self, self.World.RenderPlayer)))
 				return;

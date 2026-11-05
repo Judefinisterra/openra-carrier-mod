@@ -19,6 +19,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using OpenRA.Mods.Common.Traits;
+using OpenRA.Mods.Common.Warheads;
 using OpenRA.Primitives;
 using OpenRA.Traits;
 
@@ -165,19 +166,49 @@ namespace OpenRA.Mods.MyRA.Traits
 			if (inFlight || world.Paused)
 				return;
 
+			// WHEN to take a turn: right away when something happens (attack, lost building, new sighting, chat,
+			// an order only it can sort out, a support power ready), otherwise a quiet check-in every few minutes.
+			// The quiet gap stretches as the day's allowance runs low, so it lasts the whole game. Between turns
+			// its AI layers keep carrying out its last orders.
 			var perMinute = Math.Max(0.5, settings?.SkyNetCallsPerMinute ?? 2);
-			var gap = TimeSpan.FromSeconds(offline ? 60 : 60 / perMinute);
-			// Someone spoke to it: answer within ~8 seconds instead of waiting for the next regular turn.
-			if (heardChat.Count > 0 && !offline)
-				gap = TimeSpan.FromSeconds(Math.Min(gap.TotalSeconds, 8));
-			if (DateTime.UtcNow - lastCall < gap || DateTime.UtcNow < nextAllowed)
+			var fastest = TimeSpan.FromSeconds(60 / perMinute);
+			var (quietTicks, lowBudget) = Pacing();
+			var reason = turn == 0 ? "opening" : UrgentReason();
+			var since = DateTime.UtcNow - lastCall;
+			bool due;
+			if (offline)
+				due = since >= TimeSpan.FromSeconds(60);
+			else if (heardChat.Count > 0)
+			{
+				// Someone spoke to it: answer within ~8 seconds.
+				due = since >= TimeSpan.FromSeconds(8);
+				reason = "chat";
+			}
+			else if (reason != null)
+			{
+				// A new event: as soon as allowed. A fight that's still going on: about once a minute.
+				var wait = lowBudget || reason == "base still under attack" ? TimeSpan.FromSeconds(60) : fastest;
+				due = since >= wait;
+			}
+			else
+			{
+				due = world.WorldTick - lastCallTick >= quietTicks && since >= fastest;
+				reason = "quiet check-in";
+			}
+
+			if (!due || DateTime.UtcNow < nextAllowed)
 				return;
 
 			lastCall = DateTime.UtcNow;
+			lastCallTick = world.WorldTick;
+			TakeSnapshot();
 			inFlight = true;
 			turn++;
 			// The full brief on the first turn and every 10th; a short reminder in between (saves tokens).
 			var system = Brief(turn == 1 || turn % 10 == 0);
+			// Its own faction's unit catalogue: on the first turn and every 20th (it's long).
+			if (turn == 1 || turn % 20 == 0)
+				system += "\n" + Catalogue();
 			// After a per-minute limit, resend the same report (it holds chat and results not yet delivered).
 			var user = retryUser ?? TurnReport();
 			retryUser = null;
@@ -188,7 +219,7 @@ namespace OpenRA.Mods.MyRA.Traits
 				Log("=== BRIEF ===\n" + system);
 			}
 
-			Log($"=== TURN {turn} ===\n" + user);
+			Log($"=== TURN {turn} ({reason}) ===\n" + user);
 
 			var fakeAnswer = fake ? FakeAnswer() : null;
 			Task.Run(async () =>
@@ -210,13 +241,81 @@ namespace OpenRA.Mods.MyRA.Traits
 		}
 
 		// ------------------------------------------------------------------------------------------------
+		// Event-driven turns and pacing.
+		int lastCallTick, snapBuildings, snapEnemyBuildings;
+		bool snapThreat;
+		readonly HashSet<string> seenEnemyTypes = [];
+		readonly HashSet<string> snapReadyPowers = [];
+
+		int OwnBuildings() => world.Actors.Count(a => a.Owner == player && Alive(a) && a.Info.HasTraitInfo<BuildingInfo>());
+
+		int KnownEnemyBuildings() => world.Actors.Count(a => Alive(a) && a.Owner != player && a.Owner.Playable && !player.IsAlliedWith(a.Owner)
+			&& a.Info.HasTraitInfo<BuildingInfo>() && player.Shroud.IsExplored(a.Location));
+
+		IEnumerable<string> VisibleEnemyTypes() => world.Actors.Where(a => Alive(a) && a.Owner != player && a.Owner.Playable && !player.IsAlliedWith(a.Owner)
+			&& a.Info.HasTraitInfo<IMoveInfo>() && !a.Info.HasTraitInfo<SatelliteOrbitInfo>() && a.CanBeViewedByPlayer(player)).Select(a => a.Info.Name).Distinct();
+
+		HashSet<string> ReadyPowers() => player.PlayerActor.TraitOrDefault<SupportPowerManager>()?.Powers.Values.Where(p => p.Ready)
+			.Select(p => p.Key).ToHashSet() ?? [];
+
+		void TakeSnapshot()
+		{
+			snapBuildings = OwnBuildings();
+			snapEnemyBuildings = KnownEnemyBuildings();
+			snapThreat = general.HomeThreatened;
+			seenEnemyTypes.UnionWith(VisibleEnemyTypes());
+			snapReadyPowers.Clear();
+			snapReadyPowers.UnionWith(ReadyPowers());
+			needsModel = false;
+		}
+
+		/// <summary>Something happened since its last turn that it should react to now (or null).</summary>
+		string UrgentReason()
+		{
+			if (general.HomeThreatened)
+				return snapThreat ? "base still under attack" : "base or president attacked";
+			if (OwnBuildings() < snapBuildings)
+				return "lost a building";
+			if (needsModel)
+				return "an order it must decide about";
+			if (VisibleEnemyTypes().Any(t => !seenEnemyTypes.Contains(t)))
+				return "new kind of enemy unit spotted";
+			if (KnownEnemyBuildings() > snapEnemyBuildings)
+				return "new enemy buildings found";
+			if (ReadyPowers().Any(p => !snapReadyPowers.Contains(p)))
+				return "support power ready";
+			return null;
+		}
+
+		/// <summary>
+		/// Quiet check-in gap (game ticks) that makes today's remaining allowance last the game, and whether the budget
+		/// is low (then even urgent turns are spaced out a little).
+		/// </summary>
+		(int Ticks, bool Low) Pacing()
+		{
+			const int Min = 150, Max = 600;
+			var left = AICommanderLink.TokensLeftToday();
+			if (left == null)
+				return (Min * 25, false);
+			var perTurn = Math.Max(500, AICommanderLink.AverageCallTokens);
+			var turnsLeft = left.Value / perTurn;
+			var minutesPlayed = world.WorldTick / 25 / 60;
+			var minutesToGo = Math.Max(30, 90 - minutesPlayed);
+
+			// About a third of the turns go to events; the rest are spread over the quiet time.
+			var quietTurns = Math.Max(1, turnsLeft * 2 / 3);
+			var seconds = Math.Clamp(minutesToGo * 60 / quietTurns, Min, Max);
+			return ((int)seconds * 25, turnsLeft < minutesToGo / 3);
+		}
+
+		// ------------------------------------------------------------------------------------------------
 		// Follow-up on its own orders: every build order is tracked. Each turn SkyNet sees whether it was carried out
 		// and, if not, WHY (stuck behind other items, no money, no power, can't be placed, lost the factory...), so it
 		// can fix the cause: prioritize the item, cancel what's in the way, build power, etc.
 		sealed class OrderRecord
 		{
 			public string Item;
-			public int Baseline, More, Issued, Turn, LastFix;
+			public int Baseline, More, Issued, Turn, LastFix, Bumps;
 		}
 
 		readonly Dictionary<string, OrderRecord> tracked = [];
@@ -288,6 +387,9 @@ namespace OpenRA.Mods.MyRA.Traits
 		readonly List<string> fixes = [];
 		int lastReasoning;
 
+		// Set when the automatic follow-up hit something only SkyNet itself can decide (a cap, a lost factory).
+		bool needsModel;
+
 		// DETERMINISTIC REASONING: the code itself follows up on every order, no model call needed.
 		// Ordered -> is it done? -> if not after 30s, why? -> fix the cause so it gets done faster.
 		void DeterministicReasoning(IBot bot)
@@ -306,14 +408,25 @@ namespace OpenRA.Mods.MyRA.Traits
 				if (holder == null)
 				{
 					var maker = queues.FirstOrDefault(q => q.BuildableItems().Any(b => b.Name == o.Item));
-					if (maker != null)
+					var capped = commander.CapReason(o.Item);
+					if (capped != null)
+					{
+						// A cap stops it (e.g. the transport limit): that's the real reason - don't force it through.
+						tracked.Remove(o.Item);
+						why = capped;
+						needsModel = true;
+					}
+					else if (maker != null)
 					{
 						why = "it wasn't in any queue";
 						fix = "queued it again";
 						bot.QueueOrder(Order.StartProduction(maker.Actor, o.Item, 1));
 					}
 					else
+					{
 						why = "nothing can build it any more (lost the factory or a prerequisite)";
+						needsModel = true;
+					}
 				}
 				else
 				{
@@ -325,10 +438,13 @@ namespace OpenRA.Mods.MyRA.Traits
 						var keep = tracked.Keys.Where(k => k != o.Item).Concat(lowPower ? PowerPlants : []).ToArray();
 						var ahead = items.Take(pos).Where(i => !keep.Contains(i.Item)).GroupBy(i => i.Item).Select(g => $"{g.Count()} {g.Key}").ToList();
 						why = $"it was stuck behind {pos} other item(s): " + string.Join(", ", items.Take(pos).GroupBy(i => i.Item).Select(g => $"{g.Count()} {g.Key}"));
-						if (ahead.Count == 0)
-							continue; // only its own orders / power ahead: it's simply next in line, nothing to fix
+						// Only its own orders / power ahead: it's simply next in line. And after moving it up twice, stop -
+						// other AI modules keep queuing things too, and cancelling them forever helps nobody.
+						if (ahead.Count == 0 || o.Bumps >= 2)
+							continue;
 						else
 						{
+							o.Bumps++;
 							fix = "cancelled " + string.Join(", ", ahead) + " and moved it up";
 							Prioritize(bot, o.Item, keep);
 						}
@@ -354,12 +470,13 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		string OrderStatus()
 		{
-			if (tracked.Count == 0)
+			if (tracked.Count == 0 && fixes.Count == 0)
 				return "";
 			var sb = new StringBuilder();
 			sb.AppendLine("=== YOUR ORDERS: WERE THEY CARRIED OUT? ===");
-			foreach (var f in fixes)
-				sb.AppendLine("- you already auto-fixed: " + f);
+			// What the automatic follow-up already did since last turn, one line per item.
+			foreach (var g in fixes.GroupBy(f => f.Split(' ')[0]))
+				sb.AppendLine($"- auto-fixed {g.Key}" + (g.Count() > 1 ? $" ({g.Count()}x)" : "") + ": " + g.Last()[(g.Key.Length + 1)..]);
 			fixes.Clear();
 			foreach (var o in tracked.Values.OrderBy(o => o.Issued).ToList())
 			{
@@ -379,8 +496,6 @@ namespace OpenRA.Mods.MyRA.Traits
 					tracked.Remove(o.Item);
 			}
 
-			sb.AppendLine("For every NOT DONE order: think about the WHY and fix the cause this turn (prioritize, cancel what's in the way, "
-				+ "build power, rebuild a lost factory, or give up on it). Don't just order it again.");
 			return sb.ToString();
 		}
 
@@ -432,6 +547,117 @@ namespace OpenRA.Mods.MyRA.Traits
 			TextNotificationsManager.AddMissionLine("SkyNet", shown, Color.OrangeRed);
 			Log("OFFLINE: " + why);
 			AICommanderLink.WriteLog("SkyNet offline: " + why);
+		}
+
+		// ------------------------------------------------------------------------------------------------
+		// Its own faction's catalogue: everything it can ever build, what each needs, and how tough/strong it is.
+		string catalogue;
+
+		string Catalogue()
+		{
+			if (catalogue != null)
+				return catalogue;
+
+			var rules = world.Map.Rules;
+			var faction = player.Faction.InternalName;
+			bool ForUs(ProvidesPrerequisiteInfo p) => p.RequiresCondition == null && (p.Factions.Count == 0 || p.Factions.Contains(faction));
+
+			// Which prerequisites this faction can ever have: start with what the player itself provides, then keep
+			// adding whatever becomes buildable (and what those buildings provide) until nothing new appears.
+			var have = new HashSet<string>(rules.Actors[SystemActors.Player].TraitInfos<ProvidesPrerequisiteInfo>().Where(ForUs)
+				.Select(p => p.Prerequisite ?? "player"));
+			var providers = new Dictionary<string, string>();
+			var buildable = new List<ActorInfo>();
+
+			// Plus the construction yard (it comes from the MCV, so it's never "built") and whatever it owns right now.
+			foreach (var start in new[] { "fact" }.Concat(world.Actors.Where(a => a.Owner == player && Alive(a)).Select(a => a.Info.Name)).Distinct())
+			{
+				if (!rules.Actors.TryGetValue(start, out var si))
+					continue;
+				have.Add(start);
+				foreach (var pp in si.TraitInfos<ProvidesPrerequisiteInfo>().Where(ForUs))
+				{
+					have.Add(pp.Prerequisite ?? start);
+					providers.TryAdd(pp.Prerequisite ?? start, start);
+				}
+			}
+			bool Satisfied(string req)
+			{
+				var r = req.TrimStart('~');
+				if (r.StartsWith('!'))
+					return !have.Contains(r[1..].TrimStart('~'));
+				return r.StartsWith("techlevel.", StringComparison.Ordinal) || have.Contains(r);
+			}
+
+			for (var changed = true; changed;)
+			{
+				changed = false;
+				foreach (var ai in rules.Actors.Values)
+				{
+					var b = ai.TraitInfoOrDefault<BuildableInfo>();
+					if (b == null || ai.Name.StartsWith('^') || buildable.Contains(ai) || b.Queue.Count == 0 || !b.Prerequisites.All(Satisfied))
+						continue;
+					buildable.Add(ai);
+					changed = true;
+					foreach (var pp in ai.TraitInfos<ProvidesPrerequisiteInfo>().Where(ForUs))
+					{
+						var name = pp.Prerequisite ?? ai.Name;
+						have.Add(name);
+						providers.TryAdd(name, ai.Name);
+					}
+
+					have.Add(ai.Name);
+				}
+			}
+
+			string Needs(BuildableInfo b) => string.Join(" ", b.Prerequisites.Select(r => r.TrimStart('~'))
+				.Where(r => !r.StartsWith('!') && !r.StartsWith("techlevel.", StringComparison.Ordinal))
+				.Select(r => providers.TryGetValue(r, out var by) ? by : r).Distinct());
+
+			static string Versus(DamageWarhead d)
+			{
+				int V(string t) => d.Versus.TryGetValue(t, out var v) ? v : 100;
+				return $"inf{V("None")} lt{V("Light")} hv{V("Heavy")} wd{V("Wood")} cn{V("Concrete")}";
+			}
+
+			var sb = new StringBuilder();
+			sb.AppendLine("YOUR FACTION'S CATALOGUE (everything you can build once you have its prerequisites). Format: id name $cost [needs] HP armour | "
+				+ "weapon: damage x burst / reload s, range in cells, AA if it can hit aircraft, damage % vs armour (inf=infantry, lt=light, hv=heavy, wd=wood, cn=concrete):");
+			foreach (var g in buildable.GroupBy(a => a.TraitInfo<BuildableInfo>().Queue.First()).OrderBy(g => g.Key))
+			{
+				sb.AppendLine($"[{g.Key}]");
+				foreach (var ai in g.OrderBy(a => a.TraitInfo<BuildableInfo>().BuildPaletteOrder))
+				{
+					var b = ai.TraitInfo<BuildableInfo>();
+					var line = new StringBuilder($"{ai.Name} {Name(ai.Name)} ${BotHelpers.Cost(ai)}");
+					var needs = Needs(b);
+					if (needs.Length > 0)
+						line.Append($" [{needs}]");
+					var hp = ai.TraitInfoOrDefault<IHealthInfo>()?.MaxHP;
+					if (hp != null)
+						line.Append($" HP{hp / 100}");
+					var armor = ai.TraitInfos<ArmorInfo>().FirstOrDefault()?.Type;
+					if (armor != null)
+						line.Append(' ').Append(armor);
+					foreach (var w in ai.TraitInfos<ArmamentInfo>().Select(a => a.WeaponInfo).Where(w => w != null).Distinct().Take(2))
+					{
+						var dmg = w.Warheads.OfType<DamageWarhead>().FirstOrDefault();
+						if (dmg == null)
+							continue;
+						var aa = w.ValidTargets.Contains("Air") || w.ValidTargets.Contains("AirborneActor");
+						line.Append($" | {dmg.Damage / 100}x{w.Burst}/{w.ReloadDelay / 25.0:0.#}s r{w.Range.Length / 1024.0:0.#}{(aa ? " AA" : "")} {Versus(dmg)}");
+					}
+
+					sb.AppendLine(line.ToString());
+				}
+			}
+
+			// The commander's caps, so it doesn't keep asking for more than it may have.
+			var caps = buildable.Select(a => (a.Name, Cap: commander.CapFor(a.Name))).Where(x => x.Cap > 0).ToList();
+			if (caps.Count > 0)
+				sb.AppendLine("LIMITS (orders beyond these are refused): " + string.Join(", ", caps.Select(x => $"{x.Name} max {x.Cap}"))
+					+ " (shipyard/seaport: max 1 of each kind). More transports don't help if you lack troops to fill them.");
+			return catalogue = sb.ToString();
 		}
 
 		// ------------------------------------------------------------------------------------------------
@@ -514,8 +740,49 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		// ------------------------------------------------------------------------------------------------
 		// Each turn: troop status + options (from the commander's report), intel (fog-limited), chat, last results.
+		// Intel lines as last sent, so unchanged ones can be shortened (full list again every 10th turn).
+		readonly Dictionary<string, string> lastIntel = [];
+
+		static readonly System.Text.RegularExpressions.Regex AgoRx = new(@", \d+s ago|\(\d+ cells [a-z]+ of your base\)");
+
+		string TrimIntel(string intel, bool full)
+		{
+			var outLines = new List<string>();
+			foreach (var raw in intel.Split('\n'))
+			{
+				var line = raw.TrimEnd('\r');
+				var cut = line.IndexOf("'s buildings you have found", StringComparison.Ordinal);
+				var pres = line.IndexOf("'s El Presidente: last seen", StringComparison.Ordinal);
+				if (cut < 0 && pres < 0)
+				{
+					outLines.Add(line);
+					continue;
+				}
+
+				var key = cut >= 0 ? line[..cut] + "#b" : line[..pres] + "#p";
+				var norm = AgoRx.Replace(line, "");
+				var same = lastIntel.TryGetValue(key, out var prev) && prev == norm;
+				lastIntel[key] = norm;
+				if (full || !same)
+					outLines.Add(line);
+				else if (cut >= 0)
+				{
+					var n = System.Text.RegularExpressions.Regex.Match(line, @"found \((\d+)").Groups[1].Value;
+					outLines.Add($"{line[..cut]}'s buildings: no change ({n} known).");
+				}
+				else
+				{
+					var m = System.Text.RegularExpressions.Regex.Match(line, @"cell (\d+,\d+)");
+					outLines.Add($"{line[..pres]}'s El Presidente: no new sighting (last at cell {m.Groups[1].Value}).");
+				}
+			}
+
+			return string.Join("\n", outLines).TrimEnd();
+		}
+
 		string TurnReport()
 		{
+			var full = turn == 1 || turn % 10 == 0;
 			var sb = new StringBuilder();
 			sb.AppendLine($"TURN {turn}.");
 			sb.AppendLine("=== YOUR FORCES AND OPTIONS ===");
@@ -524,12 +791,17 @@ namespace OpenRA.Mods.MyRA.Traits
 			var sameLists = lists == lastBuildLists && turn % 10 != 0;
 			lastBuildLists = lists;
 			foreach (var line in report)
+			{
+				// Static lines (the island note) only on full turns.
+				if (!full && line.StartsWith("ISLAND:", StringComparison.Ordinal))
+					continue;
 				if (!sameLists || !line.StartsWith("Can build (", StringComparison.Ordinal))
 					sb.AppendLine(line.TrimEnd('\r'));
+			}
 			if (sameLists && lists.Length > 0)
 				sb.AppendLine("Can build: same as last turn.");
 			sb.AppendLine("=== INTEL (what your side has seen) ===");
-			sb.AppendLine(general.IntelReport(Label));
+			sb.AppendLine(TrimIntel(general.IntelReport(Label), full));
 
 			var mgr = world.WorldActor.TraitOrDefault<PresidenteManager>();
 			if (mgr != null && mgr.Enabled)
@@ -703,14 +975,22 @@ namespace OpenRA.Mods.MyRA.Traits
 							var more = Math.Clamp(count, 1, isBuilding ? 3 : 10);
 							var waiting = BotHelpers.Queued(player, item);
 
+							// The commander's caps (one shipyard, a few transports, ...): say so instead of fighting them.
+							var capped = commander.CapReason(item);
+							var cap = commander.CapFor(item);
+
 							// Buildings are made one at a time: don't pile up a long backlog of the same one.
-							if (isBuilding && waiting >= 2)
+							if (capped != null)
+								rejections.Add($"{item}: {capped}" + (commander.IsTransport(item) ? " - build TROOPS to fill the transports you have instead" : ""));
+							else if (isBuilding && waiting >= 2)
 								rejections.Add($"{item}: {waiting} already waiting to be built");
 							else
 							{
 								if (isBuilding)
 									more = Math.Min(more, 2 - waiting);
 								var have = world.Actors.Count(x => x.Owner == player && Alive(x) && x.Info.Name == item) + waiting;
+								if (cap >= 0)
+									more = Math.Max(1, Math.Min(more, cap - have));
 								build.Add(new Dictionary<string, object> { ["item"] = item, ["count"] = have + more });
 
 								// Track it: the count must reach what we have now + what's already waiting + more.

@@ -158,6 +158,11 @@ Rules:
 	myra|rules/pricing.yaml
 	myra|rules/nuclear.yaml
 	myra|rules/spycenter.yaml
+	myra|rules/maskirovka.yaml
+	myra|rules/northkorea.yaml
+	myra|rules/airbase.yaml
+	myra|rules/economy.yaml
+	myra|rules/mothball.yaml
 
 Sequences:
 	ra|sequences/ships.yaml
@@ -201,6 +206,7 @@ Sequences:
 	myra|sequences/geosat.yaml
 	myra|sequences/nuclear.yaml
 	myra|sequences/spycenter.yaml
+	myra|sequences/northkorea.yaml
 
 TileSets:
 	ra|tilesets/snow.yaml
@@ -313,6 +319,7 @@ Weapons:
 	myra|weapons/yamamoto.yaml
 	myra|weapons/geosat.yaml
 	myra|weapons/nuclear.yaml
+	myra|weapons/northkorea.yaml
 
 Voices:
 	ra|audio/voices.yaml
@@ -352,6 +359,14 @@ ChromeMetrics:
 	myra|metrics.yaml
 
 Fonts:
+	Terminal:
+		Font: myra|bits/FreeMonoBold.ttf
+		Size: 15
+		Ascender: 11
+	TerminalSmall:
+		Font: myra|bits/FreeMonoBold.ttf
+		Size: 12
+		Ascender: 9
 	Tiny:
 		Font: common|FreeSans.ttf
 		Size: 10

@@ -4,12 +4,13 @@ myra-mod-windowtitle = OpenRA - Red Alert (Modded)
 actor-carrier =
     .name = Aircraft Carrier
     .description =
-    Built at the Seaport. Carries 3 F-14 Tomcats that
-    launch against its target, then land to rearm.
-    Lost F-14s are replaced from the Airfield.
-    Also carries up to 50 infantry and vehicles.
-      Strong vs Ground units, Buildings, Aircraft
-      Weak vs Submarines
+    Built at the Seaport. A floating airfield: up to 4
+    F-14s or Harriers land on its deck (select them and
+    right-click the carrier), ride along, and are rearmed
+    and repaired there. Also carries up to 50 infantry and
+    vehicles. Anti-air missiles for self defence.
+      Strong vs Aircraft
+      Weak vs Ships, Submarines
 
 actor-carrier-plane =
     .name = Carrier Bomber
@@ -37,14 +38,14 @@ actor-subcarrier =
     .name = Typhoon Sub-Carrier
     .description =
     Submarine aircraft carrier. Hides underwater when idle.
-    Carries 4 attack helicopters, torpedoes, deck guns and AA.
+    Carries 3 Apache helicopters, torpedoes, deck guns and AA.
     Holds up to 6 infantry or vehicles and can beach to
     unload them. Ctrl+click to launch an Atom Bomb.
       Strong vs Ground units, Buildings, Ships and Submarines
       Weak vs Aircraft
 
 actor-subcarrier-heli =
-    .name = Sub-Carrier Hind
+    .name = Sub-Carrier Apache
     .description =
     Attack helicopter for the Typhoon Sub-Carrier. Flies to the
     nearest of your subs with an empty slot and joins it.
@@ -70,7 +71,7 @@ actor-shahed =
 actor-spire =
     .name = Skywatch Spire
     .description =
-    Observatory tower. Launches 5 satellites that roam the map,
+    Satellite ground station. Launches 5 satellites that roam the map,
     bouncing off its edges and showing your team everything beneath them.
     Each tower adds 5 more.
 
@@ -430,24 +431,28 @@ actor-badrkamikaze =
 ## Cyber Attack
 actor-cyber =
     .name = Cyber Attack
-    .description = Hack an enemy: click near their base. Half of their
-      money is wired to you, their radar goes dark for a minute,
-      and false "base under attack" alarms go off. Their power
-      grid shuts down, their defences turn on their own side for
-      30 seconds, and their ore trucks drive off to the far
-      corners of the map. Recharges every 10 minutes.
+    .description = Hack an enemy: click near their base, then type an
+      exploit in the hacking terminal - steal half their money,
+      black out their radar, kill their power grid, turn their
+      defences on them, scatter their ore trucks, steal their
+      blueprints, or blow up their oil rigs. Recharges every
+      10 minutes.
 
-## Hermit Nation
+## North Korea (internal id: hermit)
 faction-hermit =
-    .name = Hermit Nation
-    .description = Hermit Nation: Sabotage and Lies
-     Cyber Command: hack an enemy (half their money, radar down) every 10 minutes,
-     no Tech Center needed.
-     Cheap spies, Suicide Bombers, Kamikaze Badgers, and a Psy-Op
-     whose protesters turn into suicide bombers.
+    .name = North Korea
+    .description = North Korea: Military First
+     Army units cost 15% less; economy buildings cost 15% more, and power
+     plants sometimes black out.
+     Hwasong mobile ICBM launcher, Hardened Artillery Site, Infiltration
+     Tunnels, People's Army conscripts (two per training), An-2 biplanes with
+     special forces, Trash Balloons and the Juche Statue.
+     Also: Cyber Command (hack an enemy every 10 minutes, no Tech Center
+     needed), cheap spies, Suicide Bombers, Kamikaze Badgers, Truck Bombs and
+     a Psy-Op whose protesters turn into suicide bombers.
 
 bot-hermit-ai =
-    .name = Hermit Leader AI
+    .name = North Korean AI
 
 actor-spyhermit =
     .description = Cheap spy. Sneak into an enemy Refinery or Silo to
@@ -470,7 +475,7 @@ actor-psyop-hermit =
 
 actor-cybercommand =
     .name = Cyber Command
-    .description = Hermit Nation hacker bunker.
+    .description = North Korean hacker bunker.
       Cyber Attack every 10 minutes.
       Maximum 1 can be built.
 
@@ -557,7 +562,8 @@ actor-f14 =
     Swing-wing fighter. Air-to-air missiles, a V2
     rocket for land and sea targets, and a cannon
     when the missiles run out. Send it to a spot and
-    it patrols there. Rearms at Airfields and Carriers.
+    it patrols there. Right-click a Carrier to land on
+    its deck. Rearms at Airfields and Carriers.
       Strong vs Aircraft, Vehicles, Buildings
       Weak vs Anti-air
 
@@ -674,6 +680,8 @@ actor-lcs =
     Deck gun, depth charges, anti-air missiles and
     Tomahawk cruise missiles (40-cell range, one every
     15 seconds). Fires at enemy buildings it can see.
+    Its stern helipad comes with a Black Hawk; any
+    helicopter or Harrier can land there (right-click).
 
 actor-cutter =
     .name = Coast Guard Cutter
@@ -901,6 +909,16 @@ actor-opposite =
 
 notification-opposite-ready = Opposite Day ready.
 
+## Maskirovka
+maskirovka =
+    .name = Maskirovka
+    .description = Russia's answer to Sausage Fingers. Only offered while an enemy
+     has Sausage Fingers charged. Every Russian unit vanishes from that enemy's view
+     (not shown, not on radar, can't be targeted) until they use Sausage Fingers.
+     Buildings stay visible.
+
+notification-maskirovka-ready = Maskirovka available: an enemy has Sausage Fingers charged.
+
 ## Sausage Fingers
 actor-slapshrine =
     .name = Slap Shrine
@@ -992,3 +1010,79 @@ actor-yamamoto =
     secondary turrets cover the shore.
       Strong vs Buildings, Ground units
       Weak vs Submarines, Aircraft
+## North Korea additions
+actor-hwasong =
+    .name = Hwasong ICBM Launcher
+    .description =
+    Mobile launcher with a ridiculously large missile. SINGLE
+    USE: the nuke charges for 10 minutes (red pip), then
+    Ctrl+click a spot to fire - the same blast as the Typhoon's.
+    Range 40 cells. Afterwards the truck is empty for good.
+      Requires a Tech Center
+
+actor-artsite =
+    .name = Hardened Artillery Site
+    .description =
+    170mm gun dug into a hill. Very long range (24 cells).
+    Invisible to the enemy until it fires; goes dark again
+    8 seconds later.
+
+actor-nktunnel =
+    .name = Infiltration Tunnel
+    .description =
+    Select it and right-click the ground anywhere to dig a
+    tunnel there (20 seconds plus about half a second per
+    cell of distance). Then send
+    infantry into the entrance: they come out at the far end.
+
+actor-tunnelexit =
+    .name = Tunnel Exit
+
+actor-conscript =
+    .name = People's Army
+    .description =
+    Cheap, poorly armed conscripts. Each one trained comes
+    with a comrade.
+      Strong vs Infantry
+      Weak vs Vehicles, Aircraft
+
+actor-an2 =
+    .name = An-2 Biplane
+    .description =
+    Slow wooden biplane that flies very low: not on radar and
+    hidden from the enemy until something is within 3 cells.
+    Comes with 6 special forces: right-click anywhere and they
+    parachute out.
+
+actor-nksf =
+    .name = Special Forces
+
+actor-juche =
+    .name = Juche Statue
+    .description =
+    Troops within 12 cells fight 25% harder. If it is
+    destroyed, ALL your units lose heart for a minute
+    (30% weaker, 15% slower).
+      Maximum 1 can be built.
+
+actor-trashballoon =
+    .name = Trash Balloons
+    .description = A flight of balloons drifts from your Radar Dome to the
+      target and drops its junk: light damage, and refineries
+      under it are clogged for 30 seconds.
+
+actor-vipbunker =
+    .name = VIP Bunker
+    .description =
+    El Presidente games only. A fortified mountain with a blast door:
+    El Presidente and his bodyguards can shelter inside, and it
+    survives a nuke. But while he's in there your
+    side can't build anything and no units can board transports.
+    Select it and unload to bring him back out.
+      Maximum 1 can be built.
+
+dropdown-economy =
+    .label = Economy
+    .description = Classic: money as usual.
+      Scarce: less income, ore regrows slowly, upkeep on armies and defences, money capped by your storage (silos add storage - lose a silo, lose the money), epic stuff costs 50% more.
+      Brutal: the same, harsher - income cut 60%, upkeep higher, epic stuff costs double.

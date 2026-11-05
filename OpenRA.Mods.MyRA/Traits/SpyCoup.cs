@@ -270,7 +270,8 @@ namespace OpenRA.Mods.MyRA.Traits
 
 			var armed = w.Actors
 				.Where(a => a.Owner == victim && !a.IsDead && a.IsInWorld && a.OccupiesSpace != null
-					&& a.Info.HasTraitInfo<AttackBaseInfo>() && !a.Info.HasTraitInfo<IcbmSiloInfo>() && !a.Info.HasTraitInfo<NukePowerInfo>())
+					&& a.Info.HasTraitInfo<AttackBaseInfo>() && !a.Info.HasTraitInfo<IcbmSiloInfo>() && !a.Info.HasTraitInfo<NukePowerInfo>()
+					&& !PresidenteManager.IsProtected(a))
 				.ToList();
 			for (var i = armed.Count - 1; i > 0; i--)
 			{
@@ -281,6 +282,7 @@ namespace OpenRA.Mods.MyRA.Traits
 			var coup = new Coup { Attacker = attacker, Victim = victim };
 			coup.Rogues.AddRange(armed.Take((armed.Count * percent + 99) / 100));
 			coups.Add(coup);
+			GameRecorder.Note(attacker, $"COUP in {victim.ResolvedPlayerName.Trim()}'s army: {coup.Rogues.Count}/{armed.Count} units and defences ({percent}%) go rogue");
 
 			// The head of state: El Presidente if the game has one, otherwise one appears in his palace.
 			var manager = w.WorldActor.TraitOrDefault<PresidenteManager>();

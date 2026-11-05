@@ -268,6 +268,10 @@ C130:
 		Types: Infantry, Vehicle
 		MaxWeight: 10
 		AfterUnloadDelay: 10
+		# Destroyed while on the ground: everyone inside gets out alive (a little hurt). Shot down in the air: all lost.
+		EjectOnDeath: true
+		EjectSearchRadius: 3
+		EjectDamagePercent: 25
 	LandOnMove:
 	-SpawnActorOnDeath:
 	FireWarheadsOnDeath@AIR:

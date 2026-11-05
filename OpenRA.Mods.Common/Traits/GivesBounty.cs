@@ -75,7 +75,8 @@ namespace OpenRA.Mods.Common.Traits
 				e.Attacker.World.AddFrameEndTask(
 					w => w.Add(new FloatingText(self.CenterPosition, e.Attacker.OwnerColor(), FloatingText.FormatCashTick(displayedBounty), 30)));
 
-			e.Attacker.Owner.PlayerActor.Trait<PlayerResources>().ChangeCash(GetBountyValue(self));
+			using (MoneyLedger.Source("bounties"))
+				e.Attacker.Owner.PlayerActor.Trait<PlayerResources>().ChangeCash(GetBountyValue(self));
 		}
 
 		void INotifyPassengerEntered.OnPassengerEntered(Actor self, Actor passenger)

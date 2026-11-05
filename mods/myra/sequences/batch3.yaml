@@ -131,6 +131,14 @@ nike:
 		Start: 2
 		Length: 12
 		Tick: 80
+	idle1:
+		Start: 14
+	damaged-idle1:
+		Start: 15
+	idle0:
+		Start: 16
+	damaged-idle0:
+		Start: 17
 	icon:
 		Filename: nike-icon.png
 		Offset: 0,0

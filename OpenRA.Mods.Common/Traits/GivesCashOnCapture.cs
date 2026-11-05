@@ -51,7 +51,9 @@ namespace OpenRA.Mods.Common.Traits
 				return;
 
 			var resources = newOwner.PlayerActor.Trait<PlayerResources>();
-			var amount = resources.ChangeCash(info.Amount);
+			int amount;
+			using (MoneyLedger.Source("capture bonus"))
+				amount = resources.ChangeCash(info.Amount);
 			if (!info.ShowTicks && amount != 0)
 				return;
 
