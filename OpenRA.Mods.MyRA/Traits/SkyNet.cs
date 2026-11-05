@@ -322,7 +322,7 @@ namespace OpenRA.Mods.MyRA.Traits
 
 		int CountOf(string item) => world.Actors.Count(x => x.Owner == player && Alive(x) && x.Info.Name == item);
 
-		string Name(string item) => world.Map.Rules.Actors.TryGetValue(item, out var ai) && ai.TraitInfoOrDefault<TooltipInfo>() is TooltipInfo t
+		string Name(string item) => world.Map.Rules.Actors.TryGetValue(item, out var ai) && ai.TraitInfos<TooltipInfo>().FirstOrDefault() is TooltipInfo t
 			? FluentProvider.GetMessage(t.Name) : item;
 
 		/// <summary>Why hasn't this been built yet? Facts from the production queues, money and power.</summary>
